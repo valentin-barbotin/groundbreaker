@@ -6,6 +6,11 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
+#include "cache.h"
+
+SDL_Window*     g_window = NULL;
+SDL_Renderer*   g_renderer = NULL;
+
 /**
  * Setup SDL libraries
  * @return {void}
@@ -29,42 +34,50 @@ int main(int argc, char **argv)
 {
     unsigned int    windowWidth;
     unsigned int    windowHeight;
-    SDL_Window*     window = NULL;
-    SDL_Renderer*   renderer = NULL;
-    SDL_Surface*    surface = NULL;
-    SDL_Texture*    texture = NULL;
 
     // init SDL
     setupSDL();
     
 
-    windowWidth = 1024;
-    windowHeight = 1024;
+    windowWidth = 256;
+    windowHeight = 205;
 
-    char* windowTitle = "Bandersnatch";
+    const char * windowTitle = "Groundbreaker";
     // Create a resizable window using config's width/heigth
-    window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-	if (!window) {
+    g_window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	if (!g_window) {
 		fprintf(stderr, "Erreur SDL_CreateWindow : %s", SDL_GetError());
 		return -1;
 	}
 
     // Create the renderer for the window
     // SDL_RENDERER_ACCELERATED -> hardware acceleration
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (!renderer) {
+    g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED);
+	if (!g_renderer) {
 		fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
 		return -1;
 	}
 
-    SDL_RaiseWindow(window);
+    SDL_Rect srcrect = {0, 0, 256, 205};
+    SDL_Rect dstrect = {0, 0, 256, 205};
 
-    SDL_RenderPresent(renderer);
+    SDL_Texture* tex = getImage("../ok.png");
+
+    int success = SDL_RenderCopy(g_renderer, tex, &srcrect, &dstrect);
+    if (success != 0) {
+        fprintf(stderr, "Erreur SDL_RenderCopy : %s", SDL_GetError());
+        return -1;
+    }
+
+    SDL_RaiseWindow(g_window);
+
+    SDL_RenderPresent(g_renderer);
 
     int exit = 0;
     SDL_Event event;
     // Main loop
-    while (SDL_WaitEvent(&event), !exit) {
+    // SDL_PollEvent
+    while (SDL_PollEvent(&event), !exit) {
         // Handle window events (resize, close, ...)
         if (event.type == SDL_WINDOWEVENT) {
             // printf("window event = %d\n", event.window.event);
@@ -100,7 +113,7 @@ int main(int argc, char **argv)
         if (exit) break;
     }
 
-    SDL_RenderClear(renderer);
+    SDL_RenderClear(g_renderer);
     SDL_Quit();
 	return EXIT_SUCCESS;
 }
