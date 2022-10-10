@@ -34,7 +34,7 @@ SDL_Texture  *getImage(const char *name) {
     for (size_t i = 0; i < cache->size; i++)
     {
         if (stringIsEqual(cache->images[i].name, name)) {
-            return res;
+            return (cache->images[i].texture);
         }
     }
 
