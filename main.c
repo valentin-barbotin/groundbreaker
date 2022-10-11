@@ -7,9 +7,18 @@
 #include <SDL2_gfxPrimitives.h>
 
 #include "cache.h"
+#include "utils.h"
+#include "font.h"
+#include "timer.h"
+#include "menu.h"
+#include "loop.h"
+
+#define FPS_MAX 60
+#define TICKS_PER_FRAME 1000 / FPS_MAX
 
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
+TTF_Font*       g_font = NULL; 
 
 /**
  * Setup SDL libraries
@@ -39,8 +48,8 @@ int main(int argc, char **argv)
     setupSDL();
     
 
-    windowWidth = 256;
-    windowHeight = 205;
+    windowWidth = 1024;
+    windowHeight = 1024;
 
     const char * windowTitle = "Groundbreaker";
     // Create a resizable window using config's width/heigth
@@ -52,7 +61,7 @@ int main(int argc, char **argv)
 
     // Create the renderer for the window
     // SDL_RENDERER_ACCELERATED -> hardware acceleration
-    g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED);
+    g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (!g_renderer) {
 		fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
 		return -1;
@@ -63,54 +72,67 @@ int main(int argc, char **argv)
 
     SDL_Texture* tex = getImage("../ok.png");
 
-    int success = SDL_RenderCopy(g_renderer, tex, &srcrect, &dstrect);
-    if (success != 0) {
-        fprintf(stderr, "Erreur SDL_RenderCopy : %s", SDL_GetError());
-        return -1;
-    }
+    // window limits, i3
+    SDL_Rect windowLimits = {0, 0, 1024, 1024};
+
+    loadFont("../DejaVuSansMono.ttf", 20);
 
     SDL_RaiseWindow(g_window);
 
     SDL_RenderPresent(g_renderer);
 
-    int exit = 0;
+
+    int running = 1;
     SDL_Event event;
     // Main loop
-    // SDL_PollEvent
-    while (SDL_PollEvent(&event), !exit) {
-        // Handle window events (resize, close, ...)
-        if (event.type == SDL_WINDOWEVENT) {
-            // printf("window event = %d\n", event.window.event);
-            // handleWindowEvent(&event);
-            continue;
-        }
-
-        switch (event.type)
+    while (running)
+    {
+        while (SDL_PollEvent(&event))
         {
-            // Handle a simple click with the mouse
-            case SDL_MOUSEBUTTONUP:
-                puts("Mouse button up");
-                // handleMouseButtonUp(&event);
-            // Handle a key press
-            case SDL_KEYDOWN: {
-                puts("Key down");
-                // handleKeyDown(&event.key);
-                break;
+            // Handle window events (resize, close, ...)
+            if (event.type == SDL_WINDOWEVENT) {
+                // printf("window event = %d\n", event.window.event);
+                // handleWindowEvent(&event);
+                continue;
             }
-            // Handle a key release
-            case SDL_KEYUP: {
-                puts("Key up");
-                // handleKeyUp(&event);
-                break;
+
+            switch (event.type)
+            {
+                // Handle a simple click with the mouse
+                case SDL_MOUSEBUTTONUP:
+                    puts("Mouse button up");
+                    handleMouseButtonUp(&event);
+                    break;
+                // Handle a key press
+                case SDL_KEYDOWN: {
+                    // puts("Key down");
+                    // handleKeyDown(&event.key);
+                    break;
+                }
+                // Handle a key release
+                case SDL_KEYUP: {
+                    // puts("Key up");
+                    // handleKeyUp(&event);
+                    break;
+                }
+                case SDL_QUIT:
+                    puts("Quit");
+                    running = 0;
+                    break;
+                default:
+                    break;
             }
-            case SDL_QUIT:
-                puts("Quit");
-                exit = 1;
-                break;
-            default:
-                break;
         }
-        if (exit) break;
+        SDL_RenderClear(g_renderer);
+
+        pickColor(&windowLimitsColor);
+        SDL_RenderDrawRect(g_renderer, &windowLimits);
+        pickColor(&blackColor);
+
+        if (true) {
+            setupMenu();
+        }
+        SDL_RenderPresent(g_renderer);
     }
 
     SDL_RenderClear(g_renderer);
