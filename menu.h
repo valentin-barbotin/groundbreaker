@@ -10,9 +10,9 @@
  typedef struct     s_menu {
     char    *name;
     char    *buttons[4];
-    void    (*fct[4])(void);
+    void    (*fct[4])();
     struct s_menu  *last;
-    struct s_menu  *next[5];
+    struct s_menu  *next[4];
  }                  t_menu;
 
  void    setupMenu();

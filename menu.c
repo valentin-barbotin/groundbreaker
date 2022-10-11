@@ -6,19 +6,28 @@
 #include "font.h"
 
 SDL_Rect g_buttonsLocation[4];
+t_menu   *g_currentMenu;
+
+
+void test(unsigned int value) {
+    printf("value: %d\n", value);
+}
+
+void test2(unsigned int value) {
+    printf("value2: %d\n", value);
+}
 
 t_menu menuMain = {
     "Main",
-    {"Play", "Settings", "Online", "Exit", NULL},
-    {NULL, NULL, NULL, NULL, NULL},
+    {"Play", "Settings", "Online", "Exit"},
+    {&test, &test2, NULL, NULL},
     NULL,
-    {NULL, NULL, NULL, NULL, NULL}
+    {NULL, NULL, NULL, NULL}
     // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
 };
 
 
 void    setupMenu() {
-    static t_menu   *currentMenu;
     int             op;
     SDL_Texture     *tex;
     SDL_Color       *color;
@@ -28,12 +37,8 @@ void    setupMenu() {
     int             windowWidth;
     int             windowHeight;
 
-    if (currentMenu == NULL) {
-        currentMenu = malloc(sizeof(t_menu));
-        if (currentMenu == NULL) {
-            fprintf(stderr, "Error malloc : %s", TTF_GetError());
-            return;
-        }
+    if (g_currentMenu == NULL) {
+        g_currentMenu = &menuMain;
     }
 
     color = malloc(sizeof(SDL_Color));
@@ -53,7 +58,7 @@ void    setupMenu() {
     color->g = 255;
     color->b = 0;
     color->a = 255;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 4; i++)
     {
         if (menuMain.buttons[i] == NULL) {
             continue;

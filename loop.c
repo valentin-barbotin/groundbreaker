@@ -22,6 +22,22 @@ void handleMouseButtonUp(SDL_Event *event) {
             if (SDL_PointInRect(&click, &button))
             {
                 printf("BUTTON %d CLICKED\n", i);
+
+                // If the button leads to a submenu, open it
+                if (g_currentMenu->next[i] != NULL) {
+                    puts("SUBMENU");
+                    g_currentMenu = g_currentMenu->next[i];
+
+                    setupMenu();
+
+                    // SDL_RenderPresent(g_renderer); //TODO: check
+                    break;
+                }
+
+                if (g_currentMenu->fct[i] != NULL) {
+                    puts("FUNCTION");
+                    g_currentMenu->fct[i](i);
+                }
             }
         }
     }
