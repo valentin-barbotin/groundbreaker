@@ -4,10 +4,12 @@
 #include "utils.h"
 #include "menu.h"
 #include "font.h"
+#include "config.h"
+#include "display.h"
 
 SDL_Rect        g_buttonsLocation[4];
 t_menu          *g_currentMenu;
-extern int      *g_currentState;
+extern int      g_currentState;
 
 
 void test(unsigned int value) {
@@ -18,10 +20,14 @@ void test2(unsigned int value) {
     printf("value2: %d\n", value);
 }
 
+void    exitGame() {
+    g_currentState = GAME_EXIT;
+}
+
 t_menu menuMain = {
     "Main",
     {"Play", "Settings", "Online", "Exit"},
-    {&test, &test2, NULL, NULL},
+    {&test, &test2, NULL, &exitGame},
     NULL,
     {NULL, NULL, NULL, NULL},
     0,
