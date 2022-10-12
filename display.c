@@ -16,6 +16,28 @@ int     setBackgroundColor(const SDL_Color* color) {
     return success;
 }
 
+int     setBackgroundImage(const char *name) {
+    int w;
+    int h;
+    SDL_Rect source = {0, 0, 0, 0};
+    SDL_Rect target = {0, 0, 0, 0};
+
+    SDL_Texture *tex = getImage(name);
+    if (tex == NULL) {
+        return 1;
+    }
+    SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+    source.w = w;
+    source.h = h;
+
+    SDL_GetWindowSize(g_window, &w, &h);
+
+    target.w = w;
+    target.h = h;
+    drawTexture(name, &source, &target);
+    return 0;
+}
+
 /**
  * Take a texture from file and render copy it on the screen without rendering it
  * @param const char* image

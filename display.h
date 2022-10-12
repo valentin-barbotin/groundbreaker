@@ -9,6 +9,7 @@
  extern SDL_Renderer*   g_renderer;
 
  int    setBackgroundColor(const SDL_Color* color);
+ int    setBackgroundImage(const char *name);
  bool   drawTexture(const char* image, const SDL_Rect *srcrect, const SDL_Rect *dstrect) ;
  
 #endif

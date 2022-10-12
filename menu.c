@@ -46,6 +46,14 @@ void    setupMenu() {
         g_currentMenu = &menuMain;
     }
 
+    if (setBackgroundImage("/home/kazuh/Downloads/uwp2625532.jpeg")) {
+        fprintf(stderr, "Error setting background image: %s", SDL_GetError());
+        // if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "An error occured", g_window) != 0) {
+        //     fprintf(stderr, "Error displaying message box: %s", SDL_GetError());
+        // };
+        return;
+    };
+
     selectedColor.r = 255;
     selectedColor.g = 0;
     selectedColor.b = 0;

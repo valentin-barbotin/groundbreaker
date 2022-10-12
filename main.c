@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     windowWidth = 1024;
     windowHeight = 1024;
 
-    const char * windowTitle = "Groundbreaker";
+    const char *windowTitle = "Groundbreaker";
     // Create a resizable window using config's width/heigth
     g_window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (!g_window) {
