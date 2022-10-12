@@ -5,8 +5,9 @@
 #include "menu.h"
 #include "font.h"
 
-SDL_Rect g_buttonsLocation[4];
-t_menu   *g_currentMenu;
+SDL_Rect        g_buttonsLocation[4];
+t_menu          *g_currentMenu;
+extern int      *g_currentState;
 
 
 void test(unsigned int value) {
@@ -22,7 +23,9 @@ t_menu menuMain = {
     {"Play", "Settings", "Online", "Exit"},
     {&test, &test2, NULL, NULL},
     NULL,
-    {NULL, NULL, NULL, NULL}
+    {NULL, NULL, NULL, NULL},
+    0,
+    4
     // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
 };
 
@@ -30,8 +33,10 @@ t_menu menuMain = {
 void    setupMenu() {
     int             op;
     SDL_Texture     *tex;
+    SDL_Color       notSelectedColor;
+    SDL_Color       selectedColor;
     SDL_Color       *color;
-    SDL_Rect        *target;
+    SDL_Rect        target;
     int             textWidth;
     int             textHeight;
     int             windowWidth;
@@ -41,50 +46,49 @@ void    setupMenu() {
         g_currentMenu = &menuMain;
     }
 
-    color = malloc(sizeof(SDL_Color));
-    if (color == NULL) {
-        fprintf(stderr, "Error malloc : %s", TTF_GetError());
-        return;
-    }
+    selectedColor.r = 255;
+    selectedColor.g = 0;
+    selectedColor.b = 0;
+    selectedColor.a = 255;
 
-    target = malloc(sizeof(SDL_Rect));
-    if (target == NULL) {
-        fprintf(stderr, "Error malloc : %s", TTF_GetError());
-        free(color);
-        return;
-    }
+    notSelectedColor.r = 255;
+    notSelectedColor.g = 255;
+    notSelectedColor.b = 255;
+    notSelectedColor.a = 255;
 
-    color->r = 255;
-    color->g = 255;
-    color->b = 0;
-    color->a = 255;
-    for (int i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < g_currentMenu->nbButtons; i++)
     {
-        if (menuMain.buttons[i] == NULL) {
+        unsigned short  j;
+
+        if (g_currentMenu->buttons[i] == NULL) {
             continue;
         }
 
-        tex = getTextureFromString(menuMain.buttons[i], color);
+        j = g_currentMenu->selectedButton;
+
+        if ((g_currentMenu->buttons + j) == (g_currentMenu->buttons + i)) {
+            color = &selectedColor;
+        } else {
+            color = &notSelectedColor;
+        }
+        
+        tex = getTextureFromString(g_currentMenu->buttons[i], color);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
             fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
         }
 
         SDL_GetWindowSize(g_window, &windowWidth, &windowHeight);
-        target->x = windowWidth/2 - textWidth/2;
-        target->y = 100 * i;
-        target->w = 100;
-        target->h = 100;
+        target.x = windowWidth/2 - textWidth/2;
+        target.y = 100 * i;
+        target.w = 100;
+        target.h = 100;
 
-        op = SDL_RenderCopy(g_renderer, tex, NULL, target);
+        op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
         if (op < 0) { //TODO: handle
             fprintf(stderr, "Error SDL_RenderCopy : %s", TTF_GetError());
             break;
         }
-        g_buttonsLocation[i] = *target;
+        g_buttonsLocation[i] = target;
     }
-
-    free(color);
-    free(target);
-
 }

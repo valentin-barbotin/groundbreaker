@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
+#include "config.h"
 #include "cache.h"
 #include "utils.h"
 #include "font.h"
@@ -18,7 +19,8 @@
 
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
-TTF_Font*       g_font = NULL; 
+TTF_Font*       g_font = NULL;
+int             g_currentState;
 
 /**
  * Setup SDL libraries
@@ -31,7 +33,7 @@ void setupSDL() {
 	}
 
     // init sdl2_ttf
-    if(TTF_Init()==-1)
+    if (TTF_Init() == -1)
 	{
         fprintf(stderr, "TTF_Init: %s", TTF_GetError());
 		exit(EXIT_FAILURE);
@@ -44,10 +46,10 @@ int main(int argc, char **argv)
     unsigned int    windowWidth;
     unsigned int    windowHeight;
 
+    g_currentState = GAME_START;
+
     // init SDL
     setupSDL();
-    
-
     windowWidth = 1024;
     windowHeight = 1024;
 
@@ -67,10 +69,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-    SDL_Rect srcrect = {0, 0, 256, 205};
-    SDL_Rect dstrect = {0, 0, 256, 205};
 
-    SDL_Texture* tex = getImage("../ok.png");
 
     // window limits, i3
     SDL_Rect windowLimits = {0, 0, 1024, 1024};
@@ -79,8 +78,11 @@ int main(int argc, char **argv)
 
     SDL_RaiseWindow(g_window);
 
-    SDL_RenderPresent(g_renderer);
+    SDL_Color windowLimitsColor = { 255, 0, 0, 255 };
+    SDL_Color blackColor = { 0, 0, 0, 255 };
 
+
+    g_currentState = GAME_MAINMENU;
 
     int running = 1;
     SDL_Event event;
@@ -99,28 +101,28 @@ int main(int argc, char **argv)
             switch (event.type)
             {
                 // Handle a simple click with the mouse
-                case SDL_MOUSEBUTTONUP:
-                    puts("Mouse button up");
-                    handleMouseButtonUp(&event);
-                    break;
+            case SDL_MOUSEBUTTONUP:
+                puts("Mouse button up");
+                handleMouseButtonUp(&event);
+                break;
                 // Handle a key press
-                case SDL_KEYDOWN: {
-                    // puts("Key down");
-                    // handleKeyDown(&event.key);
-                    break;
-                }
-                // Handle a key release
-                case SDL_KEYUP: {
+            case SDL_KEYDOWN: {
+                // puts("Key down");
+                handleKeyDown(&event.key);
+                break;
+            }
+                            // Handle a key release
+            case SDL_KEYUP: {
                     // puts("Key up");
-                    // handleKeyUp(&event);
-                    break;
-                }
-                case SDL_QUIT:
-                    puts("Quit");
-                    running = 0;
-                    break;
-                default:
-                    break;
+                handleKeyUp(&event);
+                break;
+            }
+            case SDL_QUIT:
+                puts("Quit");
+                running = 0;
+                break;
+            default:
+                break;
             }
         }
         SDL_RenderClear(g_renderer);
@@ -133,9 +135,16 @@ int main(int argc, char **argv)
             setupMenu();
         }
         SDL_RenderPresent(g_renderer);
-    }
+        // No need to render at 1000 fps
+        if (inMainMenu()) {
+            SDL_Delay(100);
+        }
 
+        // Give a way to quit the program and display a custom error
+        if (g_currentState == GAME_EXIT) {
+            running = 0;
+        }
     SDL_RenderClear(g_renderer);
     SDL_Quit();
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

@@ -8,11 +8,13 @@
  extern SDL_Renderer*   g_renderer;
 
  typedef struct     s_menu {
-    char    *name;
-    char    *buttons[4];
-    void    (*fct[4])();
-    struct s_menu  *last;
-    struct s_menu  *next[4];
+    char             *name;
+    char             *buttons[4];
+    void             (*fct[4])();
+    struct s_menu    *parent;
+    struct s_menu    *next[4];
+    unsigned short    selectedButton;
+    unsigned short    nbButtons;
  }                  t_menu;
 
  void    setupMenu();

@@ -14,6 +14,10 @@
  extern SDL_Renderer   *g_renderer;
  extern t_menu         *g_currentMenu;
 
- void   handleMouseButtonUp(SDL_Event *event);
+ bool   inMainMenu();
+ void   makeSelection(unsigned short);
+ void   handleMouseButtonUp(const SDL_Event *event);
+ void   handleKeyDown(const SDL_Event *event);
+ void   handleKeyUp(const SDL_Event *event);
 
 #endif

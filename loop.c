@@ -1,17 +1,42 @@
+#include <math.h>
+
+
+#include "config.h"
 #include "loop.h"
 
-extern SDL_Rect g_buttonsLocation[4];
+extern SDL_Rect         g_buttonsLocation[4];
+extern int              g_currentState; 
+
+bool    inMainMenu() {
+    return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
+}
+
+void    makeSelection(unsigned short index) {
+    if (g_currentMenu->next[index] != NULL) {
+        puts("SUBMENU");
+        g_currentMenu = g_currentMenu->next[index];
+
+        setupMenu();
+
+        // SDL_RenderPresent(g_renderer); //TODO: check
+        return;
+    }
+
+    if (g_currentMenu->fct[index] != NULL) {
+        puts("FUNCTION");
+        g_currentMenu->fct[index](index);
+    }
+}
 
 /**
  * @brief Handle a mouse button up event
  * @param event the event to handle
  * @return void
  */
-void handleMouseButtonUp(SDL_Event *event) {
+void    handleMouseButtonUp(const SDL_Event *event) {
     //loop through buttons
-    if (true) {
-    // if (inMainMenu()) {
-        for (int i = 0; i < 4; ++i) {
+    if (inMainMenu()) {
+        for (unsigned short i = 0; i < g_currentMenu->nbButtons; ++i) {
             // get click position
             int xStart = g_buttonsLocation[i].x;
             int yStart = g_buttonsLocation[i].y;
@@ -21,24 +46,44 @@ void handleMouseButtonUp(SDL_Event *event) {
 
             if (SDL_PointInRect(&click, &button))
             {
-                printf("BUTTON %d CLICKED\n", i);
-
-                // If the button leads to a submenu, open it
-                if (g_currentMenu->next[i] != NULL) {
-                    puts("SUBMENU");
-                    g_currentMenu = g_currentMenu->next[i];
-
-                    setupMenu();
-
-                    // SDL_RenderPresent(g_renderer); //TODO: check
-                    break;
-                }
-
-                if (g_currentMenu->fct[i] != NULL) {
-                    puts("FUNCTION");
-                    g_currentMenu->fct[i](i);
-                }
+                makeSelection(i);
             }
+        }
+    }
+}
+
+void    handleKeyDown(const SDL_Event *event) {
+}
+
+void    handleKeyUp(const SDL_Event *event) {
+    if (inMainMenu()) {
+        short index = -1;
+        switch (event->key.keysym.sym) {
+            case SDLK_ESCAPE:
+                g_currentState = GAME_EXIT;
+                break;
+            case SDLK_RETURN:
+                index = g_currentMenu->selectedButton;
+                makeSelection(index);
+                break;
+            case SDLK_UP:
+                index = (g_currentMenu->selectedButton - 1);
+                if (index < 0) {
+                    index = g_currentMenu->nbButtons - 1;
+                }
+                g_currentMenu->selectedButton = index;
+                printf("UP: %d\n", g_currentMenu->selectedButton);
+                break;
+            case SDLK_DOWN:
+                index = (g_currentMenu->selectedButton + 1);
+                if (index > g_currentMenu->nbButtons) {
+                    index = 0;
+                }
+                g_currentMenu->selectedButton = index;
+                printf("DOWN: %d\n", g_currentMenu->selectedButton);
+                break;
+            default:
+                break;
         }
     }
 }
