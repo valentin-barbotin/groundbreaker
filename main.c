@@ -144,6 +144,7 @@ int main(int argc, char **argv)
         if (g_currentState == GAME_EXIT) {
             running = 0;
         }
+    }
     SDL_RenderClear(g_renderer);
     SDL_Quit();
     return EXIT_SUCCESS;
