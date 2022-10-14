@@ -76,7 +76,7 @@ void    handleKeyUp(const SDL_Event *event) {
                 break;
             case SDLK_DOWN:
                 index = (g_currentMenu->selectedButton + 1);
-                if (index > g_currentMenu->nbButtons) {
+                if (index > g_currentMenu->nbButtons - 1) {
                     index = 0;
                 }
                 g_currentMenu->selectedButton = index;
