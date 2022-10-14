@@ -10,9 +10,11 @@
 #include "cache.h"
 #include "utils.h"
 #include "font.h"
+#include "display.h"
 #include "timer.h"
 #include "menu.h"
 #include "loop.h"
+#include "map.h"
 
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
@@ -21,6 +23,7 @@ SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
 TTF_Font*       g_font = NULL;
 int             g_currentState;
+t_gameConfig    *gameConfig = NULL;
 
 /**
  * Setup SDL libraries
@@ -43,6 +46,13 @@ void setupSDL() {
 // export DISPLAY=:0.0
 int main(int argc, char **argv)
 {
+    t_gameConfig config;
+    gameConfig = &config;
+    if (readConfig(&config)) {
+        fprintf(stderr, "Error reading config file");
+        exit(EXIT_FAILURE);
+    }
+
     unsigned int    windowWidth;
     unsigned int    windowHeight;
 
@@ -50,8 +60,8 @@ int main(int argc, char **argv)
 
     // init SDL
     setupSDL();
-    windowWidth = 1024;
-    windowHeight = 1024;
+    windowWidth = config.video.width;
+    windowHeight = config.video.height;
 
     const char *windowTitle = "Groundbreaker";
     // Create a resizable window using config's width/heigth
@@ -72,7 +82,7 @@ int main(int argc, char **argv)
 
 
     // window limits, i3
-    SDL_Rect windowLimits = {0, 0, 1024, 1024};
+    SDL_Rect windowLimits = {0, 0, windowWidth, windowHeight};
 
     loadFont("../DejaVuSansMono.ttf", 20);
 
@@ -131,9 +141,6 @@ int main(int argc, char **argv)
         SDL_RenderDrawRect(g_renderer, &windowLimits);
         pickColor(&blackColor);
 
-        if (true) {
-            setupMenu();
-        }
         SDL_RenderPresent(g_renderer);
         // No need to render at 1000 fps
         if (inMainMenu()) {

@@ -7,13 +7,16 @@
 #include "config.h"
 #include "display.h"
 
-SDL_Rect        g_buttonsLocation[4];
-t_menu          *g_currentMenu;
-extern int      g_currentState;
+SDL_Rect                g_buttonsLocation[4];
+t_menu                  *g_currentMenu;
+extern int              g_currentState;
+extern t_gameConfig     *gameConfig;
 
 
-void test(unsigned int value) {
+
+void playTest(unsigned int value) {
     printf("value: %d\n", value);
+    g_currentState = GAME_PLAY_PLAYING;
 }
 
 void test2(unsigned int value) {
@@ -27,7 +30,7 @@ void    exitGame() {
 t_menu menuMain = {
     "Main",
     {"Play", "Settings", "Online", "Exit"},
-    {&test, &test2, NULL, &exitGame},
+    {&playTest, &test2, NULL, &exitGame},
     NULL,
     {NULL, NULL, NULL, NULL},
     0,
@@ -92,8 +95,8 @@ void    setupMenu() {
             fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
         }
 
-        SDL_GetWindowSize(g_window, &windowWidth, &windowHeight);
-        target.x = windowWidth/2 - textWidth/2;
+        // SDL_GetWindowSize(g_window, &windowWidth, &windowHeight);
+        target.x = (gameConfig->video.width)/2 - textWidth/2;
         target.y = 100 * i;
         target.w = 100;
         target.h = 100;

@@ -1,6 +1,9 @@
 #include "display.h"
 #include "utils.h"
 #include "cache.h"
+#include "config.h"
+
+extern t_gameConfig    *gameConfig;
 
 /**
  * Clear the background and paint it with given color
@@ -30,10 +33,8 @@ int     setBackgroundImage(const char *name) {
     source.w = w;
     source.h = h;
 
-    SDL_GetWindowSize(g_window, &w, &h);
-
-    target.w = w;
-    target.h = h;
+    target.w = gameConfig->video.width;
+    target.h = gameConfig->video.height;
     drawTexture(name, &source, &target);
     return 0;
 }
