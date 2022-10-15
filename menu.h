@@ -18,5 +18,7 @@
  }                  t_menu;
 
  void    setupMenu();
+ void    drawLobbyMenu();
+ void    setupMenuButtons();
 
 #endif
