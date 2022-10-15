@@ -1,6 +1,5 @@
 #include <math.h>
 
-
 #include "config.h"
 #include "loop.h"
 #include "game.h"
@@ -8,10 +7,7 @@
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
 
-
 bool    inMainMenu() {
-//    if(getGame()) {free(getGame()); }
-
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
@@ -60,13 +56,15 @@ void    handleMouseButtonUp(const SDL_Event *event) {
     }
     else if (inGame()) {
         // TODO: handle game events
-}
+    }
 }
 
 void    handleKeyDown(const SDL_Event *event) {
 }
 
 void    handleKeyUp(const SDL_Event *event) {
+    t_game *game = getGame();
+
     if (inMainMenu()) {
         short index = -1;
         switch (event->key.keysym.sym) {
@@ -98,22 +96,21 @@ void    handleKeyUp(const SDL_Event *event) {
         }
     }
     else if (inGame()) {
-        t_game *game = getGame();
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
                 g_currentState = GAME_MAINMENU;
                 break;
             case SDLK_LEFT:
-                game->x-=1;
+                game->x--;
                 break;
             case SDLK_RIGHT:
-                game->x+=1;
+                game->x++;
                 break;
             case SDLK_UP:
-                game->y-=1;
+                game->y--;
                 break;
             case SDLK_DOWN:
-                game->y+=1;
+                game->y++;
                 break;
             default:
                 break;
@@ -121,5 +118,7 @@ void    handleKeyUp(const SDL_Event *event) {
 
         movePlayer(game, getMap());
 
+
     }
+
 }
