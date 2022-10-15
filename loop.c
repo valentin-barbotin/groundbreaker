@@ -3,12 +3,20 @@
 
 #include "config.h"
 #include "loop.h"
+#include "game.h"
 
 extern SDL_Rect         g_buttonsLocation[4];
-extern int              g_currentState; 
+extern int              g_currentState;
+
 
 bool    inMainMenu() {
+//    if(getGame()) {free(getGame()); }
+
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
+}
+
+bool    inGame() {
+    return (g_currentState >= GAME_PLAY_PLAYING);
 }
 
 void    makeSelection(unsigned short index) {
@@ -50,6 +58,9 @@ void    handleMouseButtonUp(const SDL_Event *event) {
             }
         }
     }
+    else if (inGame()) {
+        // TODO: handle game events
+}
 }
 
 void    handleKeyDown(const SDL_Event *event) {
@@ -85,5 +96,30 @@ void    handleKeyUp(const SDL_Event *event) {
             default:
                 break;
         }
+    }
+    else if (inGame()) {
+        t_game *game = getGame();
+        switch (event->key.keysym.sym) {
+            case SDLK_ESCAPE:
+                g_currentState = GAME_MAINMENU;
+                break;
+            case SDLK_LEFT:
+                game->x-=1;
+                break;
+            case SDLK_RIGHT:
+                game->x+=1;
+                break;
+            case SDLK_UP:
+                game->y-=1;
+                break;
+            case SDLK_DOWN:
+                game->y+=1;
+                break;
+            default:
+                break;
+        }
+
+        movePlayer(game, getMap());
+
     }
 }

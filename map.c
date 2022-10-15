@@ -56,3 +56,14 @@ void    map_print(const t_map *map) {
         printf("\n");
     }
 };
+
+t_map  *getMap() {
+    static t_map *map = NULL;
+
+    if (map == NULL) {
+        map = map_create(10, 10);
+        map_fill(map);
+    }
+
+    return map;
+};
