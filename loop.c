@@ -10,8 +10,6 @@ extern int              g_currentState;
 
 
 bool    inMainMenu() {
-//    if(getGame()) {free(getGame()); }
-
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
@@ -60,7 +58,7 @@ void    handleMouseButtonUp(const SDL_Event *event) {
     }
     else if (inGame()) {
         // TODO: handle game events
-}
+    }
 }
 
 void    handleKeyDown(const SDL_Event *event) {
