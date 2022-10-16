@@ -68,10 +68,6 @@ void movePlayer(t_game *game, t_map *map) {
 
     lastX = game->x;
     lastY = game->y;
-
-    printf("__________debut__________\n");
-    map_print(map);
-    printf("_________fin__________\n");
 }
 
 
