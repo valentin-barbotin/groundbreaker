@@ -143,7 +143,7 @@ int main(int argc, char **argv)
         if (inMainMenu()) {
             // No need to render at 1000 fps
             setupMenu();
-            SDL_Delay(100);
+            SDL_Delay(30);
         }
 
         pickColor(&windowLimitsColor);

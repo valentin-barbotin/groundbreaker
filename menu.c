@@ -80,8 +80,14 @@ void    setupMenu() {
 void    drawLobbyMenu() {
     SDL_Rect    rect;
     SDL_Color   colorWhite = {255, 255, 255, 255};
-    SDL_Color   colorRed = {255, 255, 0, 255};
+    SDL_Color   colorYellow = {255, 255, 0, 255};
+    SDL_Color   colorBlack = {0, 0, 0, 255};
+    SDL_Color   colorBlue = {0, 0, 255, 255};
     int         gap;
+    int         j;
+    short       nbMaps;
+    short       from;
+    short       fromGap;
 
     setBackgroundColor(&colorWhite);
 
@@ -91,26 +97,34 @@ void    drawLobbyMenu() {
     rect.w = gameConfig->video.width;
     rect.h = (int) (gameConfig->video.height * 0.3);
 
-    pickColor(&colorRed);
+    pickColor(&colorYellow);
     SDL_RenderFillRect(g_renderer, &rect);
 
     gap = gameConfig->video.width / 15;
 
-    int nbMaps = 4;
+    // Max maps to display
+    nbMaps = 4;
 
-    for (size_t i = 0; i < nbMaps; i++)
+    for (short i = 0; i < nbMaps; i++) {
+        if ((g_currentMap < (i * nbMaps)) && (g_currentMap >= ((i - 1) * nbMaps))) {
+            fromGap = (i - 1) * nbMaps;
+            j = i - 1; // j is the current page
+        }
+    }
+
+    for (size_t i = fromGap; (i < (nbMaps + fromGap)) && i < g_nbMap; i++)
     {
-        rect.x = (int) (i * gameConfig->video.width / nbMaps) + gap/2;
+        // printf("i: %d j: %d\n", i, j);
+        rect.x = (int) ((i - (nbMaps * j)) * gameConfig->video.width / nbMaps) + gap/2;
         rect.y = (int) (gameConfig->video.height * 0.75);
         rect.w = (gameConfig->video.width / nbMaps) - gap;
         rect.h = (int) (gameConfig->video.height * 0.20);
+        
+        pickColor((i == g_currentMap) ? &colorBlue : &colorBlack);
 
-        pickColor(&colorWhite);
         SDL_RenderFillRect(g_renderer, &rect);
     }
     
-
-
     // SDL_Rect    rect;
     // SDL_Color   color = {255, 255, 255, 255};
     // SDL_Surface *surface;

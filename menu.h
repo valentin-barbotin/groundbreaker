@@ -6,6 +6,8 @@
 
  extern SDL_Window*     g_window;
  extern SDL_Renderer*   g_renderer;
+ extern short           g_currentMap;
+ extern short           g_nbMap;
 
  typedef struct     s_menu {
     char             *name;

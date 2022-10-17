@@ -2,6 +2,7 @@
 
 
 #include "config.h"
+#include "lobby.h"
 #include "loop.h"
 
 extern SDL_Rect         g_buttonsLocation[4];
@@ -81,6 +82,18 @@ void    handleKeyUp(const SDL_Event *event) {
                 }
                 g_currentMenu->selectedButton = index;
                 printf("DOWN: %d\n", g_currentMenu->selectedButton);
+                break;
+            case SDLK_a:
+                if (g_currentState == GAME_MAINMENU_PLAY) {
+                    selectMap(-1);
+                }
+                puts("A");
+                break;
+            case SDLK_e:
+                if (g_currentState == GAME_MAINMENU_PLAY) {
+                    selectMap(1);
+                }
+                puts("E");
                 break;
             default:
                 break;
