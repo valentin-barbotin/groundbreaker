@@ -22,14 +22,16 @@ void game_init (t_game *game) {
     }
 }
 
-int lastX = 0;
-int lastY = 0;
+int lastX, lastY = 0;
 void movePlayer(t_game *game, t_map *map) {
     if (game->x == lastX && game->y == lastY) { return; }
 
     // the old position is now empty
     map->map[lastY][lastX] = 'X';
 
+    map->map[lastY][lastX] = 'X';
+
+    // if player want to go out of the map then we move him at the other side
     if (game->x >= map->width) {
         game->x = 0;
     }else if (game->x < 0) {
@@ -45,13 +47,11 @@ void movePlayer(t_game *game, t_map *map) {
             map->map[game->y][game->x] = 'P';
             break;
         case 'M':
-            game->x = lastX;
-            game->y = lastY;
+            map->map[lastY][lastX] = 'P';
             // TODO : player must plant a bomb to break the wall
             break;
         case 'I':
-            game->x = lastX;
-            game->y = lastY;
+            map->map[lastY][lastX] = 'P';
             // unbreakable wall
             break;
         case 'B':
@@ -66,8 +66,18 @@ void movePlayer(t_game *game, t_map *map) {
             break;
     }
 
-    lastX = game->x;
-    lastY = game->y;
+    // save the last position
+    if (map->map[game->y][game->x] == 'P') {
+        lastX = game->x;
+        lastY = game->y;
+    }else{
+        game->x = lastX;
+        game->y = lastY;
+    }
+
+    printf("______DEBUT_______\n");
+    map_print(map);
+    printf("______FIN______\n");
 }
 
 

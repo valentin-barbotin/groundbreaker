@@ -100,15 +100,19 @@ void    handleKeyUp(const SDL_Event *event) {
             case SDLK_ESCAPE:
                 g_currentState = GAME_MAINMENU;
                 break;
+            case SDLK_q:
             case SDLK_LEFT:
                 game->x--;
                 break;
+            case SDLK_d:
             case SDLK_RIGHT:
                 game->x++;
                 break;
+            case SDLK_z:
             case SDLK_UP:
                 game->y--;
                 break;
+            case SDLK_s:
             case SDLK_DOWN:
                 game->y++;
                 break;

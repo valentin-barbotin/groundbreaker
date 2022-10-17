@@ -63,6 +63,7 @@ t_map  *getMap() {
     if (map == NULL) {
         map = map_create(10, 10);
         map_fill(map);
+        map->map[2][4] = 'M';
     }
 
     return map;
