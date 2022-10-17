@@ -96,9 +96,9 @@ void    drawLobbyMenu() {
             fprintf(stderr, "Error malloc lobby: %s", SDL_GetError());
             return;
         }
-        g_lobby->columns = 0;
-        g_lobby->rows = 0;
-        g_lobby->players = 0;
+        g_lobby->columns = 4;
+        g_lobby->rows = 4;
+        g_lobby->players = 2;
     }
 
     setBackgroundColor(&colorWhite);
