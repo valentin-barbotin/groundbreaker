@@ -9,6 +9,8 @@
 
 SDL_Rect                g_buttonsLocation[4];
 t_menu                  *g_currentMenu;
+t_lobby                 *g_lobby;
+short                   g_currentOption = 0;
 extern int              g_currentState;
 extern t_gameConfig     *gameConfig;
 
@@ -37,7 +39,6 @@ t_menu menuMain = {
     4
     // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
 };
-
 
 void    setupMenu() {
     char            *bg;
@@ -83,11 +84,22 @@ void    drawLobbyMenu() {
     SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlack = {0, 0, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
+    char        buff[7];
     int         gap;
     int         j;
     short       nbMaps;
-    short       from;
     short       fromGap;
+
+    if (g_lobby == NULL) {
+        g_lobby = malloc(sizeof(t_lobby));
+        if (g_lobby == NULL) {
+            fprintf(stderr, "Error malloc lobby: %s", SDL_GetError());
+            return;
+        }
+        g_lobby->columns = 0;
+        g_lobby->rows = 0;
+        g_lobby->players = 0;
+    }
 
     setBackgroundColor(&colorWhite);
 
@@ -112,6 +124,8 @@ void    drawLobbyMenu() {
         }
     }
 
+    pickColor(&colorBlack);
+
     for (size_t i = fromGap; (i < (nbMaps + fromGap)) && i < g_nbMap; i++)
     {
         // printf("i: %d j: %d\n", i, j);
@@ -124,6 +138,21 @@ void    drawLobbyMenu() {
 
         SDL_RenderFillRect(g_renderer, &rect);
     }
+    
+
+    loadFont("../DejaVuSansMono.ttf", 30);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :");
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :");
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Players :");
+
+    sprintf(buff, "%d", g_lobby->rows);
+    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.1, buff);
+
+    sprintf(buff, "%d", g_lobby->columns);
+    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff);
+
+    sprintf(buff, "%d", g_lobby->players);
+    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff);
     
     // SDL_Rect    rect;
     // SDL_Color   color = {255, 255, 255, 255};
@@ -150,6 +179,7 @@ void    drawLobbyMenu() {
 
     // SDL_RenderCopy(g_renderer, texture, NULL, &location);
     // SDL_DestroyTexture(texture);
+    loadFont("../DejaVuSansMono.ttf", 20);
 };
 
 void    setupMenuButtons() {

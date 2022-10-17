@@ -8,6 +8,11 @@
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState; 
 
+/**
+ * @brief Check if we are in the main menu or a sub menu
+ * 
+ * @return bool
+ */
 bool    inMainMenu() {
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
@@ -56,6 +61,7 @@ void    handleMouseButtonUp(const SDL_Event *event) {
 void    handleKeyDown(const SDL_Event *event) {
 }
 
+//TODO: refacto
 void    handleKeyUp(const SDL_Event *event) {
     if (inMainMenu()) {
         short index = -1;
@@ -67,21 +73,118 @@ void    handleKeyUp(const SDL_Event *event) {
                 index = g_currentMenu->selectedButton;
                 makeSelection(index);
                 break;
-            case SDLK_UP:
-                index = (g_currentMenu->selectedButton - 1);
-                if (index < 0) {
-                    index = g_currentMenu->nbButtons - 1;
+            case SDLK_LEFT:
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        switch (g_currentOption)
+                        {
+                            case 0:
+                                g_lobby->rows--;
+                                if (g_lobby->rows < 1) {
+                                    g_lobby->rows = 1;
+                                }
+                                break;
+                            case 1:
+                                g_lobby->columns--;
+                                if (g_lobby->columns < 1) {
+                                    g_lobby->columns = 1;
+                                }
+                                break;
+                            case 2:
+                                g_lobby->players--;
+                                if (g_lobby->players < 2) {
+                                    g_lobby->players = 2;
+                                }
+                                break;
+                            
+                            default:
+                                break;
+                        }
+                        break;
+                    
+                    default:
+                        break;
                 }
-                g_currentMenu->selectedButton = index;
-                printf("UP: %d\n", g_currentMenu->selectedButton);
+
+                break;
+            case SDLK_RIGHT:
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        switch (g_currentOption)
+                        {
+                            case 0:
+                                g_lobby->rows++;
+                                if (g_lobby->rows > 10) {
+                                    g_lobby->rows = 10;
+                                }
+                                break;
+                            case 1:
+                                g_lobby->columns++;
+                                if (g_lobby->columns > 10) {
+                                    g_lobby->columns = 10;
+                                }
+                                break;
+                            case 2:
+                                g_lobby->players++;
+                                if (g_lobby->players > 4) {
+                                    g_lobby->players = 4;
+                                }
+                                break;
+                            
+                            default:
+                                break;
+                        }
+                        break;
+                    
+                    default:
+                        break;
+                }
+                break;
+            case SDLK_UP:
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        index = g_currentOption - 1;
+                        if (index < 0) {
+                            index = 2;
+                        }
+                        g_currentOption = index;
+                        break;
+                    
+                    default:
+                        index = (g_currentMenu->selectedButton - 1);
+                        if (index < 0) {
+                            index = g_currentMenu->nbButtons - 1;
+                        }
+                        g_currentMenu->selectedButton = index;
+                        printf("UP: %d\n", g_currentMenu->selectedButton);
+                        break;
+                }
+
                 break;
             case SDLK_DOWN:
-                index = (g_currentMenu->selectedButton + 1);
-                if (index > g_currentMenu->nbButtons - 1) {
-                    index = 0;
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        index = g_currentOption + 1;
+                        if (index > 2) {
+                            index = 0;
+                        }
+                        g_currentOption = index;
+                        break;
+                    
+                    default:
+                        index = (g_currentMenu->selectedButton + 1);
+                        if (index > g_currentMenu->nbButtons - 1) {
+                            index = 0;
+                        }
+                        g_currentMenu->selectedButton = index;
+                        printf("DOWN: %d\n", g_currentMenu->selectedButton);
+                        break;
                 }
-                g_currentMenu->selectedButton = index;
-                printf("DOWN: %d\n", g_currentMenu->selectedButton);
+
                 break;
             case SDLK_a:
                 if (g_currentState == GAME_MAINMENU_PLAY) {

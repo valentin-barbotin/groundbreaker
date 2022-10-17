@@ -19,6 +19,12 @@
     unsigned short    nbButtons;
  }                  t_menu;
 
+ typedef struct     s_lobby {
+    unsigned short    rows;
+    unsigned short    columns;
+    unsigned short    players;
+ }                  t_lobby;
+
  void    setupMenu();
  void    drawLobbyMenu();
  void    setupMenuButtons();
