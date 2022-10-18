@@ -6,6 +6,7 @@
 #include "font.h"
 #include "config.h"
 #include "display.h"
+#include "map.h"
 
 SDL_Rect                g_buttonsLocation[4];
 t_menu                  *g_currentMenu;
@@ -15,8 +16,9 @@ extern t_gameConfig     *gameConfig;
 
 
 
-void playTest(unsigned int value) {
+void openLobby(unsigned int value) {
     printf("value: %d\n", value);
+    getMaps();
     g_currentState = GAME_MAINMENU_PLAY;
 }
 
@@ -31,7 +33,7 @@ void    exitGame() {
 t_menu menuMain = {
     "Main",
     {"Play", "Settings", "Online", "Exit"},
-    {&playTest, &test2, NULL, &exitGame},
+    {&openLobby, &test2, NULL, &exitGame},
     NULL,
     {NULL, NULL, NULL, NULL},
     0,
@@ -152,6 +154,10 @@ void    drawLobbyMenu() {
         SDL_RenderFillRect(g_renderer, &rect);
         sprintf(buff, "%lu", i + 1);
         drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true);
+    }
+
+    if (g_nbMap == 0) {
+        drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true);
     }
 
     // tex = getTextureFromString("Lines :", &colorBlack);

@@ -15,5 +15,6 @@
  void    map_fill(const t_map *map);
  void    map_destroy(t_map *map);
  void    map_print(const t_map *map);
+ void    getMaps();
 
 #endif

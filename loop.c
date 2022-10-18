@@ -67,7 +67,11 @@ void    handleKeyUp(const SDL_Event *event) {
         short index = -1;
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
-                g_currentState = GAME_EXIT;
+                if (g_currentState == GAME_MAINMENU_PLAY) {
+                    g_currentState = GAME_MAINMENU;
+                } else {
+                    g_currentState = GAME_EXIT;
+                }
                 break;
             case SDLK_RETURN:
                 switch (g_currentState)

@@ -8,6 +8,8 @@
 
  #include "map.h"
 
+ extern short       g_nbMap;
+
  typedef struct     s_lobby {
     unsigned short    rows;
     unsigned short    columns;
