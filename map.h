@@ -5,10 +5,11 @@
 
  typedef struct     s_map
  {
-      int         width;
-      int         height;
-      char        **map;
-      bool        selected;
+     unsigned short     width;
+     unsigned short     height;
+     unsigned short     players;
+     char               **map;
+     bool               selected;
  }                  t_map;
 
  typedef enum    e_type

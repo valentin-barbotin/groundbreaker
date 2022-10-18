@@ -3,6 +3,7 @@
 #include "config.h"
 #include "lobby.h"
 #include "loop.h"
+#include "map.h"
 #include "game.h"
 
 extern SDL_Rect         g_buttonsLocation[4];
@@ -100,7 +101,10 @@ void    handleKeyUp(const SDL_Event *event) {
                 {
                     case GAME_MAINMENU_PLAY:
                         printf("create map with %d players, %d cols, %d rows\n", g_lobby->players, g_lobby->columns, g_lobby->rows);
-                        //TODO: create map
+                        const t_map *map = map_create(g_lobby->columns, g_lobby->rows, g_lobby->players);
+                        map_fill(map);
+                        saveMap(map);
+                        getMaps();
                         break;
                     
                     default:

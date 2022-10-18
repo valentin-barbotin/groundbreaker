@@ -1,17 +1,25 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <string.h>
 
 #include "map.h"
+#include "utils.h"
 
 short       g_nbMap = 0;
 
 void    getMaps() {
-    struct dirent *files;
-    DIR *dir;
+    struct dirent   *files;
+    DIR             *dir;
+    FILE            *fd;
+    t_map           *mapfd;
+    t_map           *map;
+    char            *buff;
+    char            **grid;
+    unsigned short  w;
+    unsigned short  h;
 
     g_nbMap = 0;
-
     dir = opendir("maps");
     if (dir == NULL) {
         dir = opendir("../maps");
@@ -23,15 +31,85 @@ void    getMaps() {
 
     while ((files = readdir(dir)) != NULL) {
         if (files->d_type == DT_REG) { // regular file
-            printf("File: %s\n", files->d_name);
+            if (files->d_name[0] == '.') continue;
+
+            buff = malloc(sizeof(char) * (strlen(files->d_name) + 1));
+            sprintf(buff, "maps/%s", files->d_name);
+            
+            fd = fopen(buff, "rb");
+            if (fd == NULL) {
+                sprintf(buff, "../maps/%s", files->d_name);
+                fd = fopen(buff, "rb");
+                if (fd == NULL) {
+                    printf("Error: Could not open file %s", files->d_name);
+                    exit(1);
+                }
+            }
+            free(buff);
+
+            mapfd = malloc(sizeof(t_map));
+            if (mapfd == NULL) {
+                fprintf(stderr, "Error malloc map: %s", SDL_GetError());
+                exit(1);
+            }
+            fread(mapfd, sizeof(t_map), 1, fd);
+            w = mapfd->width;
+            h = mapfd->height;
+            free(mapfd);
+
+            map = map_create(w, h, 0);
+            if (map == NULL) {
+                fprintf(stderr, "Error malloc map: %s", SDL_GetError());
+                exit(1);
+            }
+            grid = map->map;
+
+            rewind(fd);
+            fread(map, sizeof(t_map), 1, fd);
+            map->map = grid;
+            for (int i = 0; i < map->height; i++) {
+                fread(map->map[i], sizeof(char), map->width, fd);
+            }
+
             g_nbMap++;
+            fclose(fd);
+            free(map);
         }
     }
-
-    closedir(dir);
 }
 
-t_map   *map_create(int width, int height) {
+void    saveMap(const t_map *map) {
+    FILE    *fd;
+    char    buff[50];
+    char    *name;
+
+    name = randomString(20);
+    if (name == NULL) {
+        perror("Error randomString");
+        exit(1);
+    }
+
+    sprintf(buff, "maps/%s.bin", name);
+
+    fd = fopen(buff, "wb");
+    if (fd == NULL) {
+        sprintf(buff, "../maps/%s.bin", name);
+        fd = fopen(buff, "wb");
+        if (fd == NULL) {
+            printf("Error: Could not open maps directory\n");
+            exit(1);
+        }
+    }
+    free(name);
+
+    fwrite(map, sizeof(t_map), 1, fd);
+    for (int i = 0; i < map->height; i++) {
+        fwrite(map->map[i], sizeof(char), map->width, fd);
+    }
+    fclose(fd);
+}
+
+t_map   *map_create(unsigned short width, unsigned short height, unsigned short players) {
     t_map   *map;
 
     map = malloc(sizeof(t_map));

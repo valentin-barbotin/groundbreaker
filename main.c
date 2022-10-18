@@ -52,6 +52,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error reading config file");
         exit(EXIT_FAILURE);
     }
+    srand(time(NULL));
 
     unsigned int    windowWidth;
     unsigned int    windowHeight;

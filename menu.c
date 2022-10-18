@@ -86,6 +86,7 @@ void    drawLobbyMenu() {
     SDL_Color   colorBlack = {0, 0, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
     SDL_Color   colorRed = {255, 0, 0, 255};
+    const t_map *map;
     char        buff[7];
     int         gap;
     short       j;

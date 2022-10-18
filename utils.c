@@ -19,6 +19,23 @@ void removeLineFeed(char* str) {
     str[strcspn(str, "\n")] = '\0';
 }
 
+char   *randomString(unsigned short size) {
+    char          *str;
+    char          *charset;
+
+    str = malloc(sizeof(char) * size + 1);
+    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    if (str) {
+        for (unsigned short i = 0; i < size; i++) {
+            int key = rand() % (int) (strlen(charset) - 1);
+            str[i] = charset[key];
+        }
+        str[size] = '\0';
+    }
+    return str;
+}
+
 // https://theartincode.stanis.me/008-djb2/
 /**
  * Generate an "hash" of numbers from a string
