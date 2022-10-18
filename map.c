@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "map.h"
+#include "utils.h"
 
 short       g_nbMap = 0;
 
@@ -78,16 +79,28 @@ void    getMaps() {
 }
 
 void    saveMap(const t_map *map) {
-    FILE *fd;
+    FILE    *fd;
+    char    buff[50];
+    char    *name;
 
-    fd = fopen("maps/test.bin", "wb");
+    name = randomString(20);
+    if (name == NULL) {
+        perror("Error randomString");
+        exit(1);
+    }
+
+    sprintf(buff, "maps/%s.bin", name);
+
+    fd = fopen(buff, "wb");
     if (fd == NULL) {
-        fd = fopen("../maps/test.bin", "wb");
+        sprintf(buff, "../maps/%s.bin", name);
+        fd = fopen(buff, "wb");
         if (fd == NULL) {
             printf("Error: Could not open maps directory\n");
             exit(1);
         }
     }
+    free(name);
 
     fwrite(map, sizeof(t_map), 1, fd);
     for (int i = 0; i < map->height; i++) {

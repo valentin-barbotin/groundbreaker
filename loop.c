@@ -96,6 +96,7 @@ void    handleKeyUp(const SDL_Event *event) {
                         const t_map *map = map_create(g_lobby->columns, g_lobby->rows, g_lobby->players);
                         map_fill(map);
                         saveMap(map);
+                        getMaps();
                         break;
                     
                     default:
