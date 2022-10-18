@@ -1,7 +1,35 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <dirent.h>
+
 #include "map.h"
 
+short       g_nbMap = 0;
+
+void    getMaps() {
+    struct dirent *files;
+    DIR *dir;
+
+    g_nbMap = 0;
+
+    dir = opendir("maps");
+    if (dir == NULL) {
+        dir = opendir("../maps");
+        if (dir == NULL) {
+            printf("Error: Could not open maps directory\n");
+            exit(1);
+        }
+    }
+
+    while ((files = readdir(dir)) != NULL) {
+        if (files->d_type == DT_REG) { // regular file
+            printf("File: %s\n", files->d_name);
+            g_nbMap++;
+        }
+    }
+
+    closedir(dir);
+}
 
 t_map   *map_create(int width, int height) {
     t_map   *map;
