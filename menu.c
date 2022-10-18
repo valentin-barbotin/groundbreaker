@@ -160,24 +160,6 @@ void    drawLobbyMenu() {
         drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true);
     }
 
-    // tex = getTextureFromString("Lines :", &colorBlack);
-    // op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
-    // if (op != 0) {
-    //     fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
-    //     return;
-    // }
-
-    // target.x = (gameConfig->video.width - textWidth) * 0.1;
-    // target.y = (gameConfig->video.height - textHeight) * 0.1;
-    // target.w = textWidth;
-    // target.h = textHeight;
-
-    // op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
-    // if (op < 0) { //TODO: handle
-    //     fprintf(stderr, "Error SDL_RenderCopy : %s", TTF_GetError());
-    //     return;
-    // }
-
     loadFont("../DejaVuSansMono.ttf", 30);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :", true);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :", true);
@@ -207,8 +189,6 @@ void    setupMenuButtons() {
     SDL_Rect        target;
     int             textWidth;
     int             textHeight;
-    int             windowWidth;
-    int             windowHeight;
 
     selectedColor.r = 255;
     selectedColor.g = 0;
@@ -242,7 +222,6 @@ void    setupMenuButtons() {
             fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
         }
 
-        // SDL_GetWindowSize(g_window, &windowWidth, &windowHeight);
         target.x = (gameConfig->video.width)/2 - textWidth/2;
         target.y = 100 * i;
         target.w = 100;
