@@ -15,6 +15,7 @@
 #include "menu.h"
 #include "loop.h"
 #include "map.h"
+#include "game.h"
 
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
@@ -145,6 +146,9 @@ int main(int argc, char **argv)
             // No need to render at 1000 fps
             setupMenu();
             SDL_Delay(30);
+        } else if (inGame())
+        {
+            map_print(getGame()->map);
         }
 
         pickColor(&windowLimitsColor);

@@ -5,19 +5,23 @@
 
 #include "map.h"
 #include "utils.h"
+#include "game.h"
 
 short       g_nbMap = 0;
 
-void    getMaps() {
+void    *getMaps() {
     struct dirent   *files;
     DIR             *dir;
     FILE            *fd;
+    t_game          *game;
     t_map           *mapfd;
     t_map           *map;
     char            *buff;
     char            **grid;
     unsigned short  w;
     unsigned short  h;
+
+    game = getGame();
 
     g_nbMap = 0;
     dir = opendir("maps");
@@ -32,6 +36,8 @@ void    getMaps() {
     while ((files = readdir(dir)) != NULL) {
         if (files->d_type == DT_REG) { // regular file
             if (files->d_name[0] == '.') continue;
+
+            if (g_nbMap == 9) break;
 
             buff = malloc(sizeof(char) * (strlen(files->d_name) + 1));
             sprintf(buff, "maps/%s", files->d_name);
@@ -57,7 +63,7 @@ void    getMaps() {
             h = mapfd->height;
             free(mapfd);
 
-            map = map_create(w, h, 0);
+            map = map_create(w, h);
             if (map == NULL) {
                 fprintf(stderr, "Error malloc map: %s", SDL_GetError());
                 exit(1);
@@ -71,7 +77,7 @@ void    getMaps() {
                 fread(map->map[i], sizeof(char), map->width, fd);
             }
 
-            g_nbMap++;
+            memcpy(&game->maps[g_nbMap++], map, sizeof(t_map));
             fclose(fd);
             free(map);
         }
@@ -109,7 +115,7 @@ void    saveMap(const t_map *map) {
     fclose(fd);
 }
 
-t_map   *map_create(unsigned short width, unsigned short height, unsigned short players) {
+t_map   *map_create(unsigned short width, unsigned short height) {
     t_map   *map;
 
     map = malloc(sizeof(t_map));
@@ -144,7 +150,6 @@ void    map_fill(const t_map *map) {
     }
 }
 
-
 void    map_destroy(t_map *map) {
     for (int i = 0; i < map->height; i++) {
         free(map->map[i]);
@@ -160,15 +165,4 @@ void    map_print(const t_map *map) {
         }
         printf("\n");
     }
-};
-
-t_map  *getMap() {
-    static t_map *map;
-
-    if (map == NULL) {
-        map = map_create(10, 10);
-        map_fill(map);
-    }
-
-    return map;
 };

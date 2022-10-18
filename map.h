@@ -3,6 +3,8 @@
  
  #include <stdbool.h>
 
+ extern int              g_currentState;
+
  typedef struct     s_map
  {
      unsigned short     width;
@@ -22,11 +24,11 @@
          PLAYER = 'P'
  }               t_type;
 
- t_map   *map_create(int width, int height);
+ t_map   *map_create(unsigned short width, unsigned short height);
  void    map_fill(const t_map *map);
  void    map_destroy(t_map *map);
  void    map_print(const t_map *map);
- t_map   *getMap();
- void    getMaps();
+ void    saveMap(const t_map *map);
+ void    *getMaps();
 
 #endif

@@ -3,31 +3,37 @@
 #include "game.h"
 #include "map.h"
 
-static t_map *map;
-int lastX, lastY = 0;
+bool    inGame() {
+    return (g_currentState >= GAME_PLAY_PLAYING);
+}
 
 t_game  *getGame() {
     static t_game *game;
 
     if (game == NULL) {
         game = malloc(sizeof(t_game));
-        game_init(game);
+        if (game == NULL) {
+            fprintf(stderr, "Error: malloc failed in getGame()\n");
+            exit(1);
+        }
+        game->x = 0;
+        game->y = 0;
     }
     return game;
 }
 
-void    game_init (t_game *game) {
-    if (game->x == 0 && game->y == 0) {
-        game->x = 0;
-        game->y = 0;
-    }
-}
 
-void    movePlayer(t_game *game, t_map *map) {
-    if (game->x == lastX && game->y == lastY)  return;
+void    movePlayer(t_game *game) {
+    t_map *map = getGame()->map;
+    if (map == NULL) {
+        fprintf(stderr, "Error: map is NULL in movePlayer()\n");
+        exit(1);
+    }
+
+    if (game->x == getGame()->lastX && game->y == getGame()->lastY) return;
 
     // the old position is now empty
-    map->map[lastY][lastX] = EMPTY;
+    map->map[getGame()->lastY][getGame()->lastX] = EMPTY;
 
     // if player want to go out of the map then we move him at the other side
     if (game->x >= map->width) {
@@ -45,11 +51,11 @@ void    movePlayer(t_game *game, t_map *map) {
             map->map[game->y][game->x] = PLAYER;
             break;
         case WALL:
-            map->map[lastY][lastX] = PLAYER;
+            map->map[getGame()->lastY][getGame()->lastX] = PLAYER;
             // TODO : player must plant a bomb to break the wall
             break;
         case UNBREAKABLE_WALL:
-            map->map[lastY][lastX] = PLAYER;
+            map->map[getGame()->lastY][getGame()->lastX] = PLAYER;
             // unbreakable wall
             break;
         case BOMB:
@@ -66,11 +72,11 @@ void    movePlayer(t_game *game, t_map *map) {
 
     // save the last position
     if (map->map[game->y][game->x] == PLAYER) {
-        lastX = game->x;
-        lastY = game->y;
-    }else{
-        game->x = lastX;
-        game->y = lastY;
+        getGame()->lastX = game->x;
+        getGame()->lastY = game->y;
+    } else {
+        game->x = getGame()->lastX;
+        game->y = getGame()->lastY;
     }
 }
 

@@ -14,7 +14,6 @@
     unsigned short    rows;
     unsigned short    columns;
     unsigned short    players;
-    t_map             maps[10];
  }                  t_lobby;
 
  void       selectMap(short index);

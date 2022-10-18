@@ -7,6 +7,7 @@
 #include "config.h"
 #include "display.h"
 #include "map.h"
+#include "game.h"
 
 SDL_Rect                g_buttonsLocation[4];
 t_menu                  *g_currentMenu;
@@ -86,6 +87,7 @@ void    drawLobbyMenu() {
     SDL_Color   colorBlack = {0, 0, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
     SDL_Color   colorRed = {255, 0, 0, 255};
+    t_game      *game;
     const t_map *map;
     char        buff[7];
     int         gap;
@@ -103,6 +105,8 @@ void    drawLobbyMenu() {
         g_lobby->rows = 4;
         g_lobby->players = 2;
     }
+
+    game = getGame();
 
     setBackgroundColor(&colorWhite);
 
@@ -142,10 +146,9 @@ void    drawLobbyMenu() {
         rect.h = h;
 
         if (i == g_currentMap) {
-            // printf("i: %d, sel: %lu\n", i, g_lobby->maps[i].selected);
             pickColor(&colorBlue);
         } else {
-            if (g_lobby->maps[i].selected) {
+            if (game->maps[i].selected) {
                 pickColor(&colorRed);
             } else {
                 pickColor(&colorBlack);

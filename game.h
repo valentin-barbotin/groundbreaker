@@ -1,17 +1,23 @@
 #ifndef GAME_H
  #define GAME_H
 
-#include "map.h"
+ #include <stdbool.h>
 
-typedef struct     s_game
-{
-    int x;
-    int y;
-}                  t_game;
+ #include "map.h"
 
-void    game_init(t_game *game);
-void    game_quit();
-t_game  *getGame();
-void    movePlayer(t_game *game, t_map *map);
+ typedef struct     s_game
+ {
+     int        x;
+     int        y;
+     int        lastX;
+     int        lastY;
+     t_map      *map;
+     t_map      maps[10];
+ }                  t_game;
+
+ bool    inGame();
+ void    game_quit();
+ t_game  *getGame();
+ void    movePlayer(t_game *game);
 
 #endif

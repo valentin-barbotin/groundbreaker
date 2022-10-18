@@ -18,10 +18,6 @@ bool    inMainMenu() {
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
-bool    inGame() {
-    return (g_currentState >= GAME_PLAY_PLAYING);
-}
-
 void    makeSelection(unsigned short index) {
     if (g_currentMenu->next[index] != NULL) {
         puts("SUBMENU");
@@ -70,8 +66,6 @@ void    handleKeyDown(const SDL_Event *event) {
 
 //TODO: refacto
 void    handleKeyUp(const SDL_Event *event) {
-    t_game *game = getGame();
-
     if (inMainMenu()) {
         short index = -1;
         switch (event->key.keysym.sym) {
@@ -88,6 +82,30 @@ void    handleKeyUp(const SDL_Event *event) {
                     case GAME_MAINMENU_PLAY:
                         //TODO: pick a random map from selected ones and launch the game (solo)
                         printf("Launch game\n");
+                        t_game *game = getGame();
+                        // t_map *maps = getMaps();
+
+                        t_map *tmp[10] = {0};
+                        index = -1;
+                        for (size_t i = 0; i < g_nbMap; i++)
+                        {
+                            // printf("i: %d, Map: %d\n", i, game->maps[i].selected);
+                            if (game->maps[i].selected) {
+                                if (index == -1) index = 0; //used to check if we have at least one map selected
+                                tmp[index++] = &game->maps[i];
+                            }
+                        }
+                        if (index == -1) {
+                            printf("No map selected\n");
+                            return;
+                        }
+
+                        index = rand() % index; //pick a random map between the selected ones
+                        printf("index = %d\n", index);
+                        game->map = tmp[index];
+                        // // memcpy(&game->map->map, &maps[index].map, sizeof(game->map->map));
+
+                        g_currentState = GAME_PLAY_PLAYING;
                         break;
                     
                     default:
@@ -100,11 +118,14 @@ void    handleKeyUp(const SDL_Event *event) {
                 switch (g_currentState)
                 {
                     case GAME_MAINMENU_PLAY:
+                        if (g_nbMap == 9) break;
+
                         printf("create map with %d players, %d cols, %d rows\n", g_lobby->players, g_lobby->columns, g_lobby->rows);
-                        const t_map *map = map_create(g_lobby->columns, g_lobby->rows, g_lobby->players);
+                        const t_map *map = map_create(g_lobby->columns, g_lobby->rows);
                         map_fill(map);
                         saveMap(map);
-                        getMaps();
+                        map_print(map);
+                        getGame()->maps[g_nbMap++] = *map;
                         break;
                     
                     default:
@@ -120,11 +141,11 @@ void    handleKeyUp(const SDL_Event *event) {
                     nb = 0;
                     for (size_t i = 0; i < g_nbMap; i++)
                     {
-                        if (g_lobby->maps[i].selected) nb++;
+                        if (getGame()->maps[i].selected) nb++;
                     }
                     if (nb > g_nbMap) return;
                     
-                    g_lobby->maps[g_currentMap].selected = !g_lobby->maps[g_currentMap].selected;
+                    getGame()->maps[g_currentMap].selected = !getGame()->maps[g_currentMap].selected;
                 }
                 break;
             case SDLK_LEFT:
@@ -256,6 +277,7 @@ void    handleKeyUp(const SDL_Event *event) {
                 break;
         }
     } else if (inGame()) {
+        t_game *game = getGame();
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
                 g_currentState = GAME_MAINMENU;
@@ -279,6 +301,6 @@ void    handleKeyUp(const SDL_Event *event) {
             default:
                 break;
         }
-        movePlayer(game, getMap());
+        movePlayer(game);
     }
 }
