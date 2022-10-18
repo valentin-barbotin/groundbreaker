@@ -70,8 +70,32 @@ void    handleKeyUp(const SDL_Event *event) {
                 g_currentState = GAME_EXIT;
                 break;
             case SDLK_RETURN:
-                index = g_currentMenu->selectedButton;
-                makeSelection(index);
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        //TODO: pick a random map from selected ones and launch the game (solo)
+                        printf("Launch game\n");
+                        break;
+                    
+                    default:
+                        index = g_currentMenu->selectedButton;
+                        makeSelection(index);
+                        break;
+                }
+                break;
+            case SDLK_n:
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        printf("create map with %d players, %d cols, %d rows\n", g_lobby->players, g_lobby->columns, g_lobby->rows);
+                        //TODO: create map
+                        break;
+                    
+                    default:
+                        index = g_currentMenu->selectedButton;
+                        makeSelection(index);
+                        break;
+                }
                 break;
             case SDLK_SPACE:
                 if (g_currentState == GAME_MAINMENU_PLAY) {
