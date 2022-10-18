@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-
 #include "map.h"
 
 
@@ -34,7 +33,7 @@ void    map_fill(const t_map *map) {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            map->map[i][j] = 'X';
+            map->map[i][j] = EMPTY;
         }
     }
 }
@@ -58,12 +57,11 @@ void    map_print(const t_map *map) {
 };
 
 t_map  *getMap() {
-    static t_map *map = NULL;
+    static t_map *map;
 
     if (map == NULL) {
         map = map_create(10, 10);
         map_fill(map);
-        map->map[2][4] = 'M';
     }
 
     return map;

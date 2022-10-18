@@ -53,8 +53,7 @@ void    handleMouseButtonUp(const SDL_Event *event) {
                 makeSelection(i);
             }
         }
-    }
-    else if (inGame()) {
+    } else if (inGame()) {
         // TODO: handle game events
     }
 }
@@ -94,8 +93,7 @@ void    handleKeyUp(const SDL_Event *event) {
             default:
                 break;
         }
-    }
-    else if (inGame()) {
+    } else if (inGame()) {
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
                 g_currentState = GAME_MAINMENU;
@@ -119,10 +117,6 @@ void    handleKeyUp(const SDL_Event *event) {
             default:
                 break;
         }
-
         movePlayer(game, getMap());
-
-
     }
-
 }
