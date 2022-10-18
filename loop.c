@@ -41,7 +41,7 @@ void    makeSelection(unsigned short index) {
  */
 void    handleMouseButtonUp(const SDL_Event *event) {
     //loop through buttons
-    if (inMainMenu()) {
+    if (g_currentState == GAME_MAINMENU) { //TODO: check
         for (unsigned short i = 0; i < g_currentMenu->nbButtons; ++i) {
             // get click position
             int xStart = g_buttonsLocation[i].x;
