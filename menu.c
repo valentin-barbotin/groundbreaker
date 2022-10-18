@@ -9,7 +9,6 @@
 
 SDL_Rect                g_buttonsLocation[4];
 t_menu                  *g_currentMenu;
-t_lobby                 *g_lobby;
 short                   g_currentOption = 0;
 extern int              g_currentState;
 extern t_gameConfig     *gameConfig;
@@ -84,9 +83,10 @@ void    drawLobbyMenu() {
     SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlack = {0, 0, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
+    SDL_Color   colorRed = {255, 0, 0, 255};
     char        buff[7];
     int         gap;
-    int         j;
+    short       j;
     short       nbMaps;
     short       fromGap;
 
@@ -128,58 +128,68 @@ void    drawLobbyMenu() {
 
     for (size_t i = fromGap; (i < (nbMaps + fromGap)) && i < g_nbMap; i++)
     {
+        int x = (int) ((i - (nbMaps * j)) * gameConfig->video.width / nbMaps) + gap/2;
+        int y = (int) (gameConfig->video.height * 0.75);
+        int w = (gameConfig->video.width / nbMaps) - gap;
+        int h = (int) (gameConfig->video.height * 0.20);
         // printf("i: %d j: %d\n", i, j);
-        rect.x = (int) ((i - (nbMaps * j)) * gameConfig->video.width / nbMaps) + gap/2;
-        rect.y = (int) (gameConfig->video.height * 0.75);
-        rect.w = (gameConfig->video.width / nbMaps) - gap;
-        rect.h = (int) (gameConfig->video.height * 0.20);
-        
-        pickColor((i == g_currentMap) ? &colorBlue : &colorBlack);
+        rect.x = x;
+        rect.y = y;
+        rect.w = w;
+        rect.h = h;
 
+        if (i == g_currentMap) {
+            // printf("i: %d, sel: %lu\n", i, g_lobby->maps[i].selected);
+            pickColor(&colorBlue);
+        } else {
+            if (g_lobby->maps[i].selected) {
+                pickColor(&colorRed);
+            } else {
+                pickColor(&colorBlack);
+            }
+        }
+        
         SDL_RenderFillRect(g_renderer, &rect);
+        sprintf(buff, "%lu", i + 1);
+        drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true);
     }
-    
+
+    // tex = getTextureFromString("Lines :", &colorBlack);
+    // op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
+    // if (op != 0) {
+    //     fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
+    //     return;
+    // }
+
+    // target.x = (gameConfig->video.width - textWidth) * 0.1;
+    // target.y = (gameConfig->video.height - textHeight) * 0.1;
+    // target.w = textWidth;
+    // target.h = textHeight;
+
+    // op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
+    // if (op < 0) { //TODO: handle
+    //     fprintf(stderr, "Error SDL_RenderCopy : %s", TTF_GetError());
+    //     return;
+    // }
 
     loadFont("../DejaVuSansMono.ttf", 30);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :");
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :");
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Players :");
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :", true);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :", true);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Players :", true);
 
     sprintf(buff, "%d", g_lobby->rows);
-    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.1, buff);
+    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.1, buff, true);
 
     sprintf(buff, "%d", g_lobby->columns);
-    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff);
+    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true);
 
     sprintf(buff, "%d", g_lobby->players);
-    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff);
-    
-    // SDL_Rect    rect;
-    // SDL_Color   color = {255, 255, 255, 255};
-    // SDL_Surface *surface;
-    // SDL_Texture *texture;
-    // SDL_Rect    location;
+    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true);
 
-    // rect.x = 0;
-    // rect.y = 0;
-    // rect.w = gameConfig->video.width;
-    // rect.h = gameConfig->video.height;
-
-    // SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
-    // SDL_RenderFillRect(g_renderer, &rect);
-
-    // surface = TTF_RenderText_Blended(g_font, "Lobby", color);
-    // texture = SDL_CreateTextureFromSurface(g_renderer, surface);
-    // SDL_FreeSurface(surface);
-
-    // location.x = gameConfig->video.width / 2 - surface->w / 2;
-    // location.y = gameConfig->video.height / 2 - surface->h / 2;
-    // location.w = surface->w;
-    // location.h = surface->h;
-
-    // SDL_RenderCopy(g_renderer, texture, NULL, &location);
-    // SDL_DestroyTexture(texture);
     loadFont("../DejaVuSansMono.ttf", 20);
+    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, "You can pick a maximum of 10 maps", true);
+    
+    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(A) Previous (E) Next (space) Select (Enter) play (N) New", false);
 };
 
 void    setupMenuButtons() {
@@ -220,7 +230,7 @@ void    setupMenuButtons() {
             color = &notSelectedColor;
         }
         
-        tex = getTextureFromString(g_currentMenu->buttons[i], color);
+        tex = getTextureFromString(g_currentMenu->buttons[i], color, false);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
             fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());

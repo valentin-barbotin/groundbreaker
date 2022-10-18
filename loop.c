@@ -73,6 +73,20 @@ void    handleKeyUp(const SDL_Event *event) {
                 index = g_currentMenu->selectedButton;
                 makeSelection(index);
                 break;
+            case SDLK_SPACE:
+                if (g_currentState == GAME_MAINMENU_PLAY) {
+                    short nb;
+
+                    nb = 0;
+                    for (size_t i = 0; i < g_nbMap; i++)
+                    {
+                        if (g_lobby->maps[i].selected) nb++;
+                    }
+                    if (nb > g_nbMap) return;
+                    
+                    g_lobby->maps[g_currentMap].selected = !g_lobby->maps[g_currentMap].selected;
+                }
+                break;
             case SDLK_LEFT:
                 switch (g_currentState)
                 {

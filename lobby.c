@@ -2,6 +2,8 @@
 
 #include "lobby.h"
 
+t_lobby *g_lobby;
+
 short   g_currentMap = 0;
 short   g_nbMap = 7; //TODO
 

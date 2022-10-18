@@ -4,10 +4,13 @@
  #include <SDL.h>
  #include <SDL_ttf.h>
 
+ #include "lobby.h"
+
  extern SDL_Window*     g_window;
  extern SDL_Renderer*   g_renderer;
  extern short           g_currentMap;
  extern short           g_nbMap;
+ extern t_lobby         *g_lobby;
 
  typedef struct     s_menu {
     char             *name;
@@ -18,12 +21,6 @@
     unsigned short    selectedButton;
     unsigned short    nbButtons;
  }                  t_menu;
-
- typedef struct     s_lobby {
-    unsigned short    rows;
-    unsigned short    columns;
-    unsigned short    players;
- }                  t_lobby;
 
  void    setupMenu();
  void    drawLobbyMenu();

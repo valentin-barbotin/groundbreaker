@@ -3,10 +3,17 @@
 
  #include <SDL.h>
  #include <SDL_ttf.h>
-
  #include <stdio.h>
  #include <stdlib.h>
- #include <stdbool.h>
+
+ #include "map.h"
+
+ typedef struct     s_lobby {
+    unsigned short    rows;
+    unsigned short    columns;
+    unsigned short    players;
+    t_map             maps[10];
+ }                  t_lobby;
 
  void       selectMap(short index);
 
