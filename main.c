@@ -137,15 +137,19 @@ int main(int argc, char **argv)
         }
         SDL_RenderClear(g_renderer);
 
-        pickColor(&windowLimitsColor);
-        SDL_RenderDrawRect(g_renderer, &windowLimits);
+       
         pickColor(&blackColor);
 
-        SDL_RenderPresent(g_renderer);
-        // No need to render at 1000 fps
         if (inMainMenu()) {
-            SDL_Delay(100);
+            // No need to render at 1000 fps
+            setupMenu();
+            SDL_Delay(30);
         }
+
+        pickColor(&windowLimitsColor);
+        SDL_RenderDrawRect(g_renderer, &windowLimits);
+
+        SDL_RenderPresent(g_renderer);
 
         // Give a way to quit the program and display a custom error
         if (g_currentState == GAME_EXIT) {
