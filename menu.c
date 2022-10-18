@@ -187,7 +187,7 @@ void    drawLobbyMenu() {
     drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true);
 
     loadFont("../DejaVuSansMono.ttf", 20);
-    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, "You can pick a maximum of 10 maps", true);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, "You can pick a maximum of 10 maps", true);
     
     drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(A) Previous (E) Next (space) Select (Enter) play (N) New", false);
 };
