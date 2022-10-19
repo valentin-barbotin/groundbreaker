@@ -8,8 +8,7 @@ void    initTimer(t_timer *timer) {
     timer->pausedTicks = 0;
 }
 
-void startTimer(t_timer *timer)
-{
+void    startTimer(t_timer *timer) {
     timer->started = true;
     timer->paused = false;
     timer->startTicks = SDL_GetTicks64();
@@ -39,7 +38,7 @@ void    unpauseTimer(t_timer *timer) {
 }
 
 // Print the timer in the console [DEBUG ONLY]
-void printTimer(t_timer *timer) {
+void    printTimer(t_timer *timer) {
     printf("Timer Milliseconds: %d\n", getTimerTicks(timer));
     printf("Timer seconds: %d\n", getTimerSeconds(timer));
 }
