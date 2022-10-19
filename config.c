@@ -5,6 +5,8 @@
 #include "config.h"
 #include "utils.h"
 
+t_gameConfig    *gameConfig = NULL;
+
 
 /**
  * Fill the gameConfig struct with default values

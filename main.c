@@ -1,5 +1,6 @@
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -16,15 +17,16 @@
 #include "loop.h"
 #include "map.h"
 #include "game.h"
+#include "moves.h"
 
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
+extern t_gameConfig    *gameConfig;
 
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
 TTF_Font*       g_font = NULL;
 int             g_currentState;
-t_gameConfig    *gameConfig = NULL;
 
 /**
  * Setup SDL libraries
@@ -90,9 +92,11 @@ int main(int argc, char **argv)
 
     SDL_RaiseWindow(g_window);
 
-    SDL_Color windowLimitsColor = { 255, 0, 0, 255 };
+    SDL_Color windowLimitsColor = { 255, 255, 0, 255 };
     SDL_Color blackColor = { 0, 0, 0, 255 };
 
+    SDL_Rect rec = { 0, 0, 512, 512 };
+    SDL_Rect recdst = { 0, 0, 10, 10 };
 
     g_currentState = GAME_MAINMENU;
 
@@ -148,11 +152,18 @@ int main(int argc, char **argv)
             SDL_Delay(30);
         } else if (inGame())
         {
+            movePlayer();
             map_print(getGame()->map);
+            // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
         }
+
+        recdst.x = getGame()->x;
+        recdst.y = getGame()->y;
+        drawTexture("../dot.png", &rec, &recdst);
 
         pickColor(&windowLimitsColor);
         SDL_RenderDrawRect(g_renderer, &windowLimits);
+        pickColor(&blackColor);
 
         SDL_RenderPresent(g_renderer);
 

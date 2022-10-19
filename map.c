@@ -161,8 +161,9 @@ void    map_destroy(t_map *map) {
 void    map_print(const t_map *map) {
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            printf("%c", map->map[i][j]);
+            printf("%d ", map->map[i][j]);
         }
         printf("\n");
     }
+    printf("\n");
 };

@@ -7,17 +7,20 @@
 
  typedef struct     s_game
  {
-     int        x;
-     int        y;
-     int        lastX;
-     int        lastY;
-     t_map      *map;
-     t_map      maps[10];
+     int                 x;
+     int                 y;
+     short               vx;
+     short               vy;
+     unsigned short      xCell;
+     unsigned short      yCell;
+     t_map               *map;
+     t_map               maps[10];
  }                  t_game;
 
  bool    inGame();
  void    game_quit();
  t_game  *getGame();
- void    movePlayer(t_game *game);
+ void    makeOldPosEmpty(short x, short y);
+ void    movePlayer();
 
 #endif

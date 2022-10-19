@@ -5,6 +5,7 @@
 #include "loop.h"
 #include "map.h"
 #include "game.h"
+#include "moves.h"
 
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
@@ -62,6 +63,15 @@ void    handleMouseButtonUp(const SDL_Event *event) {
 }
 
 void    handleKeyDown(const SDL_Event *event) {
+    switch (g_currentState)
+    {
+        case GAME_PLAY_PLAYING:
+            handleKeyDownPlay(event);
+            break;
+        
+        default:
+            break;
+    }
 }
 
 //TODO: refacto
@@ -277,30 +287,7 @@ void    handleKeyUp(const SDL_Event *event) {
                 break;
         }
     } else if (inGame()) {
-        t_game *game = getGame();
-        switch (event->key.keysym.sym) {
-            case SDLK_ESCAPE:
-                g_currentState = GAME_MAINMENU;
-                break;
-            case SDLK_q:
-            case SDLK_LEFT:
-                game->x--;
-                break;
-            case SDLK_d:
-            case SDLK_RIGHT:
-                game->x++;
-                break;
-            case SDLK_z:
-            case SDLK_UP:
-                game->y--;
-                break;
-            case SDLK_s:
-            case SDLK_DOWN:
-                game->y++;
-                break;
-            default:
-                break;
-        }
-        movePlayer(game);
+        handleKeyUpPlay(event);
+        movePlayer();
     }
 }
