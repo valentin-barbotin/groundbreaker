@@ -179,10 +179,26 @@ void    map_fill(const t_map *map) {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            map->map[i][j] = EMPTY;
+            map->map[0][j] = UNBREAKABLE_WALL;
+            map->map[map->height - 1][j] = UNBREAKABLE_WALL;
+            map->map[i][0] = UNBREAKABLE_WALL;
+            map->map[i][map->width - 1] = UNBREAKABLE_WALL;
+            map->map[4][(j%2)*j] = WALL;
+            //map->map[(i%2)*i][3] = BOMB;
+            map->map[1][1] = PLAYER;
+            map->map[1][0] = EMPTY;
+            map->map[1][map->width - 1] = EMPTY;
+            map->map[5][6] = UNBREAKABLE_WALL;
+
+
+
+
+            //map->map[map->height %2 == 0][j] = BOMB;
         }
     }
 }
+
+
 
 void    map_destroy(t_map *map) {
     for (int i = 0; i < map->height; i++) {
