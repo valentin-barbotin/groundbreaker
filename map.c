@@ -6,6 +6,7 @@
 #include "map.h"
 #include "utils.h"
 #include "game.h"
+#include "display.h"
 
 short       g_nbMap = 0;
 
@@ -167,3 +168,49 @@ void    map_print(const t_map *map) {
     }
     printf("\n");
 };
+
+
+void    drawMap(const t_map *map) {
+    SDL_Rect    rect;
+    SDL_Rect    rectdest;
+    char        *tex;
+    short       cellSizeX;
+    short       cellSizeY;
+    
+
+    cellSizeX = gameConfig->video.width / getGame()->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    cellSizeY = gameConfig->video.height / getGame()->map->height;
+
+//  drawTexture("../dot.png", &rec, &recdst);
+    for (int i = 0; i < map->height; i++) {
+        for (int j = 0; j < map->width; j++) {
+            switch (map->map[i][j])
+            {
+                case WALL:
+                    tex = TEX_WALL;
+                    break;
+                case UNBREAKABLE_WALL:
+                    tex = TEX_UNBREAKABLE_WALL;
+                    break;
+                case EMPTY:
+                    tex = TEX_DIRT;
+                    break;
+                
+                default:
+                    tex = TEX_UNBREAKABLE_WALL;
+                    break;
+            }
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 288; //TODO: dynamic
+            rect.h = 288;
+
+            rectdest.x = j * cellSizeX;
+            rectdest.y = i * cellSizeY;
+            rectdest.w = cellSizeX;
+            rectdest.h = cellSizeY;
+            drawTexture(tex, &rect, &rectdest);
+        }
+    }
+}

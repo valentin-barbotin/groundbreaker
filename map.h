@@ -3,7 +3,14 @@
  
  #include <stdbool.h>
 
+ #include "config.h"
+
+ #define TEX_WALL "../assets/wall.png"
+ #define TEX_UNBREAKABLE_WALL "../assets/unbreak.png"
+ #define TEX_DIRT "../assets/dirt.png"
+
  extern int              g_currentState;
+ extern t_gameConfig     *gameConfig;
 
  typedef struct     s_map
  {
@@ -30,5 +37,6 @@
  void    map_print(const t_map *map);
  void    saveMap(const t_map *map);
  void    *getMaps();
+ void    drawMap(const t_map *map);
 
 #endif
