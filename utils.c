@@ -24,6 +24,13 @@ char   *randomString(unsigned short size) {
     char          *charset;
 
     str = malloc(sizeof(char) * size + 1);
+    if (str == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error allocating memory for cache");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
     charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     if (str) {
@@ -86,7 +93,11 @@ char* readFile(const char* src) {
     rewind(fd);
     char* data = malloc(size);
     if (data == NULL) {
-        return NULL;
+        #ifdef DEBUG
+            fprintf(stderr, "Error allocating memory for cache");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     fread(data, sizeof(char), size, fd);

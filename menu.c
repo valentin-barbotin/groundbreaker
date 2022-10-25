@@ -61,10 +61,11 @@ void    setupMenu() {
     }
 
     if (bg && setBackgroundImage(bg)) {
-        fprintf(stderr, "Error setting background image: %s", SDL_GetError());
-        // if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "An error occured", g_window) != 0) {
-        //     fprintf(stderr, "Error displaying message box: %s", SDL_GetError());
-        // };
+        #ifdef DEBUG
+            fprintf(stderr, "Error setting background image");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Error setting background image", NULL);
+        exit(1);
         return;
     }
 
@@ -98,8 +99,11 @@ void    drawLobbyMenu() {
     if (g_lobby == NULL) {
         g_lobby = malloc(sizeof(t_lobby));
         if (g_lobby == NULL) {
-            fprintf(stderr, "Error malloc lobby: %s", SDL_GetError());
-            return;
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
         g_lobby->columns = 4;
         g_lobby->rows = 4;

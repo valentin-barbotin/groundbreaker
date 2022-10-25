@@ -242,7 +242,11 @@ int     readConfig(t_gameConfig *config) {
     // to define
     char* data = calloc(SIZE_DATA, sizeof(char));
     if (data == NULL) {
-        return EXIT_SUCCESS;
+        #ifdef DEBUG
+                fprintf(stderr, "Error: calloc failed\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     bool success = false;

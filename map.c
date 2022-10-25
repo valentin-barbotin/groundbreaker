@@ -41,6 +41,13 @@ void    *getMaps() {
             if (g_nbMap == 9) break;
 
             buff = malloc(sizeof(char) * (strlen(files->d_name) + 1));
+            if (buff == NULL) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Could not allocate memory for buff in getMaps()\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
+            }
             sprintf(buff, "maps/%s", files->d_name);
             
             fd = fopen(buff, "rb");
@@ -56,7 +63,10 @@ void    *getMaps() {
 
             mapfd = malloc(sizeof(t_map));
             if (mapfd == NULL) {
-                fprintf(stderr, "Error malloc map: %s", SDL_GetError());
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Could not allocate memory for mapfd in getMaps()\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                 exit(1);
             }
             fread(mapfd, sizeof(t_map), 1, fd);
@@ -66,7 +76,10 @@ void    *getMaps() {
 
             map = map_create(w, h);
             if (map == NULL) {
-                fprintf(stderr, "Error malloc map: %s", SDL_GetError());
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Could not allocate memory for map in getMaps()\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                 exit(1);
             }
             grid = map->map;
@@ -128,13 +141,21 @@ t_map   *map_create(unsigned short width, unsigned short height) {
     map->height = height;
     map->map = malloc(sizeof(char *) * height);
     if (map->map == NULL) {
-        return NULL;
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Could not allocate memory for map->map in map_create()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     for (int i = 0; i < height; i++) {
         map->map[i] = malloc(sizeof(char) * width);
         if (map->map[i] == NULL) {
-            return NULL;
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Could not allocate memory for map->map[i] in map_create()\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
     }
 
