@@ -6,9 +6,14 @@
 #include "map.h"
 #include "game.h"
 #include "moves.h"
+#include "timer.h"
+#include "sound.h"
 
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
+
+t_timer                *g_timer = NULL;
+t_sound                *g_sound = NULL;
 
 /**
  * @brief Check if we are in the main menu or a sub menu
@@ -77,6 +82,17 @@ void    handleKeyDown(const SDL_Event *event) {
 //TODO: refacto
 void    handleKeyUp(const SDL_Event *event) {
     if (inMainMenu()) {
+        /*
+        if(g_timer == NULL) {
+            g_timer = malloc(sizeof(t_timer));
+            g_timer->paused = false;
+            g_timer->startTicks = 0;
+            g_timer->pausedTicks = 0;
+            g_timer->duration = 120;
+        }*/
+
+
+
         short index = -1;
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
@@ -283,6 +299,41 @@ void    handleKeyUp(const SDL_Event *event) {
                 }
                 puts("E");
                 break;
+            case SDLK_p:
+                    pauseSound(g_sound);
+                    puts("P");
+
+                break;
+//                if(!isTimerPaused(g_timer)) {
+//                    pauseTimer(g_timer);
+//                    printTimer(g_timer);
+//                }else if (isTimerPaused(g_timer)) {
+//                    unpauseTimer(g_timer);
+//                    printTimer(g_timer);
+//                }
+                break;
+            case SDLK_s:
+                if(g_sound == NULL) {
+                    g_sound = malloc(sizeof(t_sound));
+                    g_sound->file = "/Users/jamesabib/Desktop/Documents/Projets/groundbreaker/maniac.mp3";
+                    g_sound->music = NULL;
+                }
+
+                playSound(g_sound);
+
+
+//                if (g_timer->startTicks == 0) {
+//                    startTimer(g_timer);
+//                    printTimer(g_timer);
+//                }
+
+                // start music
+                //Mix_PlayMusic(g_sound, -1);
+
+
+                break;
+            case SDLK_i:
+                stopSound(g_sound);
             default:
                 break;
         }
