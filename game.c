@@ -3,6 +3,7 @@
 #include "game.h"
 #include "map.h"
 #include "moves.h"
+#include "utils.h"
 
 bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
@@ -14,7 +15,10 @@ t_game* getGame() {
     if (game == NULL) {
         game = malloc(sizeof(t_game));
         if (game == NULL) {
-            fprintf(stderr, "Error: malloc failed in getGame()\n");
+            #ifdef DEBUG
+                fprintf(stderr, "Error allocating memory for game");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
         game->x = 0;

@@ -23,6 +23,8 @@
 #define TICKS_PER_FRAME 1000 / FPS_MAX
 extern t_gameConfig    *gameConfig;
 
+#define DEBUG true
+
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
 TTF_Font*       g_font = NULL;
