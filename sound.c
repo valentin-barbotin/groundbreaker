@@ -5,7 +5,7 @@
 /**
  * @brief Initialize the audio system
  * @param sound
- * @return  0 on success, -1 on error
+ * @return  true on success, false on failure
  */
 bool     initAudio(t_sound *sound) {
     int flags;
@@ -41,7 +41,7 @@ bool     initAudio(t_sound *sound) {
 /**
  * @brief Initialize the music
  * @param sound
- * @return  0 on success or -1 on error
+ * @return true on success, false on error
  */
 bool    initMusic(t_sound *sound) {
     if (sound->file == NULL) return false;
@@ -58,13 +58,14 @@ bool    initMusic(t_sound *sound) {
     }
     return true;
 }
+
 /**
  * @brief Play the sound
  * @param sound
- * @return  0 on success or -1 on error
+ * @return true on success or false on error
  */
 bool    playSound(t_sound *sound) {
-    if (initMusic(sound) == -1) return -1;
+    if (!initMusic(sound)) return false;
 
     if (Mix_PlayingMusic() == 0) {
         Mix_PlayMusic(sound->music, 0);
@@ -74,32 +75,41 @@ bool    playSound(t_sound *sound) {
     if (pauseSound(sound)) {
         Mix_ResumeMusic();
         return true;
-    }else{
-        SDL_Log("La musique n'est pas en pause");
-        return false;
     }
+
+    SDL_Log("La musique n'est pas en pause");
+    return false;
 }
 
+/**
+ * @brief Play the sound in loop
+ * @param sound
+ * @return true on success or false on error
+ */
 bool    playSoundLoop(t_sound *sound) {
-    if (initMusic(sound) == -1) return false;
+    if (!initMusic(sound)) return false;
 
-    Mix_PlayMusic(sound->music, -1);
-
-    while (Mix_PlayingMusic()) {
-        SDL_Delay(100);
+    if (Mix_PlayingMusic() == 0) {
+        Mix_PlayMusic(sound->music, -1);
+        return true;
     }
 
-    Mix_FreeMusic(sound->music);
+    if (pauseSound(sound)) {
+        Mix_ResumeMusic();
+        return true;
+    }
 
-    sound->music = NULL;
-
-    Mix_CloseAudio();
-
-    return true;
+    SDL_Log("La musique est déjà en cours de lecture");
+    return false;
 }
 
+/**
+ * @brief Stop the sound
+ * @param sound
+ * @return  true on success or false on error
+ */
 bool    stopSound(t_sound *sound) {
-    if (initMusic(sound) == -1) return false;
+    if (!initMusic(sound)) return false;
     Mix_HaltMusic();
     Mix_FreeMusic(sound->music);
     sound->music = NULL;
@@ -108,9 +118,13 @@ bool    stopSound(t_sound *sound) {
     return true;
 }
 
+/**
+ * @brief Pause the sound
+ * @param sound
+ * @return  true on success or false on error
+ */
 bool    pauseSound(t_sound *sound) {
-    if (initMusic(sound) == -1) return false;
-
+    if (!initMusic(sound)) return false;
     if (Mix_PlayingMusic() == 0) {
         SDL_Log("Music is not playing");
         return false;
@@ -122,15 +136,23 @@ bool    pauseSound(t_sound *sound) {
             return true;
         case 1:
             Mix_ResumeMusic();
-            return false;
+            break;
         default:
             SDL_Log("Music is not playing");
-            return false;
+            break;
     }
+
+    return false;
 }
 
+/**
+ * @brief Set the sound volume
+ * @param sound
+ * @param volume
+ * @return  true on success or false on error
+ */
 bool    setSoundVolume(t_sound *sound, int volume) {
-    if (initMusic(sound) == -1) return false;
+    if (!initMusic(sound)) return false;
 
     if (Mix_PlayingMusic() == 0) {
         SDL_Log("Music is not playing");
