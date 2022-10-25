@@ -2,7 +2,12 @@
 #include <SDL_mixer.h>
 #include <SDL.h>
 
-int     initAudio(t_sound *sound) {
+/**
+ * @brief Initialize the audio system
+ * @param sound
+ * @return  0 on success, -1 on error
+ */
+bool     initAudio(t_sound *sound) {
     int flags;
 
     // get the 3 last characters of sound->file
@@ -15,26 +20,31 @@ int     initAudio(t_sound *sound) {
     }
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        printf("Failed to init SDL\n");
-        return -1;
+        SDL_Log("Failed to init SDL");
+        return false;
     }
 
     if (flags != (Mix_Init(flags))) {
         printf("Could not initialize mixer (result: %d).\n", Mix_Init(flags));
         printf("Mix_Init: %s\n", Mix_GetError());
-        return -1;
+        return false;
     }
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         printf("SDL_mixer could not initialize! SDL_mixer Error: %s", Mix_GetError());
-        return -1;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
-int    initMusic(t_sound *sound) {
-    if (sound->file == NULL) return -1;
+/**
+ * @brief Initialize the music
+ * @param sound
+ * @return  0 on success or -1 on error
+ */
+bool    initMusic(t_sound *sound) {
+    if (sound->file == NULL) return false;
 
     initAudio(sound);
 
@@ -42,34 +52,36 @@ int    initMusic(t_sound *sound) {
         sound->music = Mix_LoadMUS(sound->file);
 
         if (sound->music == NULL) {
-            printf("Failed to load music: %s\n", Mix_GetError());
-            return -1;
+            SDL_Log("Failed to load music: %s", Mix_GetError());
+            return false;
         }
     }
-    return 0;
+    return true;
 }
-
-int    playSound(t_sound *sound) {
+/**
+ * @brief Play the sound
+ * @param sound
+ * @return  0 on success or -1 on error
+ */
+bool    playSound(t_sound *sound) {
     if (initMusic(sound) == -1) return -1;
 
-    Mix_PlayMusic(sound->music, 1);
-
-    while (Mix_PlayingMusic()) {
-        SDL_Delay(100);
+    if (Mix_PlayingMusic() == 0) {
+        Mix_PlayMusic(sound->music, 0);
+        return true;
     }
 
-    Mix_FreeMusic(sound->music);
-
-    sound->music = NULL;
-
-    Mix_CloseAudio();
-    //Mix_Quit();
-
-    return 0;
+    if (pauseSound(sound)) {
+        Mix_ResumeMusic();
+        return true;
+    }else{
+        SDL_Log("La musique n'est pas en pause");
+        return false;
+    }
 }
 
-int    playSoundLoop(t_sound *sound) {
-    if (initMusic(sound) == -1) return -1;
+bool    playSoundLoop(t_sound *sound) {
+    if (initMusic(sound) == -1) return false;
 
     Mix_PlayMusic(sound->music, -1);
 
@@ -82,65 +94,55 @@ int    playSoundLoop(t_sound *sound) {
     sound->music = NULL;
 
     Mix_CloseAudio();
+
+    return true;
 }
 
-int    stopSound(t_sound *sound) {
-    if (initMusic(sound) == -1) return -1;
+bool    stopSound(t_sound *sound) {
+    if (initMusic(sound) == -1) return false;
     Mix_HaltMusic();
     Mix_FreeMusic(sound->music);
     sound->music = NULL;
     Mix_CloseAudio();
+
+    return true;
 }
 
-int    pauseSound(t_sound *sound) {
-    if (initMusic(sound) == -1) return -1;
+bool    pauseSound(t_sound *sound) {
+    if (initMusic(sound) == -1) return false;
 
     if (Mix_PlayingMusic() == 0) {
-        printf("Music is not playing\n");
-        return -1;
+        SDL_Log("Music is not playing");
+        return false;
     }
 
-    if (Mix_PausedMusic() == 1) {
-        printf("Music is already paused\n");
-        return -1;
+    switch (Mix_PausedMusic()) {
+        case 0:
+            Mix_PauseMusic();
+            return true;
+        case 1:
+            Mix_ResumeMusic();
+            return false;
+        default:
+            SDL_Log("Music is not playing");
+            return false;
     }
-
-    Mix_PauseMusic();
-
-    return 0;
 }
 
-int    unpauseSound(t_sound *sound) {
-    if (initMusic(sound) == -1) return -1;
+bool    setSoundVolume(t_sound *sound, int volume) {
+    if (initMusic(sound) == -1) return false;
 
     if (Mix_PlayingMusic() == 0) {
-        printf("Music is not playing\n");
-        return -1;
-    }
-
-    if (Mix_PausedMusic() == 0) {
-        printf("Music is not paused\n");
-        return -1;
-    }
-
-    Mix_ResumeMusic();
-    return 0;
-}
-
-int    setSoundVolume(t_sound *sound, int volume) {
-    if (initMusic(sound) == -1) return -1;
-
-    if (Mix_PlayingMusic() == 0) {
-        printf("Music is not playing\n");
-        return -1;
+        SDL_Log("Music is not playing");
+        return false;
     }
 
     if (Mix_VolumeMusic(volume) == -1) {
-        printf("Failed to set volume\n");
-        return -1;
+        SDL_Log("Failed to set volume: %s", Mix_GetError());
+        return false;
     }
 
     Mix_VolumeMusic(volume);
 
-    return 0;
+    return true;
 }
