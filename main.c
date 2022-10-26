@@ -159,14 +159,13 @@ int main(int argc, char **argv)
         } else if (inGame())
         {
             movePlayer();
-            map_print(getGame()->map);
+            // map_print(getGame()->map);
             drawMap(getGame()->map);
             // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
         }
 
         recdst.x = getGame()->x;
         recdst.y = getGame()->y;
-        drawTexture("../dot.png", &rec, &recdst);
 
         pickColor(&windowLimitsColor);
         SDL_RenderDrawRect(g_renderer, &windowLimits);
