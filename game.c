@@ -63,16 +63,10 @@ void    posToGrid() {
 
 void    movePlayer() {
     t_game *game;
-    const t_map  *map;
-    short        oldCellX;
-    short        oldCellY;
+    const t_map     *map;
 
     game = getGame();
     map = game->map;
-
-    // save the position on the grid before moving
-    oldCellX = game->xCell;
-    oldCellY = game->yCell;
 
     if (map == NULL) {
         #ifdef DEBUG
@@ -102,16 +96,41 @@ void    movePlayer() {
     if (game->y > gameConfig->video.height) {
         game->y = gameConfig->video.height;
     }
+
+    // update the grid position
     posToGrid();
 
-    // printf("x = %d, y = %d , vx = %d, vy = %d, cellPos: (cx:%hu cy:%hu)\n", game->x, game->y, game->vx, game->vy, game->xCell, game->yCell);
+    //if the player is moving out of the map then we move him at the other side if possible
+    if (game->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
+        if (map->map[game->yCell][0] == EMPTY) {
+            // move the player to the other side
+            game->x = 0;
+        }
+    } else if (game->x == 0 && game->vx < 0) {
+        // if the player is on the left side of the map and he is moving left then we move him to the right side of the map
+        
+        // check if the player can be placed on the next cell
+        if (map->map[game->yCell][game->map->width - 1] == EMPTY) {
+            // move the player to the other side
+            game->x = gameConfig->video.width - PLAYER_WIDTH/2;
+        }
+    }
 
-    // if (game->x == game->lastX && game->y == game->lastY) return;
+    if (game->y >= (gameConfig->video.height - PLAYER_HEIGHT/2)) {
+        if (map->map[0][game->xCell] == EMPTY) {
+            // move the player to the other side
+            game->y = 0;
+        }
+    } else if (game->y == 0 && game->vy < 0) {
+        // if the player is on the top side of the map and he is moving up then we move him to the bottom side of the map
+        
+        // check if the player can be placed on the next cell
+        if (map->map[game->map->height - 1][game->xCell] == EMPTY) {
+            // move the player to the other side
+            game->y = gameConfig->video.height - PLAYER_HEIGHT/2;
+        }
+    }
 
-    // the old position is now empty
-    // map->map[game->lastY][game->lastX] = EMPTY;
-
-    // if player want to go out of the map then we move him at the other side
 
     switch (map->map[game->yCell][game->xCell]) {
         // case EMPTY:
