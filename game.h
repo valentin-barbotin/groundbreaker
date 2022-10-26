@@ -5,7 +5,9 @@
 
  #include "map.h"
 
- #define TEX_PLAYER "../assets/bomber.png"
+ #define TEX_PLAYER     "../assets/bomber.png"
+ #define PLAYER_WIDTH   50
+ #define PLAYER_HEIGHT  73
 
  typedef struct     s_game
  {
@@ -22,7 +24,6 @@
  bool    inGame();
  void    game_quit();
  t_game  *getGame();
- void    makeOldPosEmpty(short x, short y);
  void    movePlayer();
 
 #endif

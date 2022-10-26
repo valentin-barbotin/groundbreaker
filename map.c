@@ -203,17 +203,22 @@ void    map_print(const t_map *map) {
 };
 
 
-void    drawMap(const t_map *map) {
+void    drawMap() {
     SDL_Rect        rect;
     SDL_Rect        rectdest;
     const char      *tex;
     unsigned int    cellSizeX;
     unsigned int    cellSizeY;
-    t_game          *game;
+    const t_game    *game;
+    const t_map     *map;
     
     game = getGame();
+    map = game->map;
     cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
     cellSizeY = gameConfig->video.height / game->map->height;
+
+    map->map[3][2] = WALL;
+    map->map[3][3] = UNBREAKABLE_WALL;
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
@@ -289,8 +294,8 @@ void    drawPlayer() {
     // position of the player (centered)
     rectdest.x = game->x - (spriteW/2);
     rectdest.y = game->y - (spriteH/2);
-    rectdest.w = 50;
-    rectdest.h = 73;
+    rectdest.w = PLAYER_WIDTH;
+    rectdest.h = PLAYER_HEIGHT;
 
     // position of the sprite in the texture
     getPlayerDirection(&rect);

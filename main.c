@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         {
             movePlayer();
             // map_print(getGame()->map);
-            drawMap(getGame()->map);
+            drawMap();
             // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
         }
 
