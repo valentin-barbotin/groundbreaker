@@ -16,6 +16,8 @@
  * @return {void}
  */
 void removeLineFeed(char* str) {
+    if (str == NULL) return;
+
     str[strcspn(str, "\n")] = '\0';
 }
 
@@ -151,7 +153,10 @@ SDL_Texture* textureFromFile(const char* src) {
 char* removeSuffix(const char* src, char* suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
-        fprintf(stderr, "Can't find %s\n", suffix);
+        #ifdef DEBUG
+            fprintf(stderr, "Error removing suffix from string");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
     *pos = '\0';

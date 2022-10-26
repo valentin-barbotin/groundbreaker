@@ -66,7 +66,6 @@ void    setupMenu() {
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Error setting background image", NULL);
         exit(1);
-        return;
     }
 
     switch (g_currentState)
@@ -227,7 +226,11 @@ void    setupMenuButtons() {
         tex = getTextureFromString(g_currentMenu->buttons[i], color, false);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
-            fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
+            #ifdef DEBUG
+                fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
 
         target.x = (gameConfig->video.width)/2 - textWidth/2;
@@ -236,10 +239,14 @@ void    setupMenuButtons() {
         target.h = 100;
 
         op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
-        if (op < 0) { //TODO: handle
-            fprintf(stderr, "Error SDL_RenderCopy : %s", TTF_GetError());
-            break;
+        if (op < 0) {
+            #ifdef DEBUG
+                fprintf(stderr, "Erreur SDL_RenderCopy : %s", SDL_GetError());
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
+        SDL_DestroyTexture(tex);
         g_buttonsLocation[i] = target;
     }
 }

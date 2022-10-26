@@ -36,14 +36,18 @@ int             g_currentState;
 */
 void setupSDL() {
     if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO )) {
-		fprintf(stderr, "SDL_Init: %s", SDL_GetError());
+        #ifdef DEBUG
+		    fprintf(stderr, "SDL_Init: %s", SDL_GetError());
+        #endif
         exit(EXIT_FAILURE);
 	}
 
     // init sdl2_ttf
     if (TTF_Init() == -1)
 	{
-        fprintf(stderr, "TTF_Init: %s", TTF_GetError());
+        #ifdef DEBUG
+            fprintf(stderr, "TTF_Init: %s", TTF_GetError());
+        #endif
 		exit(EXIT_FAILURE);
 	}
 }
