@@ -196,7 +196,9 @@ void    map_fill(const t_map *map) {
     for (int i = 2; i < map->height-2; i++) {
         for (int j = 2; j < map->width-2; j++) {
             map->map[i][(j % 2) * j] = WALL;
+            map->map[(i %2)*i][j] = EMPTY;
             map->map[i][0] = UNBREAKABLE_WALL;
+            map->map[0][j] = UNBREAKABLE_WALL;
             map->map[1][1] = PLAYER;
             map->map[map->height - 2][map->width - 2] = PLAYER;
         }
