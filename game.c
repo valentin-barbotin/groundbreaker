@@ -67,7 +67,7 @@ void    makeOldPosEmpty(short x, short y) {
 
 void    movePlayer() {
     t_game* game;
-    t_map* map;
+    t_map*  map;
     short   oldCellX;
     short   oldCellY;
 
@@ -79,7 +79,10 @@ void    movePlayer() {
     map = game->map;
 
     if (map == NULL) {
-        fprintf(stderr, "Error: map is NULL in movePlayer()\n");
+        #ifdef DEBUG
+            fprintf(stderr, "Error: map is NULL in movePlayer()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
 

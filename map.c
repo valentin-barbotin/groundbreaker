@@ -29,7 +29,10 @@ void    *getMaps() {
     if (dir == NULL) {
         dir = opendir("../maps");
         if (dir == NULL) {
-            printf("Error: Could not open maps directory\n");
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Can't open maps directory\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
     }
@@ -55,7 +58,10 @@ void    *getMaps() {
                 sprintf(buff, "../maps/%s", files->d_name);
                 fd = fopen(buff, "rb");
                 if (fd == NULL) {
-                    printf("Error: Could not open file %s", files->d_name);
+                    #ifdef DEBUG
+                        fprintf(stderr, "Error: Can't open map file %s\n", files->d_name);
+                    #endif
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
                 }
             }
@@ -105,7 +111,10 @@ void    saveMap(const t_map *map) {
 
     name = randomString(20);
     if (name == NULL) {
-        perror("Error randomString");
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Could not allocate memory for name in saveMap()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
 
@@ -116,7 +125,10 @@ void    saveMap(const t_map *map) {
         sprintf(buff, "../maps/%s.bin", name);
         fd = fopen(buff, "wb");
         if (fd == NULL) {
-            printf("Error: Could not open maps directory\n");
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Can't open map file %s\n", name);
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
     }
