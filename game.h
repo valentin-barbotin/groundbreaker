@@ -5,6 +5,8 @@
 
  #include "map.h"
 
+ #define TEX_PLAYER "../assets/bomber.png"
+
  typedef struct     s_game
  {
      int                 x;

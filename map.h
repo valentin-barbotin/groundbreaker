@@ -2,6 +2,7 @@
  #define MAP_H
  
  #include <stdbool.h>
+ #include <SDL.h>
 
  #include "config.h"
 
@@ -38,5 +39,7 @@
  void    saveMap(const t_map *map);
  void    *getMaps();
  void    drawMap(const t_map *map);
+ void    getPlayerDirection(SDL_Rect *rect);
+ void    drawPlayer();
 
 #endif

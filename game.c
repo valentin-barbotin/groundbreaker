@@ -34,22 +34,25 @@ t_game* getGame() {
 }
 
 void    posToGrid() {
-    short   cellSizeX;
-    short   cellSizeY;
+    unsigned int   cellSizeX;
+    unsigned int   cellSizeY;
+    t_game         *game;
+
+    game = getGame();
 
     // can't divide by 0
-    if (getGame()->x) {
-        cellSizeX = gameConfig->video.width / getGame()->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    if (game->x) {
+        cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
         // avoid xCell to be equal to map->width (segfault, col 6 doesn't exist for a map of 6 cols)
-        if (getGame()->x != gameConfig->video.width) {
-            getGame()->xCell = (getGame()->x / cellSizeX);
+        if (game->x != gameConfig->video.width) {
+            game->xCell = (game->x / cellSizeX);
         }
     }
 
-    if (getGame()->y) {
-        cellSizeY = gameConfig->video.height / getGame()->map->height;
-        if (getGame()->y != gameConfig->video.height) {
-            getGame()->yCell = (getGame()->y / cellSizeY);
+    if (game->y) {
+        cellSizeY = gameConfig->video.height / game->map->height;
+        if (game->y != gameConfig->video.height) {
+            game->yCell = (game->y / cellSizeY);
         }
     }
 
@@ -66,16 +69,17 @@ void    makeOldPosEmpty(short x, short y) {
 
 
 void    movePlayer() {
-    t_game* game;
-    t_map*  map;
+    t_game *game;
+    t_map  *map;
     short   oldCellX;
     short   oldCellY;
 
-    // save the position on the grid before moving
-    oldCellX = getGame()->xCell;
-    oldCellY = getGame()->yCell;
-
     game = getGame();
+
+    // save the position on the grid before moving
+    oldCellX = game->xCell;
+    oldCellY = game->yCell;
+
     map = game->map;
 
     if (map == NULL) {
@@ -100,20 +104,20 @@ void    movePlayer() {
         game->y = 0;
     }
 
-    if (getGame()->x + 10 > gameConfig->video.width) {
+    if (game->x > gameConfig->video.width) {
         game->x = gameConfig->video.width;
     }
-    if (getGame()->y + 10 > gameConfig->video.height) {
+    if (game->y > gameConfig->video.height) {
         game->y = gameConfig->video.height;
     }
     posToGrid();
 
-    // printf("x = %d, y = %d , vx = %d, vy = %d, cellPos: (cx:%hu cy:%hu)\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy, getGame()->xCell, getGame()->yCell);
+    // printf("x = %d, y = %d , vx = %d, vy = %d, cellPos: (cx:%hu cy:%hu)\n", game->x, game->y, game->vx, game->vy, game->xCell, game->yCell);
 
-    // if (game->x == getGame()->lastX && game->y == getGame()->lastY) return;
+    // if (game->x == game->lastX && game->y == game->lastY) return;
 
     // the old position is now empty
-    // map->map[getGame()->lastY][getGame()->lastX] = EMPTY;
+    // map->map[game->lastY][game->lastX] = EMPTY;
 
     // if player want to go out of the map then we move him at the other side
 
@@ -128,41 +132,41 @@ void    movePlayer() {
     //     game->y = map->height - 1;
     // }
 
-    switch (map->map[getGame()->yCell][getGame()->xCell]) {
+    switch (map->map[game->yCell][game->xCell]) {
         case EMPTY:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
+            map->map[game->yCell][game->xCell] = PLAYER;
             break;
         case WALL:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
+            map->map[game->yCell][game->xCell] = PLAYER;
             // TODO : player must plant a bomb to break the wall
             break;
         case UNBREAKABLE_WALL:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
+            map->map[game->yCell][game->xCell] = PLAYER;
             // unbreakable wall
             break;
         case BOMB:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
+            map->map[game->yCell][game->xCell] = PLAYER;
             // TODO : player is on a bomb so the player must die
             break;
         case ITEM:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
+            map->map[game->yCell][game->xCell] = PLAYER;
             // TODO : Remove the item from the map and add it to the inventory
             break;
         default:
             break;
     }
 
-    if ((oldCellX != getGame()->xCell) || (oldCellY != getGame()->yCell)) {
+    if ((oldCellX != game->xCell) || (oldCellY != game->yCell)) {
         makeOldPosEmpty(oldCellX, oldCellY);
     }
 
     // // save the last position
     // if (map->map[game->y][game->x] == PLAYER) {
-    //     getGame()->lastX = game->x;
-    //     getGame()->lastY = game->y;
+    //     game->lastX = game->x;
+    //     game->lastY = game->y;
     // } else {
-    //     game->x = getGame()->lastX;
-    //     game->y = getGame()->lastY;
+    //     game->x = game->lastX;
+    //     game->y = game->lastY;
     // }
 }
 
