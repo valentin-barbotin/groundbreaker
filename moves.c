@@ -46,13 +46,13 @@ void    handleKeyUpPlay(const SDL_Event *event) {
 
 void    checkBorders() {
     
-    if (getGame()->x + 10 > gameConfig->video.width) {
+    if (getGame()->x + PLAYER_WIDTH/2 > gameConfig->video.width) {
         getGame()->x -= VELOCITY;
     } else if (getGame()->x < 0) {
         getGame()->x += VELOCITY;
     }
 
-    if (getGame()->y + 10 > gameConfig->video.height) {
+    if (getGame()->y + PLAYER_HEIGHT/2 > gameConfig->video.height) {
         getGame()->y -= VELOCITY;
     } else if (getGame()->y < 0) {
         getGame()->y += VELOCITY;

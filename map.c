@@ -203,18 +203,20 @@ void    map_print(const t_map *map) {
 };
 
 
-void    drawMap(const t_map *map) {
-    SDL_Rect    rect;
-    SDL_Rect    rectdest;
-    char        *tex;
-    short       cellSizeX;
-    short       cellSizeY;
+void    drawMap() {
+    SDL_Rect        rect;
+    SDL_Rect        rectdest;
+    const char      *tex;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+    const t_game    *game;
+    const t_map     *map;
     
+    game = getGame();
+    map = game->map;
+    cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    cellSizeY = gameConfig->video.height / game->map->height;
 
-    cellSizeX = gameConfig->video.width / getGame()->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
-    cellSizeY = gameConfig->video.height / getGame()->map->height;
-
-//  drawTexture("../dot.png", &rec, &recdst);
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             switch (map->map[i][j])
@@ -225,12 +227,8 @@ void    drawMap(const t_map *map) {
                 case UNBREAKABLE_WALL:
                     tex = TEX_UNBREAKABLE_WALL;
                     break;
-                case EMPTY:
-                    tex = TEX_DIRT;
-                    break;
-                
                 default:
-                    tex = TEX_UNBREAKABLE_WALL;
+                    tex = TEX_DIRT; //player & empty
                     break;
             }
 
@@ -246,4 +244,61 @@ void    drawMap(const t_map *map) {
             drawTexture(tex, &rect, &rectdest);
         }
     }
+
+    drawPlayer();
+}
+
+void getPlayerDirection(SDL_Rect *rect) {
+    const t_game  *game;
+
+    game = getGame();
+    rect->x = 47; // default: down
+
+    // position of the sprite in the texture
+    if (game->vx > 0) {
+        //right
+        rect->x = 174; 
+    } else if (game->vx < 0) {
+        // left
+        rect->x = 229;
+    }
+    if (game->vy > 0) {
+        // down
+        rect->x = 47;
+    } else if (game->vy < 0) {
+        // up
+        rect->x = 110;
+    }
+}
+
+/**
+ * @brief Get the player stance (moving or not) and render the player
+ * 
+ */
+void    drawPlayer() {
+    const t_game    *game;
+    short           spriteW;
+    short           spriteH;
+    SDL_Rect        rect;
+    SDL_Rect        rectdest;
+
+    game = getGame();
+
+    //draw player
+    spriteW = 50;
+    spriteH = 75;
+
+    // position of the player (centered)
+    rectdest.x = game->x - (spriteW/2);
+    rectdest.y = game->y - (spriteH/2);
+    rectdest.w = PLAYER_WIDTH;
+    rectdest.h = PLAYER_HEIGHT;
+
+    // position of the sprite in the texture
+    getPlayerDirection(&rect);
+    rect.y = 13;
+    rect.w = spriteW;
+    rect.h = spriteH;
+
+    drawTexture(TEX_PLAYER, &rect, &rectdest);
 }
