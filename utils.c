@@ -16,7 +16,33 @@
  * @return {void}
  */
 void removeLineFeed(char* str) {
+    if (str == NULL) return;
+
     str[strcspn(str, "\n")] = '\0';
+}
+
+char   *randomString(unsigned short size) {
+    char          *str;
+    char          *charset;
+
+    str = malloc(sizeof(char) * size + 1);
+    if (str == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error allocating memory for cache");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    if (str) {
+        for (unsigned short i = 0; i < size; i++) {
+            int key = rand() % (int) (strlen(charset) - 1);
+            str[i] = charset[key];
+        }
+        str[size] = '\0';
+    }
+    return str;
 }
 
 // https://theartincode.stanis.me/008-djb2/
@@ -69,7 +95,11 @@ char* readFile(const char* src) {
     rewind(fd);
     char* data = malloc(size);
     if (data == NULL) {
-        return NULL;
+        #ifdef DEBUG
+            fprintf(stderr, "Error allocating memory for cache");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     fread(data, sizeof(char), size, fd);
@@ -123,7 +153,10 @@ SDL_Texture* textureFromFile(const char* src) {
 char* removeSuffix(const char* src, char* suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
-        fprintf(stderr, "Can't find %s\n", suffix);
+        #ifdef DEBUG
+            fprintf(stderr, "Error removing suffix from string");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
     *pos = '\0';
