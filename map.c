@@ -217,9 +217,6 @@ void    drawMap() {
     cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
     cellSizeY = gameConfig->video.height / game->map->height;
 
-    map->map[3][2] = WALL;
-    map->map[3][3] = UNBREAKABLE_WALL;
-
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             switch (map->map[i][j])
