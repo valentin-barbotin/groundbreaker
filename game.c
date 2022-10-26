@@ -60,27 +60,19 @@ void    posToGrid() {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-void    makeOldPosEmpty(short x, short y) {
-    t_map* map;
-
-    map = getGame()->map;
-    map->map[y][x] = EMPTY;
-}
-
 
 void    movePlayer() {
     t_game *game;
-    t_map  *map;
-    short   oldCellX;
-    short   oldCellY;
+    const t_map  *map;
+    short        oldCellX;
+    short        oldCellY;
 
     game = getGame();
+    map = game->map;
 
     // save the position on the grid before moving
     oldCellX = game->xCell;
     oldCellY = game->yCell;
-
-    map = game->map;
 
     if (map == NULL) {
         #ifdef DEBUG
@@ -121,53 +113,32 @@ void    movePlayer() {
 
     // if player want to go out of the map then we move him at the other side
 
-    // checkborders();
-    // if (game->x >= map->width) {
-    //     game->x = 0;
-    // } else if (game->x < 0) {
-    //     game->x = map->width - 1;
-    // } else if (game->y >= map->height) {
-    //     game->y = 0;
-    // } else if (game->y < 0) {
-    //     game->y = map->height - 1;
-    // }
-
     switch (map->map[game->yCell][game->xCell]) {
-        case EMPTY:
-            map->map[game->yCell][game->xCell] = PLAYER;
-            break;
+        // case EMPTY:
+        //     map->map[game->yCell][game->xCell] = PLAYER;
+        //     break;
         case WALL:
-            map->map[game->yCell][game->xCell] = PLAYER;
-            // TODO : player must plant a bomb to break the wall
+            // if the player is on a wall then we move him back to the old position
+            game->x -= game->vx;
+            game->y -= game->vy;
             break;
         case UNBREAKABLE_WALL:
-            map->map[game->yCell][game->xCell] = PLAYER;
-            // unbreakable wall
+            // if the player is on a wall then we move him back to the old position
+            game->x -= game->vx;
+            game->y -= game->vy;
             break;
-        case BOMB:
-            map->map[game->yCell][game->xCell] = PLAYER;
-            // TODO : player is on a bomb so the player must die
-            break;
-        case ITEM:
-            map->map[game->yCell][game->xCell] = PLAYER;
-            // TODO : Remove the item from the map and add it to the inventory
-            break;
+        // case BOMB:
+        //     map->map[game->yCell][game->xCell] = PLAYER;
+        //     // TODO : player is on a bomb so the player must die
+        //     break;
+        // case ITEM:
+        //     map->map[game->yCell][game->xCell] = PLAYER;
+        //     // TODO : Remove the item from the map and add it to the inventory
+        //     break;
         default:
             break;
     }
-
-    if ((oldCellX != game->xCell) || (oldCellY != game->yCell)) {
-        makeOldPosEmpty(oldCellX, oldCellY);
-    }
-
-    // // save the last position
-    // if (map->map[game->y][game->x] == PLAYER) {
-    //     game->lastX = game->x;
-    //     game->lastY = game->y;
-    // } else {
-    //     game->x = game->lastX;
-    //     game->y = game->lastY;
-    // }
+    posToGrid();
 }
 
 
