@@ -21,6 +21,7 @@
      t_map               maps[10];
  }                  t_game;
 
+ void    spawnPlayer();
  bool    inGame();
  void    game_quit();
  t_game  *getGame();

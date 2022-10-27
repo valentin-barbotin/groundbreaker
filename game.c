@@ -5,6 +5,27 @@
 #include "moves.h"
 #include "utils.h"
 
+/**
+ * @brief Place the player in his cell instead of a wall..
+ * 
+ */
+void    spawnPlayer() {
+    t_game          *game;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+
+    game = getGame();
+
+    game->xCell = 1;
+    game->yCell = 1;
+
+    cellSizeX = gameConfig->video.width / game->map->width;
+    cellSizeY = gameConfig->video.height / game->map->height;
+
+    game->x = (game->xCell * cellSizeX) + (cellSizeX / 2) - (PLAYER_WIDTH / 2);
+    game->y = (game->yCell * cellSizeY) + (cellSizeY / 2) - (PLAYER_HEIGHT / 2);
+}
+
 bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
 }
