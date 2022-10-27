@@ -22,8 +22,8 @@ void    spawnPlayer() {
     cellSizeX = gameConfig->video.width / game->map->width;
     cellSizeY = gameConfig->video.height / game->map->height;
 
-    game->x = (game->xCell * cellSizeX) + (cellSizeX / 2) - (PLAYER_WIDTH / 2);
-    game->y = (game->yCell * cellSizeY) + (cellSizeY / 2) - (PLAYER_HEIGHT / 2);
+    game->x = (game->xCell * cellSizeX) + (cellSizeX / 2);
+    game->y = (game->yCell * cellSizeY) + (cellSizeY / 2);
 }
 
 bool    inGame() {
