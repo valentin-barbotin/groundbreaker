@@ -2,3 +2,5 @@
 build
 .idea
 maps/*
+cmake-build-debug
+bacg.jpeg

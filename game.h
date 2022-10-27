@@ -5,7 +5,7 @@
 
  #include "map.h"
 
- #define TEX_PLAYER     "../assets/bomber.png"
+ #define TEX_PLAYER     "./assets/bomber.png"
  #define PLAYER_WIDTH   50
  #define PLAYER_HEIGHT  73
 
@@ -21,6 +21,7 @@
      t_map               maps[10];
  }                  t_game;
 
+ void    spawnPlayer();
  bool    inGame();
  void    game_quit();
  t_game  *getGame();

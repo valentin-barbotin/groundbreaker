@@ -115,6 +115,8 @@ void    handleKeyUp(const SDL_Event *event) {
                         game->map = tmp[index];
                         // // memcpy(&game->map->map, &maps[index].map, sizeof(game->map->map));
 
+                        spawnPlayer();
+
                         g_currentState = GAME_PLAY_PLAYING;
                         break;
                     

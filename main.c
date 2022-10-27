@@ -37,7 +37,7 @@ int             g_currentState;
 void setupSDL() {
     if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO )) {
         #ifdef DEBUG
-		    fprintf(stderr, "SDL_Init: %s", SDL_GetError());
+		    fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         #endif
         exit(EXIT_FAILURE);
 	}
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     // Create a resizable window using config's width/heigth
     g_window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (!g_window) {
-		fprintf(stderr, "Erreur SDL_CreateWindow : %s", SDL_GetError());
+		fprintf(stderr, "Erreur SDL_CreateWindow : %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     // SDL_RENDERER_ACCELERATED -> hardware acceleration
     g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (!g_renderer) {
-		fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
+		fprintf(stderr, "Erreur SDL_CreateRenderer : %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
     // window limits, i3
     SDL_Rect windowLimits = {0, 0, windowWidth, windowHeight};
 
-    loadFont("../DejaVuSansMono.ttf", 20);
+    loadFont(FONT_PATH, 20);
 
     SDL_RaiseWindow(g_window);
 
