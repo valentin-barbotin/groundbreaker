@@ -4,10 +4,18 @@
 #include "map.h"
 #include "moves.h"
 
+/**
+ * @brief Verify if the player is in game
+ * @return
+ */
 bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
 }
 
+/**
+ * @brief Get the game struct
+ * @return
+ */
 t_game* getGame() {
     static t_game* game;
 
@@ -53,13 +61,25 @@ void    posToGrid() {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-void    makeOldPosEmpty(short x, short y) {
+/**
+ * @brief Make old position in param empty
+ * @param x
+ * @param y
+ */
+void makeOldPosEmpty(short x, short y) {
     t_map* map;
 
     map = getGame()->map;
     map->map[y][x] = EMPTY;
 }
 
+/**
+ * @brief Verify if ther is a TYPE (wall, player..) at the given position
+ * @param x
+ * @param y
+ * @param type
+ * @return
+ */
 bool  isThereA(short x, short y, t_type type) {
     t_map* map;
 
@@ -80,7 +100,11 @@ bool  isThereA(short x, short y, t_type type) {
     }
 }
 
-
+/**
+ * @brief Explode a bomb and destroy the walls/player around it
+ * @param x
+ * @param y
+ */
 void explodeBomb(short x, short y) {
     t_map* map;
 
@@ -166,6 +190,9 @@ void explodeBomb(short x, short y) {
     }
 }
 
+/**
+ * @brief move the player in the map
+ */
 void    movePlayer() {
     t_game* game;
     t_map* map;
