@@ -18,7 +18,7 @@
  }                  t_game;
 
  bool    inGame();
- bool    thereIsA(short x, short y, t_type type);
+ bool    isThereA(short x, short y, t_type type);
  void    game_quit();
  t_game  *getGame();
  void    makeOldPosEmpty(short x, short y);
