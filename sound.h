@@ -10,7 +10,6 @@
  typedef struct  s_sound
  {
      char        *file;
-     t_timer     *timer;
      Mix_Music   *music;
  }               t_sound;
 
