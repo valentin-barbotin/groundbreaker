@@ -43,7 +43,7 @@ void    *getMaps() {
 
             if (g_nbMap == 9) break;
 
-            buff = malloc(sizeof(char) * (strlen(files->d_name) + 1));
+            buff = strdup(files->d_name);
             if (buff == NULL) {
                 #ifdef DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for buff in getMaps()\n");
