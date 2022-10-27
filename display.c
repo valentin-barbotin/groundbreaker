@@ -54,7 +54,7 @@ bool    drawTexture(const char* image, const SDL_Rect *srcrect, const SDL_Rect *
 
     int success = SDL_RenderCopy(g_renderer, texture, srcrect, dstrect);
     if (success != 0) {
-		fprintf(stderr, "Error SDL_RenderCopy : %s", SDL_GetError());
+		fprintf(stderr, "Error SDL_RenderCopy : %s\n", SDL_GetError());
         return false;
     }
     return true;

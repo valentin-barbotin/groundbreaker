@@ -27,7 +27,7 @@ void    *getMaps() {
     g_nbMap = 0;
     dir = opendir("maps");
     if (dir == NULL) {
-        dir = opendir("../maps");
+        dir = opendir("./maps");
         if (dir == NULL) {
             #ifdef DEBUG
                 fprintf(stderr, "Error: Can't open maps directory\n");
@@ -55,7 +55,7 @@ void    *getMaps() {
             
             fd = fopen(buff, "rb");
             if (fd == NULL) {
-                sprintf(buff, "../maps/%s", files->d_name);
+                sprintf(buff, "./maps/%s", files->d_name);
                 fd = fopen(buff, "rb");
                 if (fd == NULL) {
                     #ifdef DEBUG
@@ -122,7 +122,7 @@ void    saveMap(const t_map *map) {
 
     fd = fopen(buff, "wb");
     if (fd == NULL) {
-        sprintf(buff, "../maps/%s.bin", name);
+        sprintf(buff, "./maps/%s.bin", name);
         fd = fopen(buff, "wb");
         if (fd == NULL) {
             #ifdef DEBUG

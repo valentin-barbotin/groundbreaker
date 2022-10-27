@@ -2,6 +2,7 @@
  #define CONFIG_H
 
  #define SIZE_DATA 256
+ #define FONT_PATH "./DejaVuSansMono.ttf"
 
  #include <stdio.h>
  #include <stdbool.h>
