@@ -167,7 +167,7 @@ void    drawLobbyMenu() {
         drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true);
     }
 
-    loadFont("../DejaVuSansMono.ttf", 30);
+    loadFont(FONT_PATH, 30);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :", true);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :", true);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Players :", true);
@@ -181,7 +181,7 @@ void    drawLobbyMenu() {
     sprintf(buff, "%d", g_lobby->players);
     drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true);
 
-    loadFont("../DejaVuSansMono.ttf", 20);
+    loadFont(FONT_PATH, 20);
     drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, "You can pick a maximum of 10 maps", true);
     
     drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(A) Previous (E) Next (space) Select (Enter) play (N) New", false);
@@ -227,7 +227,7 @@ void    setupMenuButtons() {
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
             #ifdef DEBUG
-                fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
+                fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
@@ -241,7 +241,7 @@ void    setupMenuButtons() {
         op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
         if (op < 0) {
             #ifdef DEBUG
-                fprintf(stderr, "Erreur SDL_RenderCopy : %s", SDL_GetError());
+                fprintf(stderr, "Erreur SDL_RenderCopy : %s\n", SDL_GetError());
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);

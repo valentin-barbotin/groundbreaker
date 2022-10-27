@@ -73,7 +73,7 @@ void            drawText(const SDL_Color *color, const unsigned int x, const uns
     op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
     if (op != 0) {
         #ifdef DEBUG
-            fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
+            fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
@@ -87,7 +87,7 @@ void            drawText(const SDL_Color *color, const unsigned int x, const uns
     op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
     if (op < 0) {
         #ifdef DEBUG
-            fprintf(stderr, "Erreur SDL_RenderCopy : %s", SDL_GetError());
+            fprintf(stderr, "Erreur SDL_RenderCopy : %s\n", SDL_GetError());
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);

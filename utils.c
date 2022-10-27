@@ -120,7 +120,7 @@ bool pickColor(const SDL_Color *color) {
     if (success == 0) {
         return true;
     }
-    fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
+    fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s\n", SDL_GetError());
     return false;
 }
 
@@ -137,7 +137,7 @@ SDL_Texture* textureFromFile(const char* src) {
     SDL_Texture* tex;
     tex = IMG_LoadTexture(g_renderer, src);
     if (tex == NULL) {
-        fprintf(stderr, "Erreur IMG_LoadTexture : %s", SDL_GetError());
+        fprintf(stderr, "Erreur IMG_LoadTexture : %s\n", SDL_GetError());
         return NULL;
     }
 

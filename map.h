@@ -6,9 +6,9 @@
 
  #include "config.h"
 
- #define TEX_WALL "../assets/wall.png"
- #define TEX_UNBREAKABLE_WALL "../assets/unbreak.png"
- #define TEX_DIRT "../assets/dirt.png"
+ #define TEX_WALL "./assets/wall.png"
+ #define TEX_UNBREAKABLE_WALL "./assets/unbreak.png"
+ #define TEX_DIRT "./assets/dirt.png"
 
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
