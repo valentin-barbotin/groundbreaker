@@ -180,9 +180,39 @@ void    map_fill(const t_map *map) {
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             map->map[i][j] = EMPTY;
+
+        }
+    }
+    for (int i = 0; i < map->height; i++) {
+        for (int j = 0; j < map->width; j++) {
+            map->map[map->height - 1][j] = UNBREAKABLE_WALL;
+            map->map[i][0] = UNBREAKABLE_WALL;
+            map->map[i][map->width - 1] = UNBREAKABLE_WALL;
+            map->map[0][j] = UNBREAKABLE_WALL;
+
+
+        }
+}
+    for (int i = 2; i < map->height-2; i++) {
+        for (int j = 2; j < map->width-2; j++) {
+            map->map[i][(j % 2) * j] = WALL;
+            map->map[(i %2)*i][j] = EMPTY;
+            map->map[i][0] = UNBREAKABLE_WALL;
+            map->map[0][j] = UNBREAKABLE_WALL;
+            map->map[1][1] = PLAYER;
+            map->map[map->height - 2][map->width - 2] = PLAYER;
+        }
+    }
+    for (int i = 2; i < map->height-2; i++) {
+        for (int j = 2; j < map->width-2; j++) {
+            map->map[1][0] = EMPTY;
+            map->map[1][map->width - 1] = EMPTY;
+
         }
     }
 }
+
+
 
 void    map_destroy(t_map *map) {
     for (int i = 0; i < map->height; i++) {
