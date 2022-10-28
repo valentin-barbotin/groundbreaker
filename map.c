@@ -10,7 +10,7 @@
 
 short       g_nbMap = 0;
 
-void    *getMaps() {
+void     getMaps() {
     struct dirent   *files;
     DIR             *dir;
     FILE            *fd;
@@ -27,14 +27,11 @@ void    *getMaps() {
     g_nbMap = 0;
     dir = opendir("maps");
     if (dir == NULL) {
-        dir = opendir("./maps");
-        if (dir == NULL) {
-            #ifdef DEBUG
-                fprintf(stderr, "Error: Can't open maps directory\n");
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-            exit(1);
-        }
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Can't open maps directory\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     while ((files = readdir(dir)) != NULL) {
@@ -43,6 +40,7 @@ void    *getMaps() {
 
             if (g_nbMap == 9) break;
 
+            // We can strdup because d_name array is 256 bytes long
             buff = strdup(files->d_name);
             if (buff == NULL) {
                 #ifdef DEBUG
@@ -52,18 +50,14 @@ void    *getMaps() {
                 exit(1);
             }
             sprintf(buff, "maps/%s", files->d_name);
-            
+
             fd = fopen(buff, "rb");
             if (fd == NULL) {
-                sprintf(buff, "./maps/%s", files->d_name);
-                fd = fopen(buff, "rb");
-                if (fd == NULL) {
-                    #ifdef DEBUG
-                        fprintf(stderr, "Error: Can't open map file %s\n", files->d_name);
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-                    exit(1);
-                }
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Can't open map file %s\n", files->d_name);
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
             }
             free(buff);
 
@@ -119,20 +113,16 @@ void    saveMap(const t_map *map) {
     }
 
     sprintf(buff, "maps/%s.bin", name);
+    free(name);
 
     fd = fopen(buff, "wb");
     if (fd == NULL) {
-        sprintf(buff, "./maps/%s.bin", name);
-        fd = fopen(buff, "wb");
-        if (fd == NULL) {
-            #ifdef DEBUG
-                fprintf(stderr, "Error: Can't open map file %s\n", name);
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-            exit(1);
-        }
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Can't open map file %s\n", name);
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
-    free(name);
 
     fwrite(map, sizeof(t_map), 1, fd);
     for (int i = 0; i < map->height; i++) {

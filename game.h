@@ -15,8 +15,8 @@
      int                 y;
      short               vx;
      short               vy;
-     unsigned short      xCell;
-     unsigned short      yCell;
+     int                 xCell;
+     int                 yCell;
      t_map               *map;
      t_map               maps[10];
  }                  t_game;

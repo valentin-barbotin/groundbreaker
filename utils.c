@@ -23,7 +23,9 @@ void removeLineFeed(char* str) {
 
 char   *randomString(unsigned short size) {
     char          *str;
-    char          *charset;
+    const char    *charset;
+
+    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     str = malloc(sizeof(char) * size + 1);
     if (str == NULL) {
@@ -33,7 +35,6 @@ char   *randomString(unsigned short size) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
-    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     if (str) {
         for (unsigned short i = 0; i < size; i++) {

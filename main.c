@@ -61,7 +61,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error reading config file");
         exit(EXIT_FAILURE);
     }
-    srand(time(NULL));
+    time_t t;
+    srand((unsigned) time(&t));
 
     unsigned int    windowWidth;
     unsigned int    windowHeight;
@@ -101,9 +102,6 @@ int main(int argc, char **argv)
     SDL_Color windowLimitsColor = { 255, 255, 0, 255 };
     SDL_Color blackColor = { 0, 0, 0, 255 };
 
-    SDL_Rect rec = { 0, 0, 512, 512 };
-    SDL_Rect recdst = { 0, 0, 10, 10 };
-
     g_currentState = GAME_MAINMENU;
 
     int running = 1;
@@ -127,13 +125,13 @@ int main(int argc, char **argv)
                 puts("Mouse button up");
                 handleMouseButtonUp(&event);
                 break;
-                // Handle a key press
+            // Handle a key press
             case SDL_KEYDOWN: {
                 // puts("Key down");
                 handleKeyDown(&event.key);
                 break;
             }
-                            // Handle a key release
+            // Handle a key release
             case SDL_KEYUP: {
                     // puts("Key up");
                 handleKeyUp(&event);
@@ -163,9 +161,6 @@ int main(int argc, char **argv)
             drawMap();
             // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
         }
-
-        recdst.x = getGame()->x;
-        recdst.y = getGame()->y;
 
         pickColor(&windowLimitsColor);
         SDL_RenderDrawRect(g_renderer, &windowLimits);
