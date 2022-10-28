@@ -2,12 +2,13 @@
  #define MAP_H
  
  #include <stdbool.h>
+ #include <SDL.h>
 
  #include "config.h"
 
- #define TEX_WALL "../assets/wall.png"
- #define TEX_UNBREAKABLE_WALL "../assets/unbreak.png"
- #define TEX_DIRT "../assets/dirt.png"
+ #define TEX_WALL "./assets/wall.png"
+ #define TEX_UNBREAKABLE_WALL "./assets/unbreak.png"
+ #define TEX_DIRT "./assets/dirt.png"
 
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
@@ -36,7 +37,9 @@
  void    map_destroy(t_map *map);
  void    map_print(const t_map *map);
  void    saveMap(const t_map *map);
- void    *getMaps();
- void    drawMap(const t_map *map);
+ void    getMaps();
+ void    drawMap();
+ void    getPlayerDirection(SDL_Rect *rect);
+ void    drawPlayer();
 
 #endif

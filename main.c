@@ -23,6 +23,8 @@
 #define TICKS_PER_FRAME 1000 / FPS_MAX
 extern t_gameConfig    *gameConfig;
 
+#define DEBUG true
+
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
 TTF_Font*       g_font = NULL;
@@ -34,14 +36,18 @@ int             g_currentState;
 */
 void setupSDL() {
     if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO )) {
-		fprintf(stderr, "SDL_Init: %s", SDL_GetError());
+        #ifdef DEBUG
+		    fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
+        #endif
         exit(EXIT_FAILURE);
 	}
 
     // init sdl2_ttf
     if (TTF_Init() == -1)
 	{
-        fprintf(stderr, "TTF_Init: %s", TTF_GetError());
+        #ifdef DEBUG
+            fprintf(stderr, "TTF_Init: %s", TTF_GetError());
+        #endif
 		exit(EXIT_FAILURE);
 	}
 }
@@ -55,7 +61,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error reading config file");
         exit(EXIT_FAILURE);
     }
-    srand(time(NULL));
+    time_t t;
+    srand((unsigned) time(&t));
 
     unsigned int    windowWidth;
     unsigned int    windowHeight;
@@ -71,7 +78,7 @@ int main(int argc, char **argv)
     // Create a resizable window using config's width/heigth
     g_window = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (!g_window) {
-		fprintf(stderr, "Erreur SDL_CreateWindow : %s", SDL_GetError());
+		fprintf(stderr, "Erreur SDL_CreateWindow : %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -79,7 +86,7 @@ int main(int argc, char **argv)
     // SDL_RENDERER_ACCELERATED -> hardware acceleration
     g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (!g_renderer) {
-		fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
+		fprintf(stderr, "Erreur SDL_CreateRenderer : %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -88,15 +95,12 @@ int main(int argc, char **argv)
     // window limits, i3
     SDL_Rect windowLimits = {0, 0, windowWidth, windowHeight};
 
-    loadFont("../DejaVuSansMono.ttf", 20);
+    loadFont(FONT_PATH, 20);
 
     SDL_RaiseWindow(g_window);
 
     SDL_Color windowLimitsColor = { 255, 255, 0, 255 };
     SDL_Color blackColor = { 0, 0, 0, 255 };
-
-    SDL_Rect rec = { 0, 0, 512, 512 };
-    SDL_Rect recdst = { 0, 0, 10, 10 };
 
     g_currentState = GAME_MAINMENU;
 
@@ -121,13 +125,13 @@ int main(int argc, char **argv)
                 puts("Mouse button up");
                 handleMouseButtonUp(&event);
                 break;
-                // Handle a key press
+            // Handle a key press
             case SDL_KEYDOWN: {
                 // puts("Key down");
                 handleKeyDown(&event.key);
                 break;
             }
-                            // Handle a key release
+            // Handle a key release
             case SDL_KEYUP: {
                     // puts("Key up");
                 handleKeyUp(&event);
@@ -153,14 +157,10 @@ int main(int argc, char **argv)
         } else if (inGame())
         {
             movePlayer();
-            map_print(getGame()->map);
-            drawMap(getGame()->map);
+            // map_print(getGame()->map);
+            drawMap();
             // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
         }
-
-        recdst.x = getGame()->x;
-        recdst.y = getGame()->y;
-        drawTexture("../dot.png", &rec, &recdst);
 
         pickColor(&windowLimitsColor);
         SDL_RenderDrawRect(g_renderer, &windowLimits);

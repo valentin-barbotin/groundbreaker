@@ -2,6 +2,7 @@
  #define CONFIG_H
 
  #define SIZE_DATA 256
+ #define FONT_PATH "./DejaVuSansMono.ttf"
 
  #include <stdio.h>
  #include <stdbool.h>
@@ -95,7 +96,11 @@
 
 
  void    defaultConfig(t_gameConfig *config);
- bool    setupGlobal(const FILE* fd, char *data, t_globalConfig *globalConfig);
+ bool    setupGlobal(FILE* fd, char* data, t_globalConfig *globalConfig);
+ bool    setupServer(FILE* fd, char* data, t_serverConfig *config);
+ bool    setupVideo(FILE* fd, char* data, t_videoConfig *config);
+ bool    setupAudio(FILE* fd, char* data, t_audioConfig *config);
+ bool    setupCommands(FILE* fd, char* data, t_commandsConfig *config);
  int     readConfig(t_gameConfig *config);
 
 #endif

@@ -3,26 +3,45 @@
 #include "game.h"
 #include "map.h"
 #include "moves.h"
+#include "utils.h"
 
 /**
- * @brief Verify if the player is in game
- * @return
+ * @brief Place the player in his cell instead of a wall..
+ * 
  */
+void    spawnPlayer() {
+    t_game          *game;
+    const t_map     *map;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+
+    game = getGame();
+    map = game->map;
+
+    game->xCell = 1;
+    game->yCell = 1;
+
+    cellSizeX = gameConfig->video.width / map->width;
+    cellSizeY = gameConfig->video.height / map->height;
+
+    game->x = (game->xCell * cellSizeX) + (cellSizeX / 2);
+    game->y = (game->yCell * cellSizeY) + (cellSizeY / 2);
+}
+
 bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
 }
 
-/**
- * @brief Get the game struct
- * @return
- */
 t_game* getGame() {
     static t_game* game;
 
     if (game == NULL) {
         game = malloc(sizeof(t_game));
         if (game == NULL) {
-            fprintf(stderr, "Error: malloc failed in getGame()\n");
+            #ifdef DEBUG
+                fprintf(stderr, "Error allocating memory for game");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
         game->x = 0;
@@ -38,22 +57,25 @@ t_game* getGame() {
 }
 
 void    posToGrid() {
-    short   cellSizeX;
-    short   cellSizeY;
+    unsigned int   cellSizeX;
+    unsigned int   cellSizeY;
+    t_game         *game;
+
+    game = getGame();
 
     // can't divide by 0
-    if (getGame()->x) {
-        cellSizeX = gameConfig->video.width / getGame()->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    if (game->x) {
+        cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
         // avoid xCell to be equal to map->width (segfault, col 6 doesn't exist for a map of 6 cols)
-        if (getGame()->x != gameConfig->video.width) {
-            getGame()->xCell = (getGame()->x / cellSizeX);
+        if (game->x != gameConfig->video.width) {
+            game->xCell = (game->x / cellSizeX);
         }
     }
 
-    if (getGame()->y) {
-        cellSizeY = gameConfig->video.height / getGame()->map->height;
-        if (getGame()->y != gameConfig->video.height) {
-            getGame()->yCell = (getGame()->y / cellSizeY);
+    if (game->y) {
+        cellSizeY = gameConfig->video.height / game->map->height;
+        if (game->y != gameConfig->video.height) {
+            game->yCell = (game->y / cellSizeY);
         }
     }
 
@@ -61,153 +83,19 @@ void    posToGrid() {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-/**
- * @brief Make old position in param empty
- * @param x
- * @param y
- */
-void makeOldPosEmpty(short x, short y) {
-    t_map* map;
 
-    map = getGame()->map;
-    map->map[y][x] = EMPTY;
-}
-
-/**
- * @brief Verify if ther is a TYPE (wall, player..) at the given position
- * @param x
- * @param y
- * @param type
- * @return
- */
-bool  isThereA(short x, short y, t_type type) {
-    t_map* map;
-
-    map = getGame()->map;
-    switch (type) {
-        case BOMB:
-            return (map->map[y][x] == BOMB);
-        case WALL:
-            return (map->map[y][x] == WALL);
-        case UNBREAKABLE_WALL:
-            return (map->map[y][x] == UNBREAKABLE_WALL);
-        case PLAYER:
-            return (map->map[y][x] == PLAYER);
-        case EMPTY:
-            return (map->map[y][x] == EMPTY);
-        default:
-            return false;
-    }
-}
-
-/**
- * @brief Explode a bomb and destroy the walls/player around it
- * @param x
- * @param y
- */
-void explodeBomb(short x, short y) {
-    t_map* map;
-
-    map = getGame()->map;
-    map->map[y][x] = EMPTY;
-
-    // ⚠ Temporaire ⚠
-    // en attendant que la structure Joueur soit faite
-    int SCOPE = map->scopeBomb = 2;
-
-    for (int i = 1; i <= SCOPE; i++) {
-        // up
-        if (y - i >= 0) {
-            if (isThereA(x, y - i, WALL)) {
-                makeOldPosEmpty(x, y - i);
-                break;
-            } else if (isThereA(x, y - i, BOMB)) {
-                explodeBomb(x, y - i);
-                break;
-            } else if (isThereA(x, y - i, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x, y - i, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x, y - i);
-            }
-        }
-
-        // down
-        if (y + i < map->height) {
-            if (isThereA(x, y + i, WALL)) {
-                makeOldPosEmpty(x, y + i);
-                break;
-            } else if (isThereA(x, y + i, BOMB)) {
-                explodeBomb(x, y + i);
-                break;
-            } else if (isThereA(x, y + i, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x, y + i, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x, y + i);
-            }
-        }
-
-        // left
-        if (x - i >= 0) {
-            if (isThereA(x - i, y, WALL)) {
-                makeOldPosEmpty(x - i, y);
-                break;
-            } else if (isThereA(x - i, y, BOMB)) {
-                explodeBomb(x - i, y);
-                break;
-            } else if (isThereA(x - i, y, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x - i, y, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x - i, y);
-            }
-        }
-
-        // right
-        if (x + i < map->width) {
-            if (isThereA(x + i, y, WALL)) {
-                makeOldPosEmpty(x + i, y);
-                break;
-            } else if (isThereA(x + i, y, BOMB)) {
-                explodeBomb(x + i, y);
-                break;
-            } else if (isThereA(x + i, y, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x + i, y, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x + i, y);
-            }
-        }
-    }
-}
-
-/**
- * @brief move the player in the map
- */
 void    movePlayer() {
-    t_game* game;
-    t_map* map;
-    short   oldCellX;
-    short   oldCellY;
-
-    // save the position on the grid before moving
-    oldCellX = getGame()->xCell;
-    oldCellY = getGame()->yCell;
+    t_game *game;
+    const t_map     *map;
 
     game = getGame();
     map = game->map;
 
     if (map == NULL) {
-        fprintf(stderr, "Error: map is NULL in movePlayer()\n");
+        #ifdef DEBUG
+            fprintf(stderr, "Error: map is NULL in movePlayer()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
 
@@ -225,70 +113,71 @@ void    movePlayer() {
         game->y = 0;
     }
 
-    if (getGame()->x + 10 > gameConfig->video.width) {
+    if (game->x > gameConfig->video.width) {
         game->x = gameConfig->video.width;
     }
-    if (getGame()->y + 10 > gameConfig->video.height) {
+    if (game->y > gameConfig->video.height) {
         game->y = gameConfig->video.height;
     }
+
+    // update the grid position
     posToGrid();
 
-    // printf("x = %d, y = %d , vx = %d, vy = %d, cellPos: (cx:%hu cy:%hu)\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy, getGame()->xCell, getGame()->yCell);
+    //if the player is moving out of the map then we move him at the other side if possible
+    if (game->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
+        if (map->map[game->yCell][0] == EMPTY) {
+            // move the player to the other side
+            game->x = 0;
+        }
+    } else if (game->x == 0 && game->vx < 0) {
+        // if the player is on the left side of the map and he is moving left then we move him to the right side of the map
+        
+        // check if the player can be placed on the next cell
+        if (map->map[game->yCell][game->map->width - 1] == EMPTY) {
+            // move the player to the other side
+            game->x = gameConfig->video.width - PLAYER_WIDTH/2;
+        }
+    }
 
-    // if (game->x == getGame()->lastX && game->y == getGame()->lastY) return;
+    if (game->y >= (gameConfig->video.height - PLAYER_HEIGHT/2)) {
+        if (map->map[0][game->xCell] == EMPTY) {
+            // move the player to the other side
+            game->y = 0;
+        }
+    } else if (game->y == 0 && game->vy < 0) {
+        // if the player is on the top side of the map and he is moving up then we move him to the bottom side of the map
+        
+        // check if the player can be placed on the next cell
+        if (map->map[game->map->height - 1][game->xCell] == EMPTY) {
+            // move the player to the other side
+            game->y = gameConfig->video.height - PLAYER_HEIGHT/2;
+        }
+    }
 
-    // the old position is now empty
-    // map->map[getGame()->lastY][getGame()->lastX] = EMPTY;
 
-    // if player want to go out of the map then we move him at the other side
-
-    // checkborders();
-    // if (game->x >= map->width) {
-    //     game->x = 0;
-    // } else if (game->x < 0) {
-    //     game->x = map->width - 1;
-    // } else if (game->y >= map->height) {
-    //     game->y = 0;
-    // } else if (game->y < 0) {
-    //     game->y = map->height - 1;
-    // }
-
-    switch (map->map[getGame()->yCell][getGame()->xCell]) {
-        case EMPTY:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
-            break;
+    switch (map->map[game->yCell][game->xCell]) {
         case WALL:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
-            // TODO : player must plant a bomb to break the wall
+            // if the player is on a wall then we move him back to the old position
+            game->x -= game->vx;
+            game->y -= game->vy;
             break;
         case UNBREAKABLE_WALL:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
-            // unbreakable wall
+            // if the player is on a wall then we move him back to the old position
+            game->x -= game->vx;
+            game->y -= game->vy;
             break;
-        case BOMB:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
-            // TODO : player is on a bomb so the player must die
-            break;
-        case ITEM:
-            map->map[getGame()->yCell][getGame()->xCell] = PLAYER;
-            // TODO : Remove the item from the map and add it to the inventory
-            break;
+        // case BOMB:
+        //     map->map[game->yCell][game->xCell] = PLAYER;
+        //     // TODO : player is on a bomb so the player must die
+        //     break;
+        // case ITEM:
+        //     map->map[game->yCell][game->xCell] = PLAYER;
+        //     // TODO : Remove the item from the map and add it to the inventory
+        //     break;
         default:
             break;
     }
-
-    if ((oldCellX != getGame()->xCell) || (oldCellY != getGame()->yCell)) {
-        makeOldPosEmpty(oldCellX, oldCellY);
-    }
-
-    // // save the last position
-    // if (map->map[game->y][game->x] == PLAYER) {
-    //     getGame()->lastX = game->x;
-    //     getGame()->lastY = game->y;
-    // } else {
-    //     game->x = getGame()->lastX;
-    //     game->y = getGame()->lastY;
-    // }
+    posToGrid();
 }
 
 

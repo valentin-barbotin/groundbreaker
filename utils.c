@@ -16,15 +16,25 @@
  * @return {void}
  */
 void removeLineFeed(char* str) {
+    if (str == NULL) return;
+
     str[strcspn(str, "\n")] = '\0';
 }
 
 char   *randomString(unsigned short size) {
     char          *str;
-    char          *charset;
+    const char    *charset;
+
+    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     str = malloc(sizeof(char) * size + 1);
-    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    if (str == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error allocating memory for cache");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
 
     if (str) {
         for (unsigned short i = 0; i < size; i++) {
@@ -86,7 +96,11 @@ char* readFile(const char* src) {
     rewind(fd);
     char* data = malloc(size);
     if (data == NULL) {
-        return NULL;
+        #ifdef DEBUG
+            fprintf(stderr, "Error allocating memory for cache");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     fread(data, sizeof(char), size, fd);
@@ -107,7 +121,7 @@ bool pickColor(const SDL_Color *color) {
     if (success == 0) {
         return true;
     }
-    fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
+    fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s\n", SDL_GetError());
     return false;
 }
 
@@ -124,7 +138,7 @@ SDL_Texture* textureFromFile(const char* src) {
     SDL_Texture* tex;
     tex = IMG_LoadTexture(g_renderer, src);
     if (tex == NULL) {
-        fprintf(stderr, "Erreur IMG_LoadTexture : %s", SDL_GetError());
+        fprintf(stderr, "Erreur IMG_LoadTexture : %s\n", SDL_GetError());
         return NULL;
     }
 
@@ -140,7 +154,10 @@ SDL_Texture* textureFromFile(const char* src) {
 char* removeSuffix(const char* src, char* suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
-        fprintf(stderr, "Can't find %s\n", suffix);
+        #ifdef DEBUG
+            fprintf(stderr, "Error removing suffix from string");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
     *pos = '\0';

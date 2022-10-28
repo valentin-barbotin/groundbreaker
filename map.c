@@ -10,7 +10,7 @@
 
 short       g_nbMap = 0;
 
-void    *getMaps() {
+void     getMaps() {
     struct dirent   *files;
     DIR             *dir;
     FILE            *fd;
@@ -27,11 +27,11 @@ void    *getMaps() {
     g_nbMap = 0;
     dir = opendir("maps");
     if (dir == NULL) {
-        dir = opendir("../maps");
-        if (dir == NULL) {
-            printf("Error: Could not open maps directory\n");
-            exit(1);
-        }
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Can't open maps directory\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     while ((files = readdir(dir)) != NULL) {
@@ -40,23 +40,33 @@ void    *getMaps() {
 
             if (g_nbMap == 9) break;
 
-            buff = malloc(sizeof(char) * (strlen(files->d_name) + 1));
+            // We can strdup because d_name array is 256 bytes long
+            buff = strdup(files->d_name);
+            if (buff == NULL) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Could not allocate memory for buff in getMaps()\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
+            }
             sprintf(buff, "maps/%s", files->d_name);
-            
+
             fd = fopen(buff, "rb");
             if (fd == NULL) {
-                sprintf(buff, "../maps/%s", files->d_name);
-                fd = fopen(buff, "rb");
-                if (fd == NULL) {
-                    printf("Error: Could not open file %s", files->d_name);
-                    exit(1);
-                }
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Can't open map file %s\n", files->d_name);
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
             }
             free(buff);
 
             mapfd = malloc(sizeof(t_map));
             if (mapfd == NULL) {
-                fprintf(stderr, "Error malloc map: %s", SDL_GetError());
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Could not allocate memory for mapfd in getMaps()\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                 exit(1);
             }
             fread(mapfd, sizeof(t_map), 1, fd);
@@ -66,7 +76,10 @@ void    *getMaps() {
 
             map = map_create(w, h);
             if (map == NULL) {
-                fprintf(stderr, "Error malloc map: %s", SDL_GetError());
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: Could not allocate memory for map in getMaps()\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                 exit(1);
             }
             grid = map->map;
@@ -92,22 +105,24 @@ void    saveMap(const t_map *map) {
 
     name = randomString(20);
     if (name == NULL) {
-        perror("Error randomString");
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Could not allocate memory for name in saveMap()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
 
     sprintf(buff, "maps/%s.bin", name);
+    free(name);
 
     fd = fopen(buff, "wb");
     if (fd == NULL) {
-        sprintf(buff, "../maps/%s.bin", name);
-        fd = fopen(buff, "wb");
-        if (fd == NULL) {
-            printf("Error: Could not open maps directory\n");
-            exit(1);
-        }
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Can't open map file %s\n", name);
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
-    free(name);
 
     fwrite(map, sizeof(t_map), 1, fd);
     for (int i = 0; i < map->height; i++) {
@@ -128,13 +143,21 @@ t_map   *map_create(unsigned short width, unsigned short height) {
     map->height = height;
     map->map = malloc(sizeof(char *) * height);
     if (map->map == NULL) {
-        return NULL;
+        #ifdef DEBUG
+            fprintf(stderr, "Error: Could not allocate memory for map->map in map_create()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
 
     for (int i = 0; i < height; i++) {
         map->map[i] = malloc(sizeof(char) * width);
         if (map->map[i] == NULL) {
-            return NULL;
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Could not allocate memory for map->map[i] in map_create()\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
     }
 
@@ -147,9 +170,39 @@ void    map_fill(const t_map *map) {
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             map->map[i][j] = EMPTY;
+
+        }
+    }
+    for (int i = 0; i < map->height; i++) {
+        for (int j = 0; j < map->width; j++) {
+            map->map[map->height - 1][j] = UNBREAKABLE_WALL;
+            map->map[i][0] = UNBREAKABLE_WALL;
+            map->map[i][map->width - 1] = UNBREAKABLE_WALL;
+            map->map[0][j] = UNBREAKABLE_WALL;
+
+
+        }
+}
+    for (int i = 2; i < map->height-2; i++) {
+        for (int j = 2; j < map->width-2; j++) {
+            map->map[i][(j % 2) * j] = WALL;
+            map->map[(i %2)*i][j] = EMPTY;
+            map->map[i][0] = UNBREAKABLE_WALL;
+            map->map[0][j] = UNBREAKABLE_WALL;
+            map->map[1][1] = PLAYER;
+            map->map[map->height - 2][map->width - 2] = PLAYER;
+        }
+    }
+    for (int i = 2; i < map->height-2; i++) {
+        for (int j = 2; j < map->width-2; j++) {
+            map->map[1][0] = EMPTY;
+            map->map[1][map->width - 1] = EMPTY;
+
         }
     }
 }
+
+
 
 void    map_destroy(t_map *map) {
     for (int i = 0; i < map->height; i++) {
@@ -170,18 +223,20 @@ void    map_print(const t_map *map) {
 };
 
 
-void    drawMap(const t_map *map) {
-    SDL_Rect    rect;
-    SDL_Rect    rectdest;
-    char        *tex;
-    short       cellSizeX;
-    short       cellSizeY;
+void    drawMap() {
+    SDL_Rect        rect;
+    SDL_Rect        rectdest;
+    const char      *tex;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+    const t_game    *game;
+    const t_map     *map;
     
+    game = getGame();
+    map = game->map;
+    cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    cellSizeY = gameConfig->video.height / game->map->height;
 
-    cellSizeX = gameConfig->video.width / getGame()->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
-    cellSizeY = gameConfig->video.height / getGame()->map->height;
-
-//  drawTexture("../dot.png", &rec, &recdst);
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             switch (map->map[i][j])
@@ -192,12 +247,8 @@ void    drawMap(const t_map *map) {
                 case UNBREAKABLE_WALL:
                     tex = TEX_UNBREAKABLE_WALL;
                     break;
-                case EMPTY:
-                    tex = TEX_DIRT;
-                    break;
-                
                 default:
-                    tex = TEX_UNBREAKABLE_WALL;
+                    tex = TEX_DIRT; //player & empty
                     break;
             }
 
@@ -213,4 +264,61 @@ void    drawMap(const t_map *map) {
             drawTexture(tex, &rect, &rectdest);
         }
     }
+
+    drawPlayer();
+}
+
+void getPlayerDirection(SDL_Rect *rect) {
+    const t_game  *game;
+
+    game = getGame();
+    rect->x = 47; // default: down
+
+    // position of the sprite in the texture
+    if (game->vx > 0) {
+        //right
+        rect->x = 174; 
+    } else if (game->vx < 0) {
+        // left
+        rect->x = 229;
+    }
+    if (game->vy > 0) {
+        // down
+        rect->x = 47;
+    } else if (game->vy < 0) {
+        // up
+        rect->x = 110;
+    }
+}
+
+/**
+ * @brief Get the player stance (moving or not) and render the player
+ * 
+ */
+void    drawPlayer() {
+    const t_game    *game;
+    short           spriteW;
+    short           spriteH;
+    SDL_Rect        rect;
+    SDL_Rect        rectdest;
+
+    game = getGame();
+
+    //draw player
+    spriteW = 50;
+    spriteH = 75;
+
+    // position of the player (centered)
+    rectdest.x = game->x - (spriteW/2);
+    rectdest.y = game->y - (spriteH/2);
+    rectdest.w = PLAYER_WIDTH;
+    rectdest.h = PLAYER_HEIGHT;
+
+    // position of the sprite in the texture
+    getPlayerDirection(&rect);
+    rect.y = 13;
+    rect.w = spriteW;
+    rect.h = spriteH;
+
+    drawTexture(TEX_PLAYER, &rect, &rectdest);
 }

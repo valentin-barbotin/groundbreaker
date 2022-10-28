@@ -61,11 +61,11 @@ void    setupMenu() {
     }
 
     if (bg && setBackgroundImage(bg)) {
-        fprintf(stderr, "Error setting background image: %s", SDL_GetError());
-        // if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "An error occured", g_window) != 0) {
-        //     fprintf(stderr, "Error displaying message box: %s", SDL_GetError());
-        // };
-        return;
+        #ifdef DEBUG
+            fprintf(stderr, "Error setting background image");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Error setting background image", NULL);
+        exit(1);
     }
 
     switch (g_currentState)
@@ -98,8 +98,11 @@ void    drawLobbyMenu() {
     if (g_lobby == NULL) {
         g_lobby = malloc(sizeof(t_lobby));
         if (g_lobby == NULL) {
-            fprintf(stderr, "Error malloc lobby: %s", SDL_GetError());
-            return;
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
         g_lobby->columns = 4;
         g_lobby->rows = 4;
@@ -164,7 +167,7 @@ void    drawLobbyMenu() {
         drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true);
     }
 
-    loadFont("../DejaVuSansMono.ttf", 30);
+    loadFont(FONT_PATH, 30);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :", true);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :", true);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Players :", true);
@@ -178,7 +181,7 @@ void    drawLobbyMenu() {
     sprintf(buff, "%d", g_lobby->players);
     drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true);
 
-    loadFont("../DejaVuSansMono.ttf", 20);
+    loadFont(FONT_PATH, 20);
     drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, "You can pick a maximum of 10 maps", true);
     
     drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(A) Previous (E) Next (space) Select (Enter) play (N) New", false);
@@ -223,7 +226,11 @@ void    setupMenuButtons() {
         tex = getTextureFromString(g_currentMenu->buttons[i], color, false);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
-            fprintf(stderr, "Erreur SDL_QueryTexture : %s", SDL_GetError());
+            #ifdef DEBUG
+                fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
 
         target.x = (gameConfig->video.width)/2 - textWidth/2;
@@ -232,10 +239,14 @@ void    setupMenuButtons() {
         target.h = 100;
 
         op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
-        if (op < 0) { //TODO: handle
-            fprintf(stderr, "Error SDL_RenderCopy : %s", TTF_GetError());
-            break;
+        if (op < 0) {
+            #ifdef DEBUG
+                fprintf(stderr, "Erreur SDL_RenderCopy : %s\n", SDL_GetError());
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
         }
+        SDL_DestroyTexture(tex);
         g_buttonsLocation[i] = target;
     }
 }
