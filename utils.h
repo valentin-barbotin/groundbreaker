@@ -20,5 +20,7 @@
  bool                stringIsEqual(const char *str1, const char *str2);
  SDL_Texture*        textureFromFile(const char* src);
  char*               removeSuffix(const char* src, char* suffix);
+ void                sendMsg(const char *msg, int socket);
+ void                receiveMsg(char *buffer, int socket);
 
 #endif /* !FOO_H */

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/socket.h>
+
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -162,4 +164,32 @@ char* removeSuffix(const char* src, char* suffix) {
     }
     *pos = '\0';
     return pos;
+}
+
+/**
+ * @brief Send a message to a socket
+ * 
+ * @param buffer 
+ * @param socket 
+ */
+void   sendMsg(const char *msg, int socket) {
+    send(socket, msg, strlen(msg), 0);
+}
+
+/**
+ * @brief Receive a message from a socket
+ * 
+ * @param buffer 
+ * @param socket 
+ */
+void    receiveMsg(char *buffer, int socket) {
+    int     len = 0;
+    char    c = 0;
+
+    while (c != '\0')
+    {
+        recv(socket, &c, 1, 0);
+        buffer[len] = c;
+        len++;
+    }
 }
