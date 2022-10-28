@@ -11,16 +11,18 @@
  */
 void    spawnPlayer() {
     t_game          *game;
+    const t_map     *map;
     unsigned int    cellSizeX;
     unsigned int    cellSizeY;
 
     game = getGame();
+    map = game->map;
 
     game->xCell = 1;
     game->yCell = 1;
 
-    cellSizeX = gameConfig->video.width / game->map->width;
-    cellSizeY = gameConfig->video.height / game->map->height;
+    cellSizeX = gameConfig->video.width / map->width;
+    cellSizeY = gameConfig->video.height / map->height;
 
     game->x = (game->xCell * cellSizeX) + (cellSizeX / 2);
     game->y = (game->yCell * cellSizeY) + (cellSizeY / 2);
@@ -154,9 +156,6 @@ void    movePlayer() {
 
 
     switch (map->map[game->yCell][game->xCell]) {
-        // case EMPTY:
-        //     map->map[game->yCell][game->xCell] = PLAYER;
-        //     break;
         case WALL:
             // if the player is on a wall then we move him back to the old position
             game->x -= game->vx;

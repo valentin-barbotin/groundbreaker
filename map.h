@@ -37,7 +37,7 @@
  void    map_destroy(t_map *map);
  void    map_print(const t_map *map);
  void    saveMap(const t_map *map);
- void    *getMaps();
+ void    getMaps();
  void    drawMap();
  void    getPlayerDirection(SDL_Rect *rect);
  void    drawPlayer();
