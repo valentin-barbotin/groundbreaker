@@ -94,8 +94,17 @@ void    handleKeyDown(const SDL_Event *event) {
     }
 }
 
+/**
+ * @brief Append a character to the edit box
+ * 
+ * @param event 
+ */
 void    handleTextEditing(const SDL_Event *event) {
     t_dialog *dialog = getEditBox();
+
+    // limit text length
+    if (strlen(dialog->edit) >= 30) return;
+
 
     if (dialog->active) {
         strcat(dialog->edit, event->text.text);
