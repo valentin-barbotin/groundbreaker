@@ -21,5 +21,6 @@
  void   handleMouseButtonUp(const SDL_Event *event);
  void   handleKeyDown(const SDL_Event *event);
  void   handleKeyUp(const SDL_Event *event);
+ void   handleTextEditing(const SDL_Event *event);
 
 #endif

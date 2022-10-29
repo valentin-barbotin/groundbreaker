@@ -14,7 +14,7 @@ find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_gfx REQUIRED)
 find_package(Threads REQUIRED)
 
-add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c)
+add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c)
 
 target_link_libraries(groundbreaker SDL2::SDL2 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} SDL2::GFX Threads::Threads)
 

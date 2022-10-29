@@ -6,6 +6,8 @@
 #include "map.h"
 #include "game.h"
 #include "moves.h"
+#include "utils.h"
+#include "dialog.h"
 
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
@@ -63,8 +65,26 @@ void    handleMouseButtonUp(const SDL_Event *event) {
 }
 
 void    handleKeyDown(const SDL_Event *event) {
+    t_dialog *dialog = getEditBox();
+
+    if (dialog->active) {
+        switch (event->key.keysym.sym)
+        {
+           case SDLK_BACKSPACE:
+                if (dialog->edit[0] != '\0') {
+                    dialog->edit[strlen(dialog->edit) - 1] = '\0';
+                }
+                break;
+        
+            default:
+                break;
+        }
+    }
+
     switch (g_currentState)
     {
+        case GAME_MAINMENU:
+            break;
         case GAME_PLAY_PLAYING:
             handleKeyDownPlay(event);
             break;
@@ -74,11 +94,60 @@ void    handleKeyDown(const SDL_Event *event) {
     }
 }
 
+void    handleTextEditing(const SDL_Event *event) {
+    t_dialog *dialog = getEditBox();
+
+    if (dialog->active) {
+        strcat(dialog->edit, event->text.text);
+    }
+}
+
 //TODO: refacto
 void    handleKeyUp(const SDL_Event *event) {
+    t_dialog *dialog = getEditBox();
+
+    // if in dialog
+    // bla bla
+
+    if (dialog->active) {
+        switch (event->key.keysym.sym)
+        {
+            case SDLK_c:
+                if (event->key.keysym.mod & KMOD_CTRL) {
+                    SDL_SetClipboardText(dialog->edit);
+                }
+                break;
+            case SDLK_v:
+                if (event->key.keysym.mod & KMOD_CTRL) {
+                    char *clipboard = SDL_GetClipboardText();
+                    if (clipboard != NULL) {
+                        strcpy(dialog->edit, clipboard);
+                        SDL_free(clipboard);
+                    }
+                }
+                break;
+            case SDLK_RETURN:
+                dialog->active = false;
+                SDL_StopTextInput();
+                // dialog->fct(dialog->edit);
+                break;
+        
+            default:
+                break;
+        }
+        return;
+    }
+
+
     if (inMainMenu()) {
         short index = -1;
         switch (event->key.keysym.sym) {
+            case SDLK_o:
+                puts("go");
+                createEditBox("test", 20, (SDL_Color) {0, 255, 0, 255}, (SDL_Color) {255, 255, 255, 255});
+                SDL_StartTextInput();
+
+                break;
             case SDLK_ESCAPE:
                 if (g_currentState == GAME_MAINMENU_PLAY) {
                     g_currentState = GAME_MAINMENU;
