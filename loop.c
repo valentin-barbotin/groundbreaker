@@ -34,6 +34,7 @@ bool    inMainMenu() {
             }
             Mix_VolumeMusic(25);
             playSoundLoop(main_music);
+
         }
     }else if(Mix_PlayingMusic() == 1 && main_music->music != NULL) {
         if (!stopSound(main_music)) {
