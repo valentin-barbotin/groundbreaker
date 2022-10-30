@@ -118,9 +118,11 @@ void    *connectToServer(void *arg) {
     int res = connect(g_serverSocket, (struct sockaddr *)&cl, sizeof(cl));
     if (res < 0) {
         #ifdef DEBUG
+            perror("Error connecting to server");
             fprintf(stderr, "Error connecting to server: %s", strerror(res));
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
+        g_clientThread = NULL;
         return NULL;
     }
 

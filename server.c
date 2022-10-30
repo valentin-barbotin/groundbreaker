@@ -9,6 +9,8 @@
 
 #include "server.h"
 #include "utils.h"
+#include "game.h"
+#include "player.h"
 
 #define DEBUG true
 
@@ -86,7 +88,7 @@ void   *handleClient(void *clientSocket) {
     int     client = *(int *)clientSocket;
 
     #ifdef DEBUG
-        printf("Client socket: %d", client);
+        printf("Client socket: %d\n", client);
     #endif
 
     do
@@ -106,14 +108,12 @@ void   *handleClient(void *clientSocket) {
         // handle message ('switch case')
 
         // send message to client
-        #ifdef DEBUG
-            printf("Sending message to client %d", client);
-        #endif
-        strcpy(buffer, "Message received");
-        sendMsg(buffer, client);
+        // #ifdef DEBUG
+        //     printf("Sending message to client %d", client);
+        // #endif
+        // strcpy(buffer, "Message received");
+        // sendMsg(buffer, client);
     } while (true);
-    
-    
     return NULL;
 }
 
@@ -151,25 +151,37 @@ void    *createServer(void *arg) {
     struct sockaddr_in  clientAddress;
     int                 clientSocket;
     socklen_t           clientAddressLength;
+    t_game              *game;           
 
-    g_serverRunning = true;
+    game = getGame();
+
 
     puts("Starting server...");
 
     // create socket with IPv4 and TCP
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket < 0) {
-        perror("Error opening socket");
-        exit(EXIT_FAILURE);
+        #ifdef DEBUG
+            perror("Error opening socket");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't create socket", g_window);
+        g_serverThread = NULL;
+        return NULL;
     }
+
+    g_serverRunning = true;
 
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = inet_addr(gameConfig->server.host);
     serverAddress.sin_port = htons((uint16_t) atoi(gameConfig->server.port));
 
     if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
-        perror("Error on binding");
-        exit(EXIT_FAILURE);
+        #ifdef DEBUG
+            perror("Error on binding");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't bind", g_window);
+        g_serverThread = NULL;
+        return NULL;
     }
 
     listen(serverSocket, 5);
