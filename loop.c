@@ -12,8 +12,7 @@
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
 
-t_timer                *g_timer = NULL;
-t_sound                *g_sound = NULL;
+t_sound                *main_music = NULL;
 
 /**
  * @brief Check if we are in the main menu or a sub menu
@@ -21,6 +20,31 @@ t_sound                *g_sound = NULL;
  * @return bool
  */
 bool    inMainMenu() {
+    if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
+        if (Mix_PlayingMusic() == 0) {
+            main_music = malloc(sizeof(t_sound));
+            main_music->file = "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/sound/main_music.ogg";
+            initMusic(main_music);
+            if (main_music->music == NULL) {
+                #ifdef DEBUG
+                                fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
+            }
+
+            playSoundLoop(main_music);
+        }
+    }else if(Mix_PlayingMusic() == 1 && main_music->music != NULL) {
+        if (!stopSound(main_music)) {
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Can't open stop the music\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
+        }
+    }
+
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
@@ -82,17 +106,6 @@ void    handleKeyDown(const SDL_Event *event) {
 //TODO: refacto
 void    handleKeyUp(const SDL_Event *event) {
     if (inMainMenu()) {
-        /*
-        if(g_timer == NULL) {
-            g_timer = malloc(sizeof(t_timer));
-            g_timer->paused = false;
-            g_timer->startTicks = 0;
-            g_timer->pausedTicks = 0;
-            g_timer->duration = 120;
-        }*/
-
-
-
         short index = -1;
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
@@ -134,6 +147,7 @@ void    handleKeyUp(const SDL_Event *event) {
                         spawnPlayer();
 
                         g_currentState = GAME_PLAY_PLAYING;
+
                         break;
                     
                     default:
@@ -301,11 +315,13 @@ void    handleKeyUp(const SDL_Event *event) {
                 }
                 puts("E");
                 break;
+                /*
             case SDLK_p:
                     pauseSound(g_sound);
                     puts("P");
 
                 break;
+                 */
 //                if(!isTimerPaused(g_timer)) {
 //                    pauseTimer(g_timer);
 //                    printTimer(g_timer);
@@ -315,15 +331,16 @@ void    handleKeyUp(const SDL_Event *event) {
 //                }
                 break;
             case SDLK_s:
+                /*
                 if(g_sound == NULL) {
                     g_sound = malloc(sizeof(t_sound));
-                    g_sound->file = "/Users/jamesabib/Desktop/Documents/Projets/groundbreaker/maniac.mp3";
+                    g_sound->file = "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/sound/walk.ogg";
                     g_sound->music = NULL;
                 }
 
                 playSound(g_sound);
 
-
+*/
 //                if (g_timer->startTicks == 0) {
 //                    startTimer(g_timer);
 //                    printTimer(g_timer);
@@ -334,8 +351,11 @@ void    handleKeyUp(const SDL_Event *event) {
 
 
                 break;
+                /*
             case SDLK_i:
                 stopSound(g_sound);
+                break;
+                 */
             default:
                 break;
         }
