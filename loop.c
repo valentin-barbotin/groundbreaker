@@ -32,8 +32,9 @@ bool    inMainMenu() {
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                 exit(1);
             }
-
+            Mix_VolumeMusic(25);
             playSoundLoop(main_music);
+
         }
     }else if(Mix_PlayingMusic() == 1 && main_music->music != NULL) {
         if (!stopSound(main_music)) {
