@@ -22,5 +22,6 @@
  char*               removeSuffix(const char* src, char* suffix);
  void                sendMsg(const char *msg, int socket);
  void                receiveMsg(char *buffer, int socket);
+ bool                checkUsername();
 
 #endif /* !FOO_H */

@@ -7,9 +7,13 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <netinet/in.h>
 
 #include "utils.h"
 #include "cache.h"
+#include "dialog.h"
+#include "player.h"
+#include "client.h"
 
 #define DEBUG true
 
@@ -196,4 +200,27 @@ void    receiveMsg(char *buffer, int socket) {
     #ifdef DEBUG
         printf("Received: %s  size: %d\n", buffer, len);
     #endif
+}
+
+
+bool    checkUsername() {
+    // get user name
+    t_dialog            *dialog;
+    const t_player      *player;
+
+    player = getPlayer();
+
+    // create dialog
+    // if the dialog was just created, set props
+    if (*player->name == 0) {
+        puts("Creating dialog");
+        dialog = getEditBox();
+        if (dialog->text == NULL) {
+            createEditBox("Enter your name", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+            dialog->callback = askUsernameCallback;
+        }
+        return false;
+    }
+
+    return true;
 }

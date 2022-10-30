@@ -23,23 +23,10 @@ extern t_gameConfig     *gameConfig;
 
 
 void openLobby(unsigned int value) {
-    // get user name
-    t_dialog    *dialog;
-    t_player    *player;
+    bool    valid = false;
 
-    player = getPlayer();
-
-    // create dialog
-    // if the dialog was just created, set props
-    if (*player->name == 0) {
-        puts("Creating dialog");
-        dialog = getEditBox();
-        if (dialog->text == NULL) {
-            createEditBox("Enter your name", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
-            dialog->callback = askUsernameCallback;
-        }
-        return;
-    }
+    valid = checkUsername();
+    if (!valid) return;
 
     getMaps();
     g_currentState = GAME_MAINMENU_PLAY;

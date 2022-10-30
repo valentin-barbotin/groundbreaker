@@ -27,11 +27,6 @@ void    askUsernameCallback() {
     t_player    *player;
 
     player = getPlayer();
-    puts("Username callback");
-
-    #ifdef DEBUG
-        puts("TEST");
-    #endif
 
     if (strlen(getEditBox()->edit) == 0) {
         #ifdef DEBUG
@@ -39,10 +34,6 @@ void    askUsernameCallback() {
         #endif
         return;
     }
-
-    //check
-
-    puts("Close"); 
 
     strcpy(player->name, getEditBox()->edit);
     destroyEditBox();
@@ -88,6 +79,7 @@ void    askServerPortCallback() {
 
 
 void    joinServer() {
+    bool    valid = false;
     if (g_clientThread != NULL) {
         #ifdef DEBUG
             puts("Client already running");
@@ -95,13 +87,12 @@ void    joinServer() {
         return;
     }
 
+    valid = checkUsername();
+    if (!valid) return;
+
     createEditBox("", 20, (SDL_Color) {0, 255, 0, 255}, (SDL_Color) {255, 255, 255, 255});
     SDL_StartTextInput();
     askServerHost();
-    // dialog->callback = &askServerInfo;
-
-    // connectToServer(0);
-    // pthread_create(&g_clientThread, NULL, &connectToServer, "client");
 }
 
 /**
