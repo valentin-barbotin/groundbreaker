@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "game.h"
 #include "display.h"
+#include "player.h"
 
 #define DEBUG true
 
@@ -271,23 +272,23 @@ void    drawMap() {
 }
 
 void getPlayerDirection(SDL_Rect *rect) {
-    const t_game  *game;
+    const t_player  *player;
 
-    game = getGame();
+    player = getPlayer();
     rect->x = 47; // default: down
 
     // position of the sprite in the texture
-    if (game->vx > 0) {
+    if (player->vx > 0) {
         //right
         rect->x = 174; 
-    } else if (game->vx < 0) {
+    } else if (player->vx < 0) {
         // left
         rect->x = 229;
     }
-    if (game->vy > 0) {
+    if (player->vy > 0) {
         // down
         rect->x = 47;
-    } else if (game->vy < 0) {
+    } else if (player->vy < 0) {
         // up
         rect->x = 110;
     }
@@ -298,21 +299,21 @@ void getPlayerDirection(SDL_Rect *rect) {
  * 
  */
 void    drawPlayer() {
-    const t_game    *game;
+    const t_player  *player;
     short           spriteW;
     short           spriteH;
     SDL_Rect        rect;
     SDL_Rect        rectdest;
 
-    game = getGame();
+    player = getPlayer();
 
     //draw player
     spriteW = 50;
     spriteH = 75;
 
     // position of the player (centered)
-    rectdest.x = game->x - (spriteW/2);
-    rectdest.y = game->y - (spriteH/2);
+    rectdest.x = player->x - (spriteW/2);
+    rectdest.y = player->y - (spriteH/2);
     rectdest.w = PLAYER_WIDTH;
     rectdest.h = PLAYER_HEIGHT;
 

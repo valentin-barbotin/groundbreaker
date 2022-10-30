@@ -11,12 +11,6 @@
 
  typedef struct     s_game
  {
-     int                 x;
-     int                 y;
-     short               vx;
-     short               vy;
-     int                 xCell;
-     int                 yCell;
      t_map               *map;
      t_map               maps[10];
  }                  t_game;

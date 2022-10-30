@@ -10,6 +10,7 @@
 #include "game.h"
 #include "dialog.h"
 #include "client.h"
+#include "player.h"
 
 #define DEBUG true
 
@@ -22,7 +23,24 @@ extern t_gameConfig     *gameConfig;
 
 
 void openLobby(unsigned int value) {
-    printf("value: %d\n", value);
+    // get user name
+    t_dialog    *dialog;
+    t_player    *player;
+
+    player = getPlayer();
+
+    // create dialog
+    // if the dialog was just created, set props
+    if (*player->name == 0) {
+        puts("Creating dialog");
+        dialog = getEditBox();
+        if (dialog->text == NULL) {
+            createEditBox("Enter your name", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+            dialog->callback = askUsernameCallback;
+        }
+        return;
+    }
+
     getMaps();
     g_currentState = GAME_MAINMENU_PLAY;
 }
@@ -82,6 +100,23 @@ void    setupMenu() {
             setupMenuButtons();
             break;
     }
+}
+
+void    drawPlayersList() {
+    SDL_Color   colorBlack = {0, 0, 0, 255};
+    t_game      *game;
+    SDL_Rect    rect;
+
+    game = getGame();
+
+    pickColor(&colorBlack);
+    rect.x = (gameConfig->video.width) * 0.06;
+    rect.y = (gameConfig->video.height) * 0.30;
+    rect.w = (gameConfig->video.width) * 0.40;
+    rect.h = (gameConfig->video.width) * 0.20;
+    SDL_RenderDrawRect(g_renderer, &rect);
+
+    
 }
 
 void    drawLobbyMenu() {
@@ -191,7 +226,7 @@ void    drawLobbyMenu() {
     drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
     drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
     
-    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(A) Previous (E) Next (space) Select (Enter) play (N) New", false, 0);
+    drawPlayersList();
 };
 
 void    setupMenuButtons() {
