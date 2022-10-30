@@ -22,7 +22,7 @@ void    handleKeyDownPlay(const SDL_Event *event) {
         }
     }
 }
-
+int k = 0;
 void    handleKeyUpPlay(const SDL_Event *event) {
      if (event->key.repeat == 0) {
         switch (event->key.keysym.sym) {
@@ -42,6 +42,11 @@ void    handleKeyUpPlay(const SDL_Event *event) {
                 break;
         }
     }
+
+}
+
+bool isMoving() {
+    return (getGame()->vx != 0 || getGame()->vy != 0);
 }
 
 void    checkBorders() {
