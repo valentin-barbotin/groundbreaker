@@ -8,6 +8,10 @@
 #include "display.h"
 #include "map.h"
 #include "game.h"
+#include "dialog.h"
+#include "client.h"
+
+#define DEBUG true
 
 SDL_Rect                g_buttonsLocation[4];
 t_menu                  *g_currentMenu;
@@ -34,7 +38,7 @@ void    exitGame() {
 t_menu menuMain = {
     "Main",
     {"Play", "Settings", "Online", "Exit"},
-    {&openLobby, &test2, NULL, &exitGame},
+    {&openLobby, &test2, &joinServer, &exitGame},
     NULL,
     {NULL, NULL, NULL, NULL},
     0,
@@ -168,21 +172,24 @@ void    drawLobbyMenu() {
     }
 
     loadFont(FONT_PATH, 30);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :", true, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :", true, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Players :", true, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Rows :", true, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Columns :", true, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.25, "Players :", true, 0);
 
     sprintf(buff, "%d", g_lobby->rows);
-    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.1, buff, true, 0);
+    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true, 0);
 
     sprintf(buff, "%d", g_lobby->columns);
-    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true, 0);
+    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true, 0);
 
     sprintf(buff, "%d", g_lobby->players);
-    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true, 0);
+    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, buff, true, 0);
 
     loadFont(FONT_PATH, 20);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, "You can pick a maximum of 10 maps", true, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.10, "You can pick a maximum of 10 maps", true, 0);
+    
+    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
     
     drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(A) Previous (E) Next (space) Select (Enter) play (N) New", false, 0);
 };

@@ -4,6 +4,12 @@
  #include "game.h"
  extern t_gameConfig    *gameConfig;
 
- void    connectToServer();
+ void    askUsernameCallback();
+ void    askServerHost();
+ void    askServerHostCallback();
+ void    askServerPort();
+ void    askServerPortCallback();
+ void    joinServer();
+ void    *connectToServer();
 
 #endif

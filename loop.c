@@ -1,4 +1,5 @@
 #include <math.h>
+#include <pthread.h>
 
 #include "config.h"
 #include "lobby.h"
@@ -8,9 +9,14 @@
 #include "moves.h"
 #include "utils.h"
 #include "dialog.h"
+#include "client.h"
+#include "server.h"
+
+#define DEBUG true
 
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
+extern int              g_serverSocket;
 
 /**
  * @brief Check if we are in the main menu or a sub menu
@@ -136,9 +142,13 @@ void    handleKeyUp(const SDL_Event *event) {
                 }
                 break;
             case SDLK_RETURN:
-                dialog->active = false;
-                SDL_StopTextInput();
-                // dialog->fct(dialog->edit);
+                if (dialog->callback != NULL) {
+                    #ifdef DEBUG
+                        puts("CALLBACK");
+                    #endif
+                    dialog->callback(dialog->edit);
+                }
+
                 break;
         
             default:
@@ -152,10 +162,7 @@ void    handleKeyUp(const SDL_Event *event) {
         short index = -1;
         switch (event->key.keysym.sym) {
             case SDLK_o:
-                puts("go");
-                createEditBox("test", 20, (SDL_Color) {0, 255, 0, 255}, (SDL_Color) {255, 255, 255, 255});
-                SDL_StartTextInput();
-
+                joinServer();
                 break;
             case SDLK_ESCAPE:
                 if (g_currentState == GAME_MAINMENU_PLAY) {
@@ -201,6 +208,17 @@ void    handleKeyUp(const SDL_Event *event) {
                     default:
                         index = g_currentMenu->selectedButton;
                         makeSelection(index);
+                        break;
+                }
+                break;
+            case SDLK_h:
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        launchServer();
+                        break;
+                    
+                    default:
                         break;
                 }
                 break;

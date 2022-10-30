@@ -5,6 +5,7 @@
  extern t_gameConfig    *gameConfig;
 
  void    *handleClient(void *clientSocket);
- void    createServer();
+ void    launchServer();
+ void    *createServer();
 
 #endif

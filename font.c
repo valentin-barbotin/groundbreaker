@@ -4,6 +4,8 @@
 
 #include "font.h"
 
+#define DEBUG true
+
 
 /**
  * Load a font from a file

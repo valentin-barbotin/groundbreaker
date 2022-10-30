@@ -11,6 +11,8 @@
 #include "utils.h"
 #include "cache.h"
 
+#define DEBUG true
+
 /**
  * Description
  * @todo handle differents breaklines
@@ -173,7 +175,7 @@ char* removeSuffix(const char* src, char* suffix) {
  * @param socket 
  */
 void   sendMsg(const char *msg, int socket) {
-    send(socket, msg, strlen(msg), 0);
+    send(socket, msg, strlen(msg) + 1, 0);
 }
 
 /**
@@ -186,10 +188,12 @@ void    receiveMsg(char *buffer, int socket) {
     int     len = 0;
     char    c = 0;
 
-    while (c != '\0')
-    {
-        recv(socket, &c, 1, 0);
-        buffer[len] = c;
-        len++;
-    }
+    do {
+        len += recv(socket, &c, 1, 0);
+        buffer[len - 1] = c;
+    } while (c != '\0');
+
+    #ifdef DEBUG
+        printf("Received: %s  size: %d\n", buffer, len);
+    #endif
 }

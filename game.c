@@ -5,6 +5,8 @@
 #include "moves.h"
 #include "utils.h"
 
+#define DEBUG true
+
 /**
  * @brief Place the player in his cell instead of a wall..
  * 

@@ -16,9 +16,10 @@
      int            fontSize;
      SDL_Color      color;
      SDL_Color      backgroundColor;
+     void           (*callback)();
  }               t_dialog;
 
- void        createEditBox(const char *text, const int fontSize, SDL_Color color, SDL_Color backgroundColor);
+ t_dialog    *createEditBox(const char *text, const int fontSize, SDL_Color color, SDL_Color backgroundColor);
  t_dialog    *getEditBox();
  void        destroyEditBox() ;
  void        displayEditBox();

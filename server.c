@@ -10,6 +10,11 @@
 #include "server.h"
 #include "utils.h"
 
+#define DEBUG true
+
+bool        g_serverRunning = false;
+pthread_t   g_serverThread = NULL;
+
 /**
  * @brief handle the client and react to his messages
  * 
@@ -23,6 +28,9 @@ void   *handleClient(void *clientSocket) {
 
     int     client = *(int *)clientSocket;
 
+    #ifdef DEBUG
+        printf("Client socket: %d", client);
+    #endif
 
     do
     {
@@ -32,17 +40,33 @@ void   *handleClient(void *clientSocket) {
         #endif
         receiveMsg(buffer, client);
 
+        #ifdef DEBUG
+            printf("Received message from client %d: %s\n", client, buffer);
+        #endif
+
         // handle message ('switch case')
 
         // send message to client
         #ifdef DEBUG
             printf("Sending message to client %d", client);
         #endif
+        strcpy(buffer, "Message received");
         sendMsg(buffer, client);
     } while (true);
     
     
     return NULL;
+}
+
+void    launchServer() {
+    if (g_serverRunning) {
+        #ifdef DEBUG
+            puts("Server already running");
+        #endif
+        return;
+    }
+
+    pthread_create(&g_serverThread, NULL, &createServer, "server");
 }
 
 /**
@@ -55,12 +79,23 @@ void   *handleClient(void *clientSocket) {
  * @param argv 
  * @return int 
  */
-void    createServer() {
+void    *createServer(void *arg) {
+    if (g_serverRunning) {
+        #ifdef DEBUG
+            puts("Server already running");
+        #endif
+        return NULL;
+    }
+
     int                 serverSocket;
     struct sockaddr_in  serverAddress;
     struct sockaddr_in  clientAddress;
     int                 clientSocket;
     socklen_t           clientAddressLength;
+
+    g_serverRunning = true;
+
+    puts("Starting server...");
 
     // create socket with IPv4 and TCP
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -79,29 +114,31 @@ void    createServer() {
     }
 
     listen(serverSocket, 5);
-    clientAddressLength = sizeof(clientAddress);
-    clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLength);
-    if (clientSocket < 0) {
-        perror("Error on accept");
-        exit(EXIT_FAILURE);
-    }
 
     // create thread for each client
     while (true)
     {
         int thstate;
 
+        puts("Waiting for client...");
         // wait for client to connect
-        int client = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLength);
+        clientAddressLength = sizeof(clientAddress);
+        clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLength);
+        if (clientSocket < 0) {
+            perror("Error on accept");
+            exit(EXIT_FAILURE);
+        }
 
         if (clientSocket < 0) {
             perror("Error on accept");
             exit(EXIT_FAILURE);
         }
 
+        puts("Received connection from client");
+
         // create thread and handle client (infinite loop with recv and send)
         pthread_t thread;
-        thstate = pthread_create(&thread, NULL, handleClient, &client);
+        thstate = pthread_create(&thread, NULL, handleClient, &clientSocket);
         
         if (thstate != 0) {
             perror("Error creating thread");

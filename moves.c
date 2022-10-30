@@ -2,6 +2,8 @@
 #include "game.h"
 #include "moves.h"
 
+#define DEBUG true
+
 void    handleKeyDownPlay(const SDL_Event *event) {
      if (event->key.repeat == 0) {
         switch (event->key.keysym.sym) {

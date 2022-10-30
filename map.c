@@ -8,6 +8,8 @@
 #include "game.h"
 #include "display.h"
 
+#define DEBUG true
+
 short       g_nbMap = 0;
 
 void     getMaps() {

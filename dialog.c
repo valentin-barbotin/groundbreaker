@@ -6,6 +6,8 @@
 #include "font.h"
 #include "utils.h"
 
+#define DEBUG true
+
 /**
  * @brief Create a Edit Box object
  * 
@@ -14,7 +16,7 @@
  * @param color 
  * @param backgroundColor 
  */
-void        createEditBox(const char *text, const int fontSize, SDL_Color color, SDL_Color backgroundColor) {
+t_dialog    *createEditBox(const char *text, const int fontSize, SDL_Color color, SDL_Color backgroundColor) {
     t_dialog  *dialog;
 
     dialog = getEditBox();
@@ -24,6 +26,7 @@ void        createEditBox(const char *text, const int fontSize, SDL_Color color,
     dialog->fontSize = fontSize;
     dialog->color = color;
     dialog->backgroundColor = backgroundColor;
+    return dialog;
 }
 
 /**
@@ -45,6 +48,8 @@ t_dialog    *getEditBox() {
         }
 
         dialog->active = false;
+        dialog->text = NULL;
+        memset(dialog->edit, 0, sizeof(dialog->edit));
     }
 
     return dialog;
@@ -55,6 +60,7 @@ void        destroyEditBox() {
 
     dialog = getEditBox();
     dialog->active = false;
+    SDL_StopTextInput();
 }
 
 /**
