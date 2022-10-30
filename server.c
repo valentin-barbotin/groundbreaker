@@ -15,6 +15,63 @@
 bool        g_serverRunning = false;
 pthread_t   g_serverThread = NULL;
 
+void    handleMessageSrv(char  *buffer, int client) {
+    char        *pos;
+    char        type[128];
+    t_message   action;
+    t_game      *game;
+
+    pos = strchr(buffer, ':');
+    if (pos == NULL) {
+        #ifdef DEBUG
+            puts("Invalid message");
+        #endif
+        return;
+    }
+
+    *pos = '\0';
+    strcpy(type, buffer);
+    #ifdef DEBUG
+        printf("type: %s, msg: [%s]\n", type, pos + 1);
+    #endif
+
+    if (strcmp(type, "JOIN") == 0) {
+        action = JOIN;
+    } else if (strcmp(type, "MOVE") == 0) {
+        action = MOVE;
+    } else if (strcmp(type, "CHAT") == 0) {
+        action = CHAT;
+    } else if (strcmp(type, "READY") == 0) {
+        action = READY;
+    } else if (strcmp(type, "START") == 0) {
+        action = START;
+    } else if (strcmp(type, "QUIT") == 0) {
+        action = QUIT;
+    } else {
+        #ifdef DEBUG
+            puts("Invalid message type");
+        #endif
+    }
+
+    t_player    *player;
+    game = getGame();
+    switch (action)
+    {
+        case JOIN:
+            player = initPlayer();
+            strcpy(player->name, pos + 1);
+
+            //TODO: mutex
+            game->players[game->nbPlayers++] = player;
+            break;
+        
+        default:
+            break;
+    }
+    
+    memset(buffer, 0, 1024);
+}
+
 /**
  * @brief handle the client and react to his messages
  * 
@@ -43,6 +100,8 @@ void   *handleClient(void *clientSocket) {
         #ifdef DEBUG
             printf("Received message from client %d: %s\n", client, buffer);
         #endif
+
+        handleMessageSrv(&buffer, client);
 
         // handle message ('switch case')
 

@@ -125,17 +125,10 @@ void    *connectToServer(void *arg) {
     }
 
     puts("Connected to server");
-    printf("sock: %d\n", g_serverSocket);
 
-    strcpy(buffer, "Salut");
+    sprintf(buffer, "JOIN:%s", getPlayer()->name);
     sendMsg(buffer, g_serverSocket);
     printf("Sent message to server: %s\n", buffer);
-
-    memset(buffer, 0, sizeof(buffer));
-    receiveMsg(buffer, g_serverSocket);
-    
-    printf("Received message from server: %s\n", buffer);
-
 
     do
     {
