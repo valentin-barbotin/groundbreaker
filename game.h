@@ -5,7 +5,7 @@
 
  #include "map.h"
 
- #define TEX_PLAYER     "./assets/bomber.png"
+ #define TEX_PLAYER     "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/bomber.png"
  #define PLAYER_WIDTH   50
  #define PLAYER_HEIGHT  73
 
@@ -23,6 +23,8 @@
 
  void    spawnPlayer();
  bool    inGame();
+ bool    isMoving();
+ void    setPath();
  void    game_quit();
  t_game  *getGame();
  void    movePlayer();
