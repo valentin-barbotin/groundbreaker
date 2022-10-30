@@ -4,6 +4,7 @@
  #include <stdbool.h>
 
  #include "map.h"
+ #include "player.h"
 
  #define TEX_PLAYER     "./assets/bomber.png"
  #define PLAYER_WIDTH   50
@@ -13,6 +14,8 @@
  {
      t_map               *map;
      t_map               maps[10];
+     t_player            **players;
+     unsigned short      nbPlayers;
  }                  t_game;
 
  void    spawnPlayer();

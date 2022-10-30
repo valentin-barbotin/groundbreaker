@@ -116,7 +116,13 @@ void    drawPlayersList() {
     rect.h = (gameConfig->video.width) * 0.20;
     SDL_RenderDrawRect(g_renderer, &rect);
 
-    
+    for (size_t i = 0; i < game->nbPlayers; i++)
+    {
+        if (game->players[i]->name != NULL) {
+            drawText(&colorBlack, rect.x + 10, rect.y + 10 + (i * 20), game->players[i]->name, false, rect.w);
+        }
+    }
+
 }
 
 void    drawLobbyMenu() {
