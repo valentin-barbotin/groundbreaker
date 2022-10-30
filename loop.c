@@ -45,7 +45,6 @@ bool    inMainMenu() {
             exit(1);
         }
     }
-
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
@@ -302,7 +301,6 @@ void    handleKeyUp(const SDL_Event *event) {
                         printf("DOWN: %d\n", g_currentMenu->selectedButton);
                         break;
                 }
-
                 break;
             case SDLK_a:
                 if (g_currentState == GAME_MAINMENU_PLAY) {
@@ -316,47 +314,6 @@ void    handleKeyUp(const SDL_Event *event) {
                 }
                 puts("E");
                 break;
-                /*
-            case SDLK_p:
-                    pauseSound(g_sound);
-                    puts("P");
-
-                break;
-                 */
-//                if(!isTimerPaused(g_timer)) {
-//                    pauseTimer(g_timer);
-//                    printTimer(g_timer);
-//                }else if (isTimerPaused(g_timer)) {
-//                    unpauseTimer(g_timer);
-//                    printTimer(g_timer);
-//                }
-                break;
-            case SDLK_s:
-                /*
-                if(g_sound == NULL) {
-                    g_sound = malloc(sizeof(t_sound));
-                    g_sound->file = "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/sound/walk.ogg";
-                    g_sound->music = NULL;
-                }
-
-                playSound(g_sound);
-
-*/
-//                if (g_timer->startTicks == 0) {
-//                    startTimer(g_timer);
-//                    printTimer(g_timer);
-//                }
-
-                // start music
-                //Mix_PlayMusic(g_sound, -1);
-
-
-                break;
-                /*
-            case SDLK_i:
-                stopSound(g_sound);
-                break;
-                 */
             default:
                 break;
         }
