@@ -23,5 +23,6 @@
  void    game_quit();
  t_game  *getGame();
  void    movePlayer();
+ void    posToGrid();
 
 #endif

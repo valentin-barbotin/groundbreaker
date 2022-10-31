@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "player.h"
+#include "game.h"
 
 #define DEBUG true
 
@@ -32,7 +33,8 @@ t_player   *getPlayer() {
     static t_player *player;
 
     if (player == NULL) {
-        player = initPlayer();
+        //put the local player in the game
+        player = getGame()->players[0];
     }
 
     return player;

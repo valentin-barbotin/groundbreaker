@@ -53,12 +53,20 @@ t_game* getGame() {
         //TMP max players
         //TODO:
         int nb = 4;
-        game->players = malloc(sizeof(t_player) * nb);
-        
+        game->players = malloc(sizeof(t_player *) * nb);
+        if (game->players == NULL) {
+            #ifdef DEBUG
+                fprintf(stderr, "Error allocating memory for game->players");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
+        }
+
+        for (int i = 0; i < nb; i++) {
+            game->players[i] = initPlayer();
+        }
 
         game->nbPlayers = 1;
-        //put the local player in the game
-        game->players[0] = getPlayer();
     }
     return game;
 }

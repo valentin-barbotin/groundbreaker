@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <netinet/tcp.h>
 
 #include "server.h"
 #include "utils.h"
@@ -20,6 +21,7 @@ pthread_t   g_serverThread = NULL;
 int         g_socketsList[3]; // 4 players max
 int         g_socketsListNb = 0;
 
+// TODO: use players list
 void    sendToAll(const char *msg) {
     for (int i = 0; i < g_socketsListNb; i++) {
         sendMsg(msg, g_socketsList[i]);
@@ -29,37 +31,42 @@ void    sendToAll(const char *msg) {
 void    handleMessageSrv(char  *buffer, int client) {
     char        *pos;
     char        type[128];
+    char        *content;
     t_message   action;
     t_game      *game;
 
     pos = strchr(buffer, ':');
     if (pos == NULL) {
         #ifdef DEBUG
-            puts("Invalid message");
+            puts("Invalid message (:)");
+            puts(buffer);
+            // exit(1);
         #endif
         return;
     }
 
     *pos = '\0';
+    pos++;
     strcpy(type, buffer);
     #ifdef DEBUG
-        printf("type: %s, msg: [%s]\n", type, pos + 1);
+        printf("type: %s, msg: [%s]\n", type, pos);
     #endif
 
-    if (strcmp(type, "JOIN") == 0) {
+    if (stringIsEqual(type, "JOIN")) {
         action = JOIN;
-    } else if (strcmp(type, "MOVE") == 0) {
+    } else if (stringIsEqual(type, "MOVE")) {
         action = MOVE;
-    } else if (strcmp(type, "CHAT") == 0) {
+    } else if (stringIsEqual(type, "CHAT")) {
         action = CHAT;
-    } else if (strcmp(type, "READY") == 0) {
+    } else if (stringIsEqual(type, "READY")) {
         action = READY;
-    } else if (strcmp(type, "START") == 0) {
+    } else if (stringIsEqual(type, "START")) {
         action = START;
-    } else if (strcmp(type, "QUIT") == 0) {
+    } else if (stringIsEqual(type, "QUIT")) {
         action = QUIT;
     } else {
         #ifdef DEBUG
+            printf("Invalid message type: [%s]\n", type);
             puts("Invalid message type");
         #endif
     }
@@ -70,10 +77,13 @@ void    handleMessageSrv(char  *buffer, int client) {
     {
         case JOIN:
             player = initPlayer();
-            strcpy(player->name, pos + 1);
+            strcpy(player->name, pos);
+            player->socket = client;
 
             //TODO: mutex
             game->players[game->nbPlayers++] = player;
+            break;
+        case MOVE:
             break;
         
         default:
@@ -133,7 +143,7 @@ void   handleClientUDP(int socket, struct sockaddr_in *clientAddr) {
     {
         // receive message from client, wait if no message
         #ifdef DEBUG
-            printf("Waiting for message from client %u", clientAddr->sin_addr.s_addr);
+            printf("Waiting for message from client %u\n", clientAddr->sin_addr.s_addr);
         #endif
         receiveMsgUDP(buffer, socket, clientAddr);
 
@@ -155,7 +165,7 @@ void    launchServer() {
 
     pthread_create(&g_serverThread, NULL, &createServer, "server");
     // for position
-    pthread_create(&g_serverThread, NULL, &createServerUDP, "server");
+    // pthread_create(&g_serverThread, NULL, &createServerUDP, "server");
 }
 
 /**
@@ -193,7 +203,6 @@ void    *createServerUDP(void *arg) {
         return NULL;
     }
 
-    g_serverRunningUDP = true;
 
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = inet_addr(gameConfig->server.host);
@@ -207,6 +216,7 @@ void    *createServerUDP(void *arg) {
         g_serverThread = NULL;
         return NULL;
     }
+    g_serverRunningUDP = true;
 
     handleClientUDP(serverSocket, &serverAddress);
 }
@@ -249,7 +259,7 @@ void    *createServer(void *arg) {
         return NULL;
     }
 
-    g_serverRunning = true;
+    setsockopt(serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
 
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = inet_addr(gameConfig->server.host);
@@ -265,6 +275,7 @@ void    *createServer(void *arg) {
     }
 
     listen(serverSocket, 5);
+    g_serverRunning = true;
 
     // create thread for each client
     while (true)

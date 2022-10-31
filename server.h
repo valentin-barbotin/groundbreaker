@@ -12,6 +12,7 @@
     READY,
     START,
     QUIT,
+    PLAYERDAT
  }             t_message;
 
  void    sendToAll(const char *msg);

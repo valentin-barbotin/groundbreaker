@@ -225,6 +225,16 @@ void    handleKeyUp(const SDL_Event *event) {
                         // send map to clients
                         sendToAll(buffer);
 
+                        //send player to all, except admin (first player)
+                        for (size_t i = 1; i < game->nbPlayers; i++)
+                        {
+                            game->players[i]->x = 2;
+                            game->players[i]->y = 2;
+                            sprintf(buffer, "PLAYERDAT:%s %d %d%c", game->players[i]->name, game->players[i]->x, game->players[i]->y, '\0');
+                            puts(buffer);
+                            sendMsg(buffer, game->players[i]->socket);
+                        }
+
                         g_currentState = GAME_PLAY_PLAYING;
                         break;
                     

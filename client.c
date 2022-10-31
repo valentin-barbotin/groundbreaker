@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <netinet/tcp.h>
 
 #include "client.h"
 #include "server.h"
@@ -36,31 +37,35 @@ void    handleMessageClient(char  *buffer, int server) {
     pos = strchr(buffer, ':');
     if (pos == NULL) {
         #ifdef DEBUG
-            puts("Invalid message");
+            puts("Invalid message (: client)");
+            exit(1);
         #endif
         return;
     }
 
     *pos = '\0';
+    pos++;
     strcpy(type, buffer);
 
-    content = pos + 1;
+    content = pos;
     #ifdef DEBUG
         printf("type: %s, msg: [%s]\n", type, content);
     #endif
 
-    if (strcmp(type, "JOIN") == 0) {
+    if (stringIsEqual(type, "JOIN")) {
         action = JOIN;
-    } else if (strcmp(type, "MOVE") == 0) {
+    } else if (stringIsEqual(type, "MOVE")) {
         action = MOVE;
-    } else if (strcmp(type, "CHAT") == 0) {
+    } else if (stringIsEqual(type, "CHAT")) {
         action = CHAT;
-    } else if (strcmp(type, "READY") == 0) {
+    } else if (stringIsEqual(type, "READY")) {
         action = READY;
-    } else if (strcmp(type, "START") == 0) {
+    } else if (stringIsEqual(type, "START")) {
         action = START;
-    } else if (strcmp(type, "QUIT") == 0) {
+    } else if (stringIsEqual(type, "QUIT")) {
         action = QUIT;
+    } else if (stringIsEqual(type, "PLAYERDAT")) {
+        action = PLAYERDAT;
     } else {
         #ifdef DEBUG
             puts("Invalid message type");
@@ -88,7 +93,8 @@ void    handleMessageClient(char  *buffer, int server) {
             ptr = strchr(content, '$');
             if (ptr == NULL) {
                 #ifdef DEBUG
-                    puts("Invalid message");
+                    puts("Invalid message ($ client)");
+                    exit(1);
                 #endif
                 return;
             }
@@ -109,6 +115,12 @@ void    handleMessageClient(char  *buffer, int server) {
 
             spawnPlayer();
             g_currentState = GAME_PLAY_PLAYING;
+        }
+            break;
+        
+        case PLAYERDAT: {
+            player = game->players[game->nbPlayers++];
+            sscanf(content, "%s %d %d", player->name, &player->x, &player->y);
         }
             break;
         
@@ -170,7 +182,7 @@ void    askServerPortCallback() {
     destroyEditBox();
 
     pthread_create(&g_clientThread, NULL, &connectToServer, "client");
-    pthread_create(&g_clientThreadUDP, NULL, &connectToServerUDP, "client");
+    // pthread_create(&g_clientThreadUDP, NULL, &connectToServerUDP, "client");
 }
 
 
@@ -213,6 +225,8 @@ void    *connectToServer(void *arg) {
     cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
     cl.sin_port = htons((uint16_t) atoi(g_serverConfig.port));
 
+    setsockopt(g_serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
+
     int res = connect(g_serverSocket, (struct sockaddr *)&cl, sizeof(cl));
     if (res < 0) {
         #ifdef DEBUG
@@ -226,9 +240,8 @@ void    *connectToServer(void *arg) {
 
     puts("Connected to server");
 
-    sprintf(buffer, "JOIN:%s", getPlayer()->name);
+    sprintf(buffer, "JOIN:%s%c", getPlayer()->name, '\0');
     sendMsg(buffer, g_serverSocket);
-    printf("Sent message to server: %s\n", buffer);
 
     do
     {
@@ -240,6 +253,7 @@ void    *connectToServer(void *arg) {
         receiveMsg(buffer, g_serverSocket);
 
         handleMessageClient(&buffer, g_serverSocket);
+        memset(buffer, 0, 1024);
     } while (true);
     
 

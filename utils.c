@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <errno.h>
 
 
 #include <SDL.h>
@@ -180,7 +181,33 @@ char* removeSuffix(const char* src, char* suffix) {
  * @param socket 
  */
 void   sendMsg(const char *msg, int socket) {
-    send(socket, msg, strlen(msg) + 1, 0);
+    size_t      msgLen;
+
+    size_t     total;
+    size_t     nb;
+    size_t     max;
+
+    msgLen = strlen(msg) + 1; // +1 for the null terminator
+    printf("msgLen: %zu\n", msgLen);
+
+    total = 0;
+    while (total != msgLen)
+    {
+        max = msgLen - total;
+
+        // in case of error, we need to know how many bytes have been sent
+        nb = send(socket, msg + total, max, 0);
+        printf("send: %s\n", msg + total);
+        if (nb == -1)
+        {
+            fprintf(stderr, "Error sending message to server: %s\n", strerror(errno));
+            exit(1);
+        }
+        total += nb;
+        printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
+    }
+
+    printf("Sent: (%ld bytes) [%s]\n", total, msg);
 }
 
 /**
@@ -190,17 +217,55 @@ void   sendMsg(const char *msg, int socket) {
  * @param socket 
  */
 void    receiveMsg(char *buffer, int socket) {
-    int     len = 0;
-    char    c = 0;
+    size_t     total;
+    size_t     nb;
+    size_t     max;
 
-    do {
-        len += recv(socket, &c, 1, 0);
-        buffer[len - 1] = c;
-    } while (c != '\0');
+    max = 1024;
 
-    #ifdef DEBUG
-        printf("Received: %s  size: %d\n", buffer, len);
-    #endif
+    total = 0;
+    while (true)
+    {
+
+        nb = recv(socket, buffer + total, max, 0);
+        if (nb == -1)
+        {
+            fprintf(stderr, "Error receiving message from server: %s\n", strerror(errno));
+            exit(1);
+        }
+        // if 0, we have received the whole message
+        // TODO: check
+        if (nb == 0)
+        {
+            fprintf(stderr, "Peer closed the connection\n");
+            int shut = shutdown(socket, SHUT_RDWR);
+            if (shut == -1) {
+                fprintf(stderr, "Error shutting down socket: %s\n", strerror(errno));
+            } else {
+                printf("Socket %d shut down\n", socket);
+            }
+            
+            exit(1);
+        }
+
+
+        if (nb > 0) {
+            total += nb;
+        } else {
+            fprintf(stderr, "Error receiving message from server: %s\n", strerror(errno));
+            exit(1);
+        }
+
+        // printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
+        //TODO: rework this
+        printf("last: %c %d\n", buffer[total - 1], buffer[total - 1]);
+        if (buffer[total - 1] == '\0') {
+            break;
+        }
+    }
+
+    printf("Received: (%ld bytes) [%s]\n", total, buffer);
+    buffer[total - 1] = '\0';
 }
 
 
@@ -211,7 +276,13 @@ void    receiveMsg(char *buffer, int socket) {
  * @param socket 
  */
 void   sendMsgUDP(const char *msg, int socket, struct sockaddr *serverAddress) {
-    sendto(socket, msg, strlen(msg) + 1, 0, serverAddress, sizeof(serverAddress));
+    printf("Sending message to server: %s\n", msg);
+
+    if (sendto(socket, msg, strlen(msg) + 1, 0, serverAddress, sizeof(serverAddress)) < 0) {
+        fprintf(stderr, "Error sending message to server");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Network error", g_window);
+        exit(1);
+    }
 }
 
 /**

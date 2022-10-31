@@ -17,6 +17,7 @@
      int             yCell;
      int             health;
      int             score;
+     int             socket;
  }                  t_player;
 
  t_player   *initPlayer();
