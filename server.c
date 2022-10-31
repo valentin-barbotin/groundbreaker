@@ -15,6 +15,7 @@
 #define DEBUG true
 
 bool        g_serverRunning = false;
+bool        g_serverRunningUDP = false;
 pthread_t   g_serverThread = NULL;
 int         g_socketsList[3]; // 4 players max
 int         g_socketsListNb = 0;
@@ -103,7 +104,7 @@ void   *handleClient(void *clientSocket) {
     {
         // receive message from client, wait if no message
         #ifdef DEBUG
-            printf("Waiting for message from client %d", client);
+            printf("Waiting for message from client %d\n", client);
         #endif
         receiveMsg(buffer, client);
 
@@ -111,9 +112,37 @@ void   *handleClient(void *clientSocket) {
             printf("Received message from client %d: %s\n", client, buffer);
         #endif
 
-        handleMessageSrv(&buffer, client);
+        handleMessageSrv(buffer, client);
     } while (true);
     return NULL;
+}
+
+/**
+ * @brief handle the client and react to his messages
+ * 
+ * @param socket 
+ */
+void   handleClientUDP(int socket, struct sockaddr_in *clientAddr) {
+    char    buffer[1024];
+
+    #ifdef DEBUG
+        printf("Client addr: %u\n", clientAddr->sin_addr.s_addr);
+    #endif
+
+    do
+    {
+        // receive message from client, wait if no message
+        #ifdef DEBUG
+            printf("Waiting for message from client %u", clientAddr->sin_addr.s_addr);
+        #endif
+        receiveMsgUDP(buffer, socket, clientAddr);
+
+        #ifdef DEBUG
+            printf("Received message from client %u: %s\n", clientAddr->sin_addr.s_addr, buffer);
+        #endif
+
+        handleMessageSrv(buffer, socket);
+    } while (true);
 }
 
 void    launchServer() {
@@ -125,6 +154,61 @@ void    launchServer() {
     }
 
     pthread_create(&g_serverThread, NULL, &createServer, "server");
+    // for position
+    pthread_create(&g_serverThread, NULL, &createServerUDP, "server");
+}
+
+/**
+ * @brief Main function of the server (UDP)
+ * We use a multi-threaded server to handle multiple clients in the same process
+ * Must be used in a separate thread
+ * @todo close the socket when the thread is going to be closed
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
+void    *createServerUDP(void *arg) {
+    if (g_serverRunningUDP) {
+        #ifdef DEBUG
+            puts("Server already running");
+        #endif
+        return NULL;
+    }
+
+    int                 serverSocket;
+    struct sockaddr_in  serverAddress;
+
+
+    puts("Starting server...");
+
+    // create socket with IPv4 and UDP
+    serverSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (serverSocket < 0) {
+        #ifdef DEBUG
+            perror("Error opening socket");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't create socket", g_window);
+        g_serverThread = NULL;
+        return NULL;
+    }
+
+    g_serverRunningUDP = true;
+
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = inet_addr(gameConfig->server.host);
+    serverAddress.sin_port = htons((uint16_t) atoi(gameConfig->server.port));
+
+    if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
+        #ifdef DEBUG
+            perror("Error on binding");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't bind", g_window);
+        g_serverThread = NULL;
+        return NULL;
+    }
+
+    handleClientUDP(serverSocket, &serverAddress);
 }
 
 /**
@@ -150,9 +234,6 @@ void    *createServer(void *arg) {
     struct sockaddr_in  clientAddress;
     int                 clientSocket;
     socklen_t           clientAddressLength;
-    t_game              *game;           
-
-    game = getGame();
 
 
     puts("Starting server...");

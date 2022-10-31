@@ -8,6 +8,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 
 #include "utils.h"
 #include "cache.h"
@@ -202,6 +203,36 @@ void    receiveMsg(char *buffer, int socket) {
     #endif
 }
 
+
+/**
+ * @brief Send a message to a socket
+ * 
+ * @param buffer 
+ * @param socket 
+ */
+void   sendMsgUDP(const char *msg, int socket, struct sockaddr *serverAddress) {
+    sendto(socket, msg, strlen(msg) + 1, 0, serverAddress, sizeof(serverAddress));
+}
+
+/**
+ * @brief Receive a message from a socket
+ * 
+ * @param buffer 
+ * @param socket 
+ */
+void    receiveMsgUDP(char *buffer, int socket, struct sockaddr *serverAddress) {
+    int     len = 0;
+    char    c = 0;
+
+    do {
+        len += recvfrom(socket, &c, 1, 0, serverAddress, sizeof(serverAddress));
+        buffer[len - 1] = c;
+    } while (c != '\0');
+
+    #ifdef DEBUG
+        printf("Received: %s  size: %d\n", buffer, len);
+    #endif
+}
 
 bool    checkUsername() {
     // get user name

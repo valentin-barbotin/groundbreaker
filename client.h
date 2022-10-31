@@ -12,5 +12,6 @@
  void    askServerPortCallback();
  void    joinServer();
  void    *connectToServer();
+ void    *connectToServerUDP(void *arg);
 
 #endif

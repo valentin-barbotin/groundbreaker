@@ -16,6 +16,7 @@
  extern t_lobby        *g_lobby;
  extern short          g_currentOption;
  extern bool           g_serverRunning;
+ extern bool           g_serverRunningUDP;
 
 
  bool   inMainMenu();

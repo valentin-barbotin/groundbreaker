@@ -20,7 +20,9 @@
 #define DEBUG true
 
 pthread_t   g_clientThread = NULL;
+pthread_t   g_clientThreadUDP = NULL;
 int         g_serverSocket = 0;
+int         g_serverSocketUDP = 0;
 
 t_serverConfig g_serverConfig;
 
@@ -168,6 +170,7 @@ void    askServerPortCallback() {
     destroyEditBox();
 
     pthread_create(&g_clientThread, NULL, &connectToServer, "client");
+    pthread_create(&g_clientThreadUDP, NULL, &connectToServerUDP, "client");
 }
 
 
@@ -205,7 +208,7 @@ void    *connectToServer(void *arg) {
     printf("Connecting to server %s:%s\n", g_serverConfig.host, g_serverConfig.port);
 
     puts("Connecting to server...");
-    g_serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    g_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     cl.sin_family = AF_INET;
     cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
     cl.sin_port = htons((uint16_t) atoi(g_serverConfig.port));
@@ -240,4 +243,46 @@ void    *connectToServer(void *arg) {
     } while (true);
     
 
+}
+
+
+void    *connectToServerUDP(void *arg) {
+    struct sockaddr_in  cl;
+    char                buffer[1024];
+
+    // thread does not need to be joined
+    pthread_detach(pthread_self());
+
+    printf("(UDP) Connecting to server %s:%s\n", g_serverConfig.host, g_serverConfig.port);
+
+    puts("(UDP) Connecting to server...");
+    g_serverSocketUDP = socket(AF_INET, SOCK_DGRAM, 0);
+    cl.sin_family = AF_INET;
+    cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
+    cl.sin_port = htons((uint16_t) atoi(g_serverConfig.port));
+
+    int res = connect(g_serverSocketUDP, (struct sockaddr *)&cl, sizeof(cl));
+    if (res < 0) {
+        #ifdef DEBUG
+            perror("(UDP) Error connecting to server");
+            fprintf(stderr, "(UDP) Error connecting to server: %s", strerror(res));
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
+        g_clientThreadUDP = NULL;
+        return NULL;
+    }
+
+    puts("Connected to server");
+
+    do
+    {
+        // receive message from client, wait if no message
+        #ifdef DEBUG
+            puts("Waiting for message from server");
+        #endif
+
+        receiveMsgUDP(buffer, g_serverSocket, &cl);
+
+        handleMessageClient(&buffer, g_serverSocket);
+    } while (true);
 }

@@ -20,6 +20,8 @@
  bool                stringIsEqual(const char *str1, const char *str2);
  SDL_Texture*        textureFromFile(const char* src);
  char*               removeSuffix(const char* src, char* suffix);
+ void                sendMsgUDP(const char *msg, int socket, struct sockaddr *serverAddress);
+ void                receiveMsgUDP(char *buffer, int socket, struct sockaddr *serverAddress);
  void                sendMsg(const char *msg, int socket);
  void                receiveMsg(char *buffer, int socket);
  bool                checkUsername();

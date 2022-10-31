@@ -16,8 +16,10 @@
 
  void    sendToAll(const char *msg);
  void    handleMessageSrv(char  *buffer, int client);
+ void    handleClientUDP(int socket, struct sockaddr_in *clientAddr);
  void    *handleClient(void *clientSocket);
  void    launchServer();
+ void    *createServerUDP(void *arg);
  void    *createServer();
 
 #endif
