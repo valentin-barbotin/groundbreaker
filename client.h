@@ -4,6 +4,7 @@
  #include "game.h"
  extern t_gameConfig    *gameConfig;
 
+ void    handleMessageClient(char  *buffer, int client);
  void    askUsernameCallback();
  void    askServerHost();
  void    askServerHostCallback();

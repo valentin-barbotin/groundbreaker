@@ -16,6 +16,14 @@
 
 bool        g_serverRunning = false;
 pthread_t   g_serverThread = NULL;
+int         g_socketsList[3]; // 4 players max
+int         g_socketsListNb = 0;
+
+void    sendToAll(const char *msg) {
+    for (int i = 0; i < g_socketsListNb; i++) {
+        sendMsg(msg, g_socketsList[i]);
+    }
+}
 
 void    handleMessageSrv(char  *buffer, int client) {
     char        *pos;
@@ -104,15 +112,6 @@ void   *handleClient(void *clientSocket) {
         #endif
 
         handleMessageSrv(&buffer, client);
-
-        // handle message ('switch case')
-
-        // send message to client
-        // #ifdef DEBUG
-        //     printf("Sending message to client %d", client);
-        // #endif
-        // strcpy(buffer, "Message received");
-        // sendMsg(buffer, client);
     } while (true);
     return NULL;
 }
@@ -206,6 +205,8 @@ void    *createServer(void *arg) {
         }
 
         puts("Received connection from client");
+
+        g_socketsList[g_socketsListNb++] = clientSocket;
 
         // create thread and handle client (infinite loop with recv and send)
         pthread_t thread;

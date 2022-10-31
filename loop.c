@@ -178,8 +178,16 @@ void    handleKeyUp(const SDL_Event *event) {
                         //TODO: pick a random map from selected ones and launch the game (solo)
                         printf("Launch game\n");
                         t_game *game = getGame();
-                        // t_map *maps = getMaps();
 
+                        if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
+                            #ifdef DEBUG
+                                puts("Not enough players");
+                            #endif
+                            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+                            return;
+                        }
+
+                        char    buffer[1024];
                         t_map *tmp[10] = {0};
                         index = -1;
                         for (size_t i = 0; i < g_nbMap; i++)
@@ -198,9 +206,24 @@ void    handleKeyUp(const SDL_Event *event) {
                         index = rand() % index; //pick a random map between the selected ones
                         printf("index = %d\n", index);
                         game->map = tmp[index];
-                        // // memcpy(&game->map->map, &maps[index].map, sizeof(game->map->map));
 
                         spawnPlayer();
+
+                        sprintf(buffer, "START:%hu %hu $", game->map->height, game->map->width);
+
+                        char *ptr = buffer + strlen(buffer);
+                        for (size_t i = 0; i < game->map->height; i++)
+                        {
+                            for (size_t j = 0; j < game->map->width; j++)
+                            {
+                                *ptr++ = game->map->map[i][j];
+                            }
+                        }
+
+                        *ptr = '\0';
+                        
+                        // send map to clients
+                        sendToAll(buffer);
 
                         g_currentState = GAME_PLAY_PLAYING;
                         break;

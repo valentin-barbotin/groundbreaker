@@ -10,10 +10,12 @@
 #include <pthread.h>
 
 #include "client.h"
+#include "server.h"
 #include "utils.h"
 #include "config.h"
 #include "dialog.h"
 #include "player.h"
+#include "game.h"
 
 #define DEBUG true
 
@@ -21,6 +23,99 @@ pthread_t   g_clientThread = NULL;
 int         g_serverSocket = 0;
 
 t_serverConfig g_serverConfig;
+
+void    handleMessageClient(char  *buffer, int server) {
+    char        *pos;
+    char        type[128];
+    char        *content;
+    t_message   action;
+    t_game      *game;
+
+    pos = strchr(buffer, ':');
+    if (pos == NULL) {
+        #ifdef DEBUG
+            puts("Invalid message");
+        #endif
+        return;
+    }
+
+    *pos = '\0';
+    strcpy(type, buffer);
+
+    content = pos + 1;
+    #ifdef DEBUG
+        printf("type: %s, msg: [%s]\n", type, content);
+    #endif
+
+    if (strcmp(type, "JOIN") == 0) {
+        action = JOIN;
+    } else if (strcmp(type, "MOVE") == 0) {
+        action = MOVE;
+    } else if (strcmp(type, "CHAT") == 0) {
+        action = CHAT;
+    } else if (strcmp(type, "READY") == 0) {
+        action = READY;
+    } else if (strcmp(type, "START") == 0) {
+        action = START;
+    } else if (strcmp(type, "QUIT") == 0) {
+        action = QUIT;
+    } else {
+        #ifdef DEBUG
+            puts("Invalid message type");
+        #endif
+    }
+
+    t_player    *player;
+    game = getGame();
+    switch (action)
+    {
+        case START: {
+            //launch game
+            unsigned short h;
+            unsigned short w;
+            t_map          *map;
+            char           *ptr;
+            sscanf(content, "%hu %hu $", &h, &w);
+            printf("h: %hu, w: %hu\n", h, w);
+
+            if (!h || !w) {
+                puts("Invalid map size");
+                return;
+            }
+
+            ptr = strchr(content, '$');
+            if (ptr == NULL) {
+                #ifdef DEBUG
+                    puts("Invalid message");
+                #endif
+                return;
+            }
+            ptr++;
+
+            map = map_create(w, h);
+            // note: players
+
+            for (int i = 0; i < h; i++) {
+                strncat(map->map[i], ptr + w * i, w);
+            }
+
+            game->map = map;
+            game->map->players = 4; //TODO
+
+            puts("Game started");
+            map_print(game->map);
+
+            spawnPlayer();
+            g_currentState = GAME_PLAY_PLAYING;
+        }
+            break;
+        
+        default:
+            break;
+    }
+    
+    memset(buffer, 0, 1024);
+}
 
 void    askUsernameCallback() {
     //TODO: check if host is valid
@@ -134,9 +229,14 @@ void    *connectToServer(void *arg) {
 
     do
     {
-        // send message to server
-        // receive message from server
-        // handle message ('switch case')
+        // receive message from client, wait if no message
+        #ifdef DEBUG
+            puts("Waiting for message from server");
+        #endif
+
+        receiveMsg(buffer, g_serverSocket);
+
+        handleMessageClient(&buffer, g_serverSocket);
     } while (true);
     
 

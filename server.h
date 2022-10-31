@@ -14,6 +14,7 @@
     QUIT,
  }             t_message;
 
+ void    sendToAll(const char *msg);
  void    handleMessageSrv(char  *buffer, int client);
  void    *handleClient(void *clientSocket);
  void    launchServer();

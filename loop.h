@@ -15,6 +15,8 @@
  extern t_menu         *g_currentMenu;
  extern t_lobby        *g_lobby;
  extern short          g_currentOption;
+ extern bool           g_serverRunning;
+
 
  bool   inMainMenu();
  void   makeSelection(unsigned short);
