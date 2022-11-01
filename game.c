@@ -83,38 +83,66 @@ void    posToGrid() {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-void    makeOldPosEmpty(short x, short y) {
-    t_map* map;
+void    posToGridN(int x, int y, int *cellX,int *cellY) {
+    unsigned int   cellSizeX;
+    unsigned int   cellSizeY;
+    t_game         *game;
 
-    map = getGame()->map;
-    map->map[y][x] = EMPTY;
+    game = getGame();
+
+    // can't divide by 0
+    if (game->x) {
+        cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+        // avoid xCell to be equal to map->width (segfault, col 6 doesn't exist for a map of 6 cols)
+        if (game->x != gameConfig->video.width) {
+            cellX = (game->x / cellSizeX);
+        }
+    }
+
+    if (game->y) {
+        cellSizeY = gameConfig->video.height / game->map->height;
+        if (game->y != gameConfig->video.height) {
+            cellY = (game->y / cellSizeY);
+        }
+    }
+
+    // find the nearest multiple of cellSize(s)
+    // ex: 768 / 166 = 4.6 => 4
 }
 
-bool  isThereA(short x, short y, t_type type) {
+
+
+bool  isThereA(t_type type) {
     t_map* map;
+    posToGridN(getGame()->x, getGame()->y, &getGame()->xCell, &getGame()->yCell);
 
     map = getGame()->map;
     switch (type) {
         case BOMB:
-            return (map->map[y][x] == BOMB);
+            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == BOMB);
         case WALL:
-            return (map->map[y][x] == WALL);
+            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == WALL);
         case UNBREAKABLE_WALL:
-            return (map->map[y][x] == UNBREAKABLE_WALL);
+            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == UNBREAKABLE_WALL);
         case PLAYER:
-            return (map->map[y][x] == PLAYER);
+            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == PLAYER);
         case EMPTY:
-            return (map->map[y][x] == EMPTY);
+            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == EMPTY);
+        case GRAVEL:
+            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == GRAVEL);
         default:
             return false;
     }
 }
 
-void explodeBomb(short x, short y) {
+void explodeBomb() {
     t_map* map;
 
     map = getGame()->map;
-    map->map[y][x] = EMPTY;
+    map->map[getGame()->yCell][getGame()->xCell] = EMPTY;
+
+    // posToGrid but with 2 int pointers
+    posToGrid(&getGame()->x, &getGame()->y);
 
     // ⚠ Temporaire ⚠
     // en attendant que la structure Joueur soit faite
@@ -122,189 +150,69 @@ void explodeBomb(short x, short y) {
 
     for (int i = 1; i <= SCOPE; i++) {
         // up
-        if (y - i >= 0) {
-            if (isThereA(x, y - i, WALL)) {
-                makeOldPosEmpty(x, y - i);
+        if (&getGame()->y - i >= 0) {
+            if (isThereA(WALL)) {
                 break;
-            } else if (isThereA(x, y - i, BOMB)) {
-                explodeBomb(x, y - i);
+            } else if (isThereA(BOMB)) {
+                explodeBomb();
                 break;
-            } else if (isThereA(x, y - i, PLAYER)) {
+            } else if (isThereA(PLAYER)) {
                 // kill player
                 break;
-            }else if (isThereA(x, y - i, UNBREAKABLE_WALL)) {
+            }else if (isThereA(UNBREAKABLE_WALL)) {
                 break;
             } else {
-                makeOldPosEmpty(x, y - i);
+                continue;
             }
         }
 
         // down
-        if (y + i < map->height) {
-            if (isThereA(x, y + i, WALL)) {
-                makeOldPosEmpty(x, y + i);
+        if (&getGame()->y + i < map->height) {
+            if (isThereA(WALL)) {
                 break;
-            } else if (isThereA(x, y + i, BOMB)) {
-                explodeBomb(x, y + i);
+            } else if (isThereA(BOMB)) {
+                explodeBomb();
                 break;
-            } else if (isThereA(x, y + i, PLAYER)) {
-                // kill player
+            } else if (isThereA(PLAYER)) {
+                // TODO: kill player
                 break;
-            }else if (isThereA(x, y + i, UNBREAKABLE_WALL)) {
+            }else if (isThereA(UNBREAKABLE_WALL)) {
                 break;
             } else {
-                makeOldPosEmpty(x, y + i);
+                continue;
             }
         }
 
         // left
-        if (x - i >= 0) {
-            if (isThereA(x - i, y, WALL)) {
-                makeOldPosEmpty(x - i, y);
+        if (&getGame()->x - i >= 0) {
+            if (isThereA(WALL)) {
                 break;
-            } else if (isThereA(x - i, y, BOMB)) {
-                explodeBomb(x - i, y);
+            } else if (isThereA(BOMB)) {
                 break;
-            } else if (isThereA(x - i, y, PLAYER)) {
-                // kill player
+            } else if (isThereA(PLAYER)) {
+                // TODO : kill player
                 break;
-            }else if (isThereA(x - i, y, UNBREAKABLE_WALL)) {
+            }else if (isThereA(UNBREAKABLE_WALL)) {
                 break;
             } else {
-                makeOldPosEmpty(x - i, y);
+                continue;
             }
         }
 
         // right
-        if (x + i < map->width) {
-            if (isThereA(x + i, y, WALL)) {
-                makeOldPosEmpty(x + i, y);
+        if (&getGame()->x + i < map->width) {
+            if (isThereA(WALL)) {
                 break;
-            } else if (isThereA(x + i, y, BOMB)) {
-                explodeBomb(x + i, y);
+            } else if (isThereA(BOMB)) {
+                explodeBomb();
                 break;
-            } else if (isThereA(x + i, y, PLAYER)) {
-                // kill player
+            } else if (isThereA(PLAYER)) {
+                // TODO : kill player
                 break;
-            }else if (isThereA(x + i, y, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x + i, y);
-            }
-        }
-    }
-}
-
-
-
-void    makeOldPosEmpty(short x, short y) {
-    t_map* map;
-
-    map = getGame()->map;
-    map->map[y][x] = EMPTY;
-}
-
-bool  isThereA(short x, short y, t_type type) {
-    t_map* map;
-
-    map = getGame()->map;
-    switch (type) {
-        case BOMB:
-            return (map->map[y][x] == BOMB);
-        case WALL:
-            return (map->map[y][x] == WALL);
-        case UNBREAKABLE_WALL:
-            return (map->map[y][x] == UNBREAKABLE_WALL);
-        case PLAYER:
-            return (map->map[y][x] == PLAYER);
-        case EMPTY:
-            return (map->map[y][x] == EMPTY);
-        default:
-            return false;
-    }
-}
-
-
-void explodeBomb(short x, short y) {
-    t_map* map;
-
-    map = getGame()->map;
-    map->map[y][x] = EMPTY;
-
-    // ⚠ Temporaire ⚠
-    // en attendant que la structure Joueur soit faite
-    int SCOPE = 2;
-
-    for (int i = 1; i <= SCOPE; i++) {
-        // up
-        if (y - i >= 0) {
-            if (isThereA(x, y - i, WALL)) {
-                makeOldPosEmpty(x, y - i);
-                break;
-            } else if (isThereA(x, y - i, BOMB)) {
-                explodeBomb(x, y - i);
-                break;
-            } else if (isThereA(x, y - i, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x, y - i, UNBREAKABLE_WALL)) {
+            }else if (isThereA(UNBREAKABLE_WALL)) {
                 break;
             } else {
-                makeOldPosEmpty(x, y - i);
-            }
-        }
-
-        // down
-        if (y + i < map->height) {
-            if (isThereA(x, y + i, WALL)) {
-                makeOldPosEmpty(x, y + i);
-                break;
-            } else if (isThereA(x, y + i, BOMB)) {
-                explodeBomb(x, y + i);
-                break;
-            } else if (isThereA(x, y + i, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x, y + i, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x, y + i);
-            }
-        }
-
-        // left
-        if (x - i >= 0) {
-            if (isThereA(x - i, y, WALL)) {
-                makeOldPosEmpty(x - i, y);
-                break;
-            } else if (isThereA(x - i, y, BOMB)) {
-                explodeBomb(x - i, y);
-                break;
-            } else if (isThereA(x - i, y, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x - i, y, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x - i, y);
-            }
-        }
-
-        // right
-        if (x + i < map->width) {
-            if (isThereA(x + i, y, WALL)) {
-                makeOldPosEmpty(x + i, y);
-                break;
-            } else if (isThereA(x + i, y, BOMB)) {
-                explodeBomb(x + i, y);
-                break;
-            } else if (isThereA(x + i, y, PLAYER)) {
-                // kill player
-                break;
-            }else if (isThereA(x + i, y, UNBREAKABLE_WALL)) {
-                break;
-            } else {
-                makeOldPosEmpty(x + i, y);
+                continue;
             }
         }
     }
