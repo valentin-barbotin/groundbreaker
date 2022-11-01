@@ -100,31 +100,8 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
     game = getGame();
     switch (action)
     {
-        case MOVE: {
-            int         x;
-            int         y;
-            short       vx;
-            short       vy;
-            short       playerIndex;
-            sscanf(content, "%d %d %hu %hu %hu", &x, &y, &playerIndex, &vx, &vy);
-
-            player = getGame()->players[playerIndex];
-            // //TODO: hashmap to get player by name
-
-            if (player == NULL) {
-                #ifdef DEBUG
-                    puts("Invalid player id");
-                #endif
-                return;
-            }
-
-            player->x = x;
-            player->y = y;
-            //TODO: set direction
-
-            printf("Player %hu moved to %d %d\n", playerIndex, x, y);
-
-        }
+        case MOVE:
+            receiveMove(content);
             break;
         case START: {
             //launch game
@@ -164,8 +141,6 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
 
             game->nbPlayers = 0;
 
-            //TODO: check if we can remove this
-            spawnPlayer(0, 0);
             printf("(init) spawned player at %d, %d\n", 0, 0);
         }
             break;
@@ -183,8 +158,7 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             if (stringIsEqual(g_username, name)) {
                 printf("set g_playersMultiIndex to %hu\n", n);
                 g_playersMultiIndex = n;
-                strcpy(game->players[g_playersMultiIndex]->name, g_username);
-                spawnPlayer(xCell, yCell);
+                strcpy(game->players[n]->name, g_username);
             }
 
             game->nbPlayers++;
@@ -198,7 +172,7 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             // if the player is the current player, spawn it
             printf("PLAYER name: %s, current player name: %s\n", player->name, getUsername());
 
-            spawnPlayer(player->xCell, player->yCell);
+            spawnPlayer(player->xCell, player->yCell, game->players[n]);
             printf("(playerdat) spawned player at %d, %d\n", player->xCell, player->yCell);
 
             if (game->nbPlayers == game->map->players) {

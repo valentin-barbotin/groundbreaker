@@ -383,3 +383,28 @@ bool    checkUsername() {
 
     return true;
 }
+
+void    receiveMove(const char *content) {
+    int         x;
+    int         y;
+    short       playerIndex;
+    t_player    *player;
+
+    sscanf(content, "%d %d %hu", &x, &y, &playerIndex);
+
+    player = getGame()->players[playerIndex];
+    // //TODO: hashmap to get player by name
+
+    if (player == NULL) {
+        #ifdef DEBUG
+            puts("Invalid player id");
+        #endif
+        return;
+    }
+
+    player->x = x;
+    player->y = y;
+    //TODO: set direction
+
+    // printf("Player %hu moved to %d %d\n", playerIndex, x, y);
+}

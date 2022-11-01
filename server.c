@@ -26,11 +26,13 @@ int         g_peersListUDPNb = 0;
 
 
 // TODO: use players list
-void    sendToAll(const char *msg) {
+void    sendToAll(const char *msg, int except) {
     if (g_serverRunning) {
         printf("g_peersListNb! %d\n", g_peersListNb);
         for (int i = 0; i < g_peersListNb; i++) {
-            // avoid sending to self
+            // avoid loopback
+            if (g_peersList[i]->socket == except) continue;
+
             if (!stringIsEqual(g_peersList[i]->name, getUsername())) {
                 printf("Sending to [%s]: %s\n", g_peersList[i]->name, msg);
                 sendMsg(msg, g_peersList[i]->socket);
@@ -42,11 +44,13 @@ void    sendToAll(const char *msg) {
     broadcastMsg(msg);
 }
 
-void    sendToAllUDP(const char *msg) {
+void    sendToAllUDP(const char *msg, const struct sockaddr_in *except) {
 
     if (g_serverRunningUDP) {
         for (int i = 0; i < g_peersListUDPNb; i++) {
             if (!stringIsEqual(g_peersListUDP[i]->name, getUsername())) {
+                //avoid loopback
+                printf("Sending to [%s]: %s\n", g_peersListUDP[i]->name, msg);
                 sendMsgUDP(msg, g_peersListUDP[i]->socket, g_peersListUDP[i]->clientAddr);
             }
         }
@@ -130,9 +134,13 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     game = getGame();
     switch (action)
     {
+        case MOVE:
+            receiveMove(content);
+            break;
         case BROADCAST:
             // if clientAddr is not null, it's a UDP message
-            clientAddr ? sendToAllUDP(content) : sendToAll(content);
+            clientAddr ? sendToAllUDP(content, clientAddr) : sendToAll(content, client);
+            handleMessageClient(content, client, NULL);
             break;
         case MYNAME:
             //TODO: check name
@@ -146,9 +154,6 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
             printf("2 - game->nbPlayers: %d\n", game->nbPlayers);
 
             addPeer(client, clientAddr, content);
-            break;
-        case MOVE:
-            printf("-- MOVE: [%s]\n", content);
             break;
         case PLAYERDAT:
             //TODO: avoid loopback
@@ -408,10 +413,10 @@ void    multiplayerStart() {
     *ptr = '\0';
     
     // send map to clients
-    sendToAll(buffer);
+    sendToAll(buffer, -1);
 
-    game->players[1]->x = 3;
-    game->players[1]->y = 3;
+    game->players[1]->xCell = 3;
+    game->players[1]->yCell = 3;
 
     strcpy(game->players[0]->name, getUsername());
 
@@ -420,6 +425,6 @@ void    multiplayerStart() {
     {
         sprintf(buffer, "PLAYERDAT:%s %d %d %hu%c", game->players[i]->name, game->players[i]->xCell, game->players[i]->yCell, i, '\0');
         puts(buffer);
-        sendToAll(buffer);
+        sendToAll(buffer, -1);
     }
 }

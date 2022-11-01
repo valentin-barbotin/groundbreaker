@@ -26,8 +26,8 @@
  }                  t_peer;
  
 
- void    sendToAll(const char *msg);
- void    sendToAllUDP(const char *msg);
+ void    sendToAll(const char *msg, int except);
+ void    sendToAllUDP(const char *msg, const struct sockaddr_in *except);
  void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *name);
  void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *clientAddr);
  void    handleClientUDP(int socket);

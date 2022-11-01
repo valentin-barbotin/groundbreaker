@@ -21,7 +21,7 @@
      unsigned short      nbPlayers;
  }                  t_game;
 
- void    spawnPlayer(int x, int y);
+ void    spawnPlayer(int x, int y, t_player *player);
  bool    inGame();
  void    game_quit();
  t_game  *getGame();

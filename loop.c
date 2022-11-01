@@ -206,7 +206,7 @@ void    handleKeyUp(const SDL_Event *event) {
                         printf("index = %d\n", index);
                         game->map = tmp[index];
 
-                        spawnPlayer(1, 1);
+                        spawnPlayer(1, 1, getPlayer());
 
                         if (g_serverRunning) {
                             // send start game message

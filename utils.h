@@ -29,5 +29,6 @@
  void                sendMsg(const char *msg, int socket);
  size_t              receiveMsg(char *buffer, int socket);
  bool                checkUsername();
+ void                receiveMove(const char *content);
 
 #endif /* !FOO_H */

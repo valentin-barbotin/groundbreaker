@@ -13,15 +13,13 @@
  * @brief Place the player in his cell instead of a wall..
  * 
  */
-void    spawnPlayer(int x, int y) {
+void    spawnPlayer(int x, int y, t_player *player) {
     const t_game    *game;
-    t_player        *player;
     const t_map     *map;
     unsigned int    cellSizeX;
     unsigned int    cellSizeY;
 
     game = getGame();
-    player = getPlayer();
     map = game->map;
 
     player->xCell = x;
@@ -204,8 +202,8 @@ void    movePlayer() {
     //TODO: replace by isMooving()
     if (player->vx != 0 || player->vy != 0) {
         // update the grid position for other players
-        sprintf(buffer, "MOVE:%d %d %hu %hu %hu%c", player->x, player->y, g_playersMultiIndex, player->vx, player->vy, '\0');
-        sendToAllUDP(buffer);
+        sprintf(buffer, "MOVE:%d %d %hu%c", player->x, player->y, g_playersMultiIndex, '\0');
+        sendToAllUDP(buffer, NULL);
     }
 }
 
