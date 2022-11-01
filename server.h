@@ -2,6 +2,7 @@
  #define SERVER_H
 
  #include "game.h"
+ #include "player.h"
  extern t_gameConfig    *gameConfig;
 
  typedef enum   e_message

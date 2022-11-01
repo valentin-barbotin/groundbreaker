@@ -67,6 +67,7 @@ t_game* getGame() {
             game->players[i] = initPlayer();
         }
 
+        strcpy(game->players[0]->name, g_username);
         game->nbPlayers = 1;
     }
     return game;
@@ -203,7 +204,7 @@ void    movePlayer() {
     //TODO: replace by isMooving()
     if (player->vx != 0 || player->vy != 0) {
         // update the grid position for other players
-        sprintf(buffer, "MOVE:pos %d %d %s", player->x, player->y, player->name);
+        sprintf(buffer, "MOVE:%d %d %hu %hu %hu%c", player->x, player->y, g_playersMultiIndex, player->vx, player->vy, '\0');
         sendToAllUDP(buffer);
     }
 }

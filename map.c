@@ -268,13 +268,14 @@ void    drawMap() {
         }
     }
 
-    drawPlayer();
+    for (size_t i = 0; i < game->nbPlayers; i++)
+    {
+        drawPlayer(game->players[i]);
+    }
 }
 
-void getPlayerDirection(SDL_Rect *rect) {
-    const t_player  *player;
+void getPlayerDirection(SDL_Rect *rect, const t_player *player) {
 
-    player = getPlayer();
     rect->x = 47; // default: down
 
     // position of the sprite in the texture
@@ -298,14 +299,11 @@ void getPlayerDirection(SDL_Rect *rect) {
  * @brief Get the player stance (moving or not) and render the player
  * 
  */
-void    drawPlayer() {
-    const t_player  *player;
+void    drawPlayer(const t_player *player) {
     short           spriteW;
     short           spriteH;
     SDL_Rect        rect;
     SDL_Rect        rectdest;
-
-    player = getPlayer();
 
     //draw player
     spriteW = 50;
@@ -318,7 +316,7 @@ void    drawPlayer() {
     rectdest.h = PLAYER_HEIGHT;
 
     // position of the sprite in the texture
-    getPlayerDirection(&rect);
+    getPlayerDirection(&rect, player);
     rect.y = 13;
     rect.w = spriteW;
     rect.h = spriteH;

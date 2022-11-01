@@ -100,6 +100,32 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
     game = getGame();
     switch (action)
     {
+        case MOVE: {
+            int         x;
+            int         y;
+            short       vx;
+            short       vy;
+            short       playerIndex;
+            sscanf(content, "%d %d %hu %hu %hu", &x, &y, &playerIndex, &vx, &vy);
+
+            player = getGame()->players[playerIndex];
+            // //TODO: hashmap to get player by name
+
+            if (player == NULL) {
+                #ifdef DEBUG
+                    puts("Invalid player id");
+                #endif
+                return;
+            }
+
+            player->x = x;
+            player->y = y;
+            //TODO: set direction
+
+            printf("Player %hu moved to %d %d\n", playerIndex, x, y);
+
+        }
+            break;
         case START: {
             //launch game
             unsigned short h;
@@ -136,24 +162,44 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             // amount of players
             game->map->players = players; //TODO
 
+            game->nbPlayers = 0;
+
             //TODO: check if we can remove this
             spawnPlayer(0, 0);
             printf("(init) spawned player at %d, %d\n", 0, 0);
-
         }
             break;
         
         case PLAYERDAT: {
-            player = game->players[game->nbPlayers++];
-            sscanf(content, "%s %d %d", player->name, &player->xCell, &player->yCell);
+            // n, index in the players list is shared by the server
+            short           n;
+            int             xCell;
+            int             yCell;
+            char            name[256];
+            sscanf(content, "%s %d %d %hu", name, &xCell, &yCell, &n);
 
-            printf("player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+            player = game->players[n];
+
+            if (stringIsEqual(g_username, name)) {
+                printf("set g_playersMultiIndex to %hu\n", n);
+                g_playersMultiIndex = n;
+                strcpy(game->players[g_playersMultiIndex]->name, g_username);
+                spawnPlayer(xCell, yCell);
+            }
+
+            game->nbPlayers++;
+
+            strcpy(player->name, name);
+            player->xCell = xCell;
+            player->yCell = yCell;
+
+            printf("player[%hu] %s at %d, %d\n", n, player->name, player->xCell, player->yCell);
 
             // if the player is the current player, spawn it
-            if (stringIsEqual(player->name, getPlayer()->name)) {
-                spawnPlayer(player->xCell, player->yCell);
-                printf("(playerdat) spawned player at %d, %d\n", player->xCell, player->yCell);
-            }
+            printf("PLAYER name: %s, current player name: %s\n", player->name, getUsername());
+
+            spawnPlayer(player->xCell, player->yCell);
+            printf("(playerdat) spawned player at %d, %d\n", player->xCell, player->yCell);
 
             if (game->nbPlayers == game->map->players) {
                 puts("All players are in the game");
@@ -166,15 +212,10 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
         default:
             break;
     }
-    
-    memset(buffer, 0, 1024);
 }
 
 void    askUsernameCallback() {
     //TODO: check if host is valid
-    t_player    *player;
-
-    player = getPlayer();
 
     if (strlen(getEditBox()->edit) == 0) {
         #ifdef DEBUG
@@ -183,7 +224,9 @@ void    askUsernameCallback() {
         return;
     }
 
-    strcpy(player->name, getEditBox()->edit);
+    printf("put username [%s] in g_username\n", getEditBox()->edit);
+    strcpy(getUsername(), getEditBox()->edit);
+    printf("g_username: %s\n", getUsername());
     destroyEditBox();
 }
 
@@ -252,6 +295,9 @@ void    joinServer() {
 void    *connectToServer(void *arg) {
     struct sockaddr_in  cl;
     char                buffer[1024];
+    char                *ptr = NULL;
+    size_t              total;
+    size_t              len;
 
     // thread does not need to be joined
     pthread_detach(pthread_self());
@@ -264,7 +310,7 @@ void    *connectToServer(void *arg) {
     cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
     cl.sin_port = htons((uint16_t) atoi(g_serverConfig.port));
 
-    setsockopt(g_serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
+    // setsockopt(g_serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
 
     int res = connect(g_serverSocket, (struct sockaddr *)&cl, sizeof(cl));
     if (res < 0) {
@@ -279,9 +325,8 @@ void    *connectToServer(void *arg) {
 
     puts("Connected to server");
 
-    sprintf(buffer, "JOIN:%s%c", getPlayer()->name, '\0');
+    sprintf(buffer, "JOIN:%s%c", g_username, '\0');
     sendMsg(buffer, g_serverSocket);
-
     do
     {
         // receive message from client, wait if no message
@@ -289,9 +334,36 @@ void    *connectToServer(void *arg) {
             puts("Waiting for message from server");
         #endif
 
-        receiveMsg(buffer, g_serverSocket);
+        total = receiveMsg(buffer, g_serverSocket);
+        // check if there is a single message in the buffer
+        // if there is more than one message, we need to split the buffer
+        // and process each message separately
+        
+        ptr = buffer;
+        if (ptr == NULL) {
+            printf("ptr is NULL, total: %lu\n", total);
+        }
+        len = 0;
+        do
+        {
+            ptr = buffer + len;
+            len += (strlen(ptr) + 1);
 
-        handleMessageClient(&buffer, g_serverSocket, NULL);
+            // //dbg
+            // for (size_t i = len; i < total; i++)
+            // {
+            //     printf("%d ", buffer[i]);
+            // }
+            // printf("\n");
+
+
+            printf("len: %lu, total: %lu\n\n", len, total);
+            printf("ptr: %s\n", ptr);
+            handleMessageClient(ptr, g_serverSocket, NULL);
+
+        } while (len != total);
+        
+
         memset(buffer, 0, 1024);
     } while (true);
     
@@ -332,7 +404,7 @@ void    *connectToServerUDP(void *arg) {
 
     puts("(UDP) Connected to server");
 
-    sprintf(buffer, "MYNAME:%s%c", getPlayer()->name, '\0');
+    sprintf(buffer, "MYNAME:%s%c", g_username, '\0');
     sendMsgUDP(buffer, g_serverSocketUDP, &cl);
     memset(buffer, 0, 1024);
 

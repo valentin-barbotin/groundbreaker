@@ -10,6 +10,9 @@
  #define PLAYER_WIDTH   50
  #define PLAYER_HEIGHT  73
 
+ extern char            g_username[256];
+ extern short           g_playersMultiIndex;
+
  typedef struct     s_game
  {
      t_map               *map;

@@ -27,14 +27,12 @@ int         g_peersListUDPNb = 0;
 
 // TODO: use players list
 void    sendToAll(const char *msg) {
-    const t_player    *player;
-
-    player = getPlayer();
-
     if (g_serverRunning) {
+        printf("g_peersListNb! %d\n", g_peersListNb);
         for (int i = 0; i < g_peersListNb; i++) {
             // avoid sending to self
-            if (!stringIsEqual(g_peersList[i]->name, player->name)) {
+            if (!stringIsEqual(g_peersList[i]->name, getUsername())) {
+                printf("Sending to [%s]: %s\n", g_peersList[i]->name, msg);
                 sendMsg(msg, g_peersList[i]->socket);
             }
         }
@@ -45,13 +43,10 @@ void    sendToAll(const char *msg) {
 }
 
 void    sendToAllUDP(const char *msg) {
-    const t_player    *player;
-
-    player = getPlayer();
 
     if (g_serverRunningUDP) {
         for (int i = 0; i < g_peersListUDPNb; i++) {
-            if (!stringIsEqual(g_peersListUDP[i]->name, player->name)) {
+            if (!stringIsEqual(g_peersListUDP[i]->name, getUsername())) {
                 sendMsgUDP(msg, g_peersListUDP[i]->socket, g_peersListUDP[i]->clientAddr);
             }
         }
@@ -154,6 +149,10 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
             break;
         case MOVE:
             printf("-- MOVE: [%s]\n", content);
+            break;
+        case PLAYERDAT:
+            //TODO: avoid loopback
+            printf("ignore -- PLAYERDAT: [%s]\n", content);
             break;
         
         default:
@@ -335,7 +334,7 @@ void    *createServer(void *arg) {
         return NULL;
     }
 
-    setsockopt(serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
+    // setsockopt(serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
 
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -411,14 +410,16 @@ void    multiplayerStart() {
     // send map to clients
     sendToAll(buffer);
 
-    //send player to all, except admin (first player)
-    for (size_t i = 1; i < game->nbPlayers; i++)
+    game->players[1]->x = 3;
+    game->players[1]->y = 3;
+
+    strcpy(game->players[0]->name, getUsername());
+
+    // send player to all (except us)
+    for (short i = 0; i < game->nbPlayers; i++)
     {
-        game->players[i]->x = 2;
-        game->players[i]->y = 2;
-        sprintf(buffer, "PLAYERDAT:%s %d %d%c", game->players[i]->name, game->players[i]->x, game->players[i]->y, '\0');
+        sprintf(buffer, "PLAYERDAT:%s %d %d %hu%c", game->players[i]->name, game->players[i]->xCell, game->players[i]->yCell, i, '\0');
         puts(buffer);
         sendToAll(buffer);
-        // sendMsg(buffer, game->players[i]->socket);
     }
 }

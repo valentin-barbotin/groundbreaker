@@ -216,7 +216,7 @@ void   sendMsg(const char *msg, int socket) {
  * @param buffer 
  * @param socket 
  */
-void    receiveMsg(char *buffer, int socket) {
+size_t    receiveMsg(char *buffer, int socket) {
     size_t     total;
     size_t     nb;
     size_t     max;
@@ -266,6 +266,7 @@ void    receiveMsg(char *buffer, int socket) {
 
     printf("Received: (%ld bytes) [%s]\n", total, buffer);
     buffer[total - 1] = '\0';
+    return total;
 }
 
 
@@ -367,13 +368,10 @@ void    receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *clientaddr)
 bool    checkUsername() {
     // get user name
     t_dialog            *dialog;
-    const t_player      *player;
-
-    player = getPlayer();
 
     // create dialog
     // if the dialog was just created, set props
-    if (*player->name == 0) {
+    if (*getUsername() == 0) {
         puts("Creating dialog");
         dialog = getEditBox();
         if (dialog->text == NULL) {

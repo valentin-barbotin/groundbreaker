@@ -4,7 +4,9 @@
  #include <netinet/in.h>
 
  #include "game.h"
+ #include "player.h"
  extern t_gameConfig    *gameConfig;
+ extern short           g_playersMultiIndex;
 
  void    broadcastMsg(const char *msg);
  void    broadcastMsgUDP(const char *msg);

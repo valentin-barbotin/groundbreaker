@@ -102,8 +102,10 @@ void    drawPlayersList() {
     rect.w = (gameConfig->video.width) * 0.40;
     rect.h = (gameConfig->video.width) * 0.20;
     SDL_RenderDrawRect(g_renderer, &rect);
+    
+    drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
 
-    for (size_t i = 0; i < game->nbPlayers; i++)
+    for (size_t i = 1; i < game->nbPlayers; i++)
     {
         if (game->players[i]->name != NULL) {
             drawText(&colorBlack, rect.x + 10, rect.y + 10 + (i * 20), game->players[i]->name, false, rect.w);

@@ -8,6 +8,8 @@
 
  #include <SDL.h>
 
+ #include "player.h"
+
  extern SDL_Window*         g_window;
  extern SDL_Renderer*       g_renderer;
  extern bool                g_serverRunningUDP;
@@ -25,7 +27,7 @@
  void                sendMsgUDP(const char *msg, int socket, struct sockaddr_in  *sockaddr);
  void                receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *sockaddr);
  void                sendMsg(const char *msg, int socket);
- void                receiveMsg(char *buffer, int socket);
+ size_t              receiveMsg(char *buffer, int socket);
  bool                checkUsername();
 
 #endif /* !FOO_H */

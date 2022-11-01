@@ -6,6 +6,22 @@
 
 #define DEBUG true
 
+char                g_username[256] = {0};
+short               g_playersMultiIndex = 0;
+
+
+char       *getUsername() {
+    const t_game      *game;
+
+    game = getGame();
+
+    if (g_clientThread) {
+        return game->players[g_playersMultiIndex]->name;
+    } else {
+        return g_username;
+    }
+}
+
 t_player   *initPlayer() {
     t_player    *player;
 
@@ -30,12 +46,14 @@ t_player   *initPlayer() {
 }
 
 t_player   *getPlayer() {
-    static t_player *player;
+    const t_game      *game;
 
-    if (player == NULL) {
-        //put the local player in the game
-        player = getGame()->players[0];
+    game = getGame();
+
+    // if player is a client, player != [0]
+    if (g_clientThread) {
+        return game->players[g_playersMultiIndex];
+    } else {
+        return game->players[0];
     }
-
-    return player;
 }
