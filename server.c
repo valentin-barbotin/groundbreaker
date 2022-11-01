@@ -51,7 +51,7 @@ void    sendToAllUDP(const char *msg) {
 
     if (g_serverRunningUDP) {
         for (int i = 0; i < g_peersListUDPNb; i++) {
-            if (!stringIsEqual(g_peersList[i]->name, player->name)) {
+            if (!stringIsEqual(g_peersListUDP[i]->name, player->name)) {
                 sendMsgUDP(msg, g_peersListUDP[i]->socket, g_peersListUDP[i]->clientAddr);
             }
         }
