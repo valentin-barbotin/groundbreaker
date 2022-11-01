@@ -6,17 +6,18 @@
     #include <stdio.h>
     #include "config.h"
 
-    #define ITEM_BOMB_UP 0
-    #define ITEM_BOMB_DOWN 1
-    #define ITEM_YELLOW_FLAME 2
-    #define ITEM_BLUE_FLAME 3
-    #define ITEM_RED_FLAME 4
-    #define ITEM_PASS_THROUGH_BOMB 5
-    #define ITEM_BOMB_KICK 6
-    #define ITEM_INVINCIBILITY 7
-    #define ITEM_HEART 8
-    #define ITEM_LIFE 9
-    #define NB_ITEMS 10
+    #define ITEM_BOMB 0
+    #define ITEM_BOMB_UP 1
+    #define ITEM_BOMB_DOWN 2
+    #define ITEM_YELLOW_FLAME 3
+    #define ITEM_BLUE_FLAME 4
+    #define ITEM_RED_FLAME 5
+    #define ITEM_PASS_THROUGH_BOMB 6
+    #define ITEM_BOMB_KICK 7
+    #define ITEM_INVINCIBILITY 8
+    #define ITEM_HEART 9
+    #define ITEM_LIFE 10
+    #define NB_ITEMS 11
 
     typedef struct s_item {
         int     type;
@@ -24,8 +25,7 @@
         int     x;
         int     y;
         bool    isRare;
-        int nb_bomb;
-        int range;
+        int     quantity;
         int     duration;
         struct s_item *next;
         bool    active;
