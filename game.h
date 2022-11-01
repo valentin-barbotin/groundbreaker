@@ -5,7 +5,7 @@
 
  #include "map.h"
 
- #define TEX_PLAYER     "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/bomber.png"
+ #define TEX_PLAYER     "./assets/bomber.png"
  #define PLAYER_WIDTH   50
  #define PLAYER_HEIGHT  73
 

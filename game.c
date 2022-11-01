@@ -37,9 +37,9 @@ bool    inGame() {
 }
 
 void setPath() {
-    walk->file = "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/sound/walk.ogg";
-    wall->file = "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/sound/wall.ogg";
-    unbreakableWall->file = "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/sound/unbreakable_wall.ogg";
+    walk->file = "./assets/sound/walk.ogg";
+    wall->file = "./assets/sound/wall.ogg";
+    unbreakableWall->file = "./assets/sound/unbreakable_wall.ogg";
     //bomb->file = changemeBombPath;
     //item->file = changemeItemPath;
     //life->file = changemeLifePath;

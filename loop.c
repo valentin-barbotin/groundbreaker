@@ -23,7 +23,7 @@ bool    inMainMenu() {
     if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
         if (Mix_PlayingMusic() == 0) {
             main_music = malloc(sizeof(t_sound));
-            main_music->file = "/Users/jamesabib/Desktop/3AL2/C/groundbreaker/assets/sound/main_music.ogg";
+            main_music->file = "./assets/sound/main_music.ogg";
             initMusic(main_music);
             if (main_music->music == NULL) {
                 #ifdef DEBUG

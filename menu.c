@@ -52,11 +52,11 @@ void    setupMenu() {
     switch (g_currentState)
     {
         case GAME_MAINMENU_PLAY:
-            bg = "/home/kazuh/Downloads/uwp2625532.jpeg";
+            bg = "back.png";
             break;
         
         default:
-            bg = "/home/kazuh/Downloads/uwp2625532.jpeg";
+            bg = "back.png";
             break;
     }
 
