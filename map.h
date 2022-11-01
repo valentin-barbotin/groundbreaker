@@ -28,6 +28,7 @@
          WALL= 'W',
          UNBREAKABLE_WALL = 'U',
          EMPTY = ' ',
+         GRAVEL = 'G',
          ITEM = 'I',
          PLAYER = 'P'
  }               t_type;

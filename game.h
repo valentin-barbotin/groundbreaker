@@ -23,10 +23,12 @@
 
  void    spawnPlayer();
  bool    inGame();
- bool    isThereA(short x, short y, t_type type);
+ bool    isThereA(t_type type);
+ void    explodeBomb();
+ void    posToGrid();
+ void    posToGridN(int x, int y, int *xCell, int *yCell);
  void    game_quit();
  t_game  *getGame();
  void    movePlayer();
- void    explodeBomb(short x, short y);
 
 #endif
