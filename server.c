@@ -12,34 +12,87 @@
 #include "utils.h"
 #include "game.h"
 #include "player.h"
+#include "client.h"
 
 #define DEBUG true
 
 bool        g_serverRunning = false;
 bool        g_serverRunningUDP = false;
 pthread_t   g_serverThread = NULL;
-int         g_socketsList[3]; // 4 players max
-int         g_socketsListNb = 0;
+t_peer      *g_peersList[3]; // 4 players max
+int         g_peersListNb = 0;
 t_peer      *g_peersListUDP[3]; // 4 players max
 int         g_peersListUDPNb = 0;
 
 
 // TODO: use players list
 void    sendToAll(const char *msg) {
-    for (int i = 0; i < g_socketsListNb; i++) {
-        sendMsg(msg, g_socketsList[i]);
+    const t_player    *player;
+
+    player = getPlayer();
+
+    if (g_serverRunning) {
+        for (int i = 0; i < g_peersListNb; i++) {
+            // avoid sending to self
+            if (!stringIsEqual(g_peersList[i]->name, player->name)) {
+                sendMsg(msg, g_peersList[i]->socket);
+            }
+        }
+        return;
     }
+    //let the server broadcast the message
+    broadcastMsg(msg);
+}
+
+void    sendToAllUDP(const char *msg) {
+    const t_player    *player;
+
+    player = getPlayer();
+
+    if (g_serverRunningUDP) {
+        for (int i = 0; i < g_peersListUDPNb; i++) {
+            if (!stringIsEqual(g_peersList[i]->name, player->name)) {
+                sendMsgUDP(msg, g_peersListUDP[i]->socket, g_peersListUDP[i]->clientAddr);
+            }
+        }
+        return;
+    }
+    //let the server broadcast the message
+    broadcastMsgUDP(msg);
+}
+
+void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *name) {
+    t_peer  *peer;
+
+    peer = malloc(sizeof(t_peer));
+    if (peer == NULL) {
+        #ifdef DEBUG
+            printf("Error: malloc failed for peer");
+        #endif
+        exit(1);
+    }
+
+    peer->socket = socket;
+    strcpy(peer->name, name);
+
+    // UDP peer
+    if (clientAddr != NULL) {
+        peer->clientAddr = clientAddr;
+        g_peersListUDP[g_peersListUDPNb++] = peer;
+    } else {
+        g_peersList[g_peersListNb++] = peer;
+    }
+
 }
 
 void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *clientAddr) {
-    char        *pos;
     char        type[128];
     char        *content;
     t_message   action;
     t_game      *game;
 
-    pos = strchr(buffer, ':');
-    if (pos == NULL) {
+    content = strchr(buffer, ':');
+    if (content == NULL) {
         #ifdef DEBUG
             puts("Invalid message (:)");
             puts(buffer);
@@ -48,11 +101,11 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         return;
     }
 
-    *pos = '\0';
-    pos++;
+    *content = '\0';
+    content++;
     strcpy(type, buffer);
     #ifdef DEBUG
-        printf("type: %s, msg: [%s]\n", type, pos);
+        printf("type: %s, msg: [%s]\n", type, content);
     #endif
 
     if (stringIsEqual(type, "JOIN")) {
@@ -69,6 +122,8 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         action = QUIT;
     } else if (stringIsEqual(type, "MYNAME")) {
         action = MYNAME;
+    } else if (stringIsEqual(type, "BROADCAST")) {
+        action = BROADCAST;
     } else {
         #ifdef DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -80,33 +135,25 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     game = getGame();
     switch (action)
     {
+        case BROADCAST:
+            // if clientAddr is not null, it's a UDP message
+            clientAddr ? sendToAllUDP(content) : sendToAll(content);
+            break;
         case MYNAME:
             //TODO: check name
-            t_peer  *peer;
-
-            peer = malloc(sizeof(t_peer));
-            if (peer == NULL) {
-                #ifdef DEBUG
-                    printf("Error: malloc failed for peer");
-                #endif
-                exit(1);
-            }
-
-            peer->socket = client;
-            peer->clientAddr = clientAddr;
-            strcpy(peer->name, pos);
-
-            g_peersListUDP[g_peersListUDPNb++] = peer;
+            addPeer(client, clientAddr, content);
             break;
         case JOIN:
-            player = initPlayer();
-            strcpy(player->name, pos);
-            player->socket = client;
+            //TODO: mutex ?
+            printf("JOIN: %s\n", content);
+            printf("game->nbPlayers: %d\n", game->nbPlayers);
+            strcpy(game->players[game->nbPlayers++]->name, content);
+            printf("2 - game->nbPlayers: %d\n", game->nbPlayers);
 
-            //TODO: mutex
-            game->players[game->nbPlayers++] = player;
+            addPeer(client, clientAddr, content);
             break;
         case MOVE:
+            printf("-- MOVE: [%s]\n", content);
             break;
         
         default:
@@ -329,8 +376,6 @@ void    *createServer(void *arg) {
 
         puts("Received connection from client");
 
-        g_socketsList[g_socketsListNb++] = clientSocket;
-
         // create thread and handle client (infinite loop with recv and send)
         pthread_t thread;
         thstate = pthread_create(&thread, NULL, handleClient, &clientSocket);
@@ -373,6 +418,7 @@ void    multiplayerStart() {
         game->players[i]->y = 2;
         sprintf(buffer, "PLAYERDAT:%s %d %d%c", game->players[i]->name, game->players[i]->x, game->players[i]->y, '\0');
         puts(buffer);
-        sendMsg(buffer, game->players[i]->socket);
+        sendToAll(buffer);
+        // sendMsg(buffer, game->players[i]->socket);
     }
 }

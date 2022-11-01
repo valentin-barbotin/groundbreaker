@@ -24,8 +24,24 @@ pthread_t           g_clientThread = NULL;
 pthread_t           g_clientThreadUDP = NULL;
 int                 g_serverSocket = 0;
 int                 g_serverSocketUDP = 0;
+struct sockaddr_in  *g_serverAddrUDP = NULL;
+
 
 t_serverConfig g_serverConfig;
+
+void    broadcastMsg(const char *msg) {
+    char    buffer[1024];
+
+    sprintf(buffer, "BROADCAST:%s", msg);
+    sendMsg(buffer, g_serverSocket);
+}
+
+void    broadcastMsgUDP(const char *msg) {
+    char    buffer[1024];
+
+    sprintf(buffer, "BROADCAST:%s", msg);
+    sendMsgUDP(buffer, g_serverSocketUDP, g_serverAddrUDP);
+}
 
 /**
  * @brief Handle the message received from the server
@@ -120,8 +136,9 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             // amount of players
             game->map->players = players; //TODO
 
+            //TODO: check if we can remove this
             spawnPlayer(0, 0);
-            printf("spawned player at %d, %d\n", 0, 0);
+            printf("(init) spawned player at %d, %d\n", 0, 0);
 
         }
             break;
@@ -131,6 +148,12 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             sscanf(content, "%s %d %d", player->name, &player->xCell, &player->yCell);
 
             printf("player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+
+            // if the player is the current player, spawn it
+            if (stringIsEqual(player->name, getPlayer()->name)) {
+                spawnPlayer(player->xCell, player->yCell);
+                printf("(playerdat) spawned player at %d, %d\n", player->xCell, player->yCell);
+            }
 
             if (game->nbPlayers == game->map->players) {
                 puts("All players are in the game");
@@ -293,6 +316,8 @@ void    *connectToServerUDP(void *arg) {
     cl.sin_family = AF_INET;
     cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
     cl.sin_port = htons(port);
+
+    g_serverAddrUDP = &cl;
 
     // int res = connect(g_serverSocketUDP, (struct sockaddr *)&cl, sizeof(cl));
     // if (res < 0) {

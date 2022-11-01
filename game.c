@@ -5,6 +5,7 @@
 #include "moves.h"
 #include "utils.h"
 #include "player.h"
+#include "server.h"
 
 #define DEBUG true
 
@@ -105,6 +106,7 @@ void    movePlayer() {
     t_game          *game;
     t_player        *player;
     const t_map     *map;
+    char            buffer[100];
 
     game = getGame();
     player = getPlayer();
@@ -197,6 +199,13 @@ void    movePlayer() {
             break;
     }
     posToGrid();
+
+    //TODO: replace by isMooving()
+    if (player->vx != 0 || player->vy != 0) {
+        // update the grid position for other players
+        sprintf(buffer, "MOVE:pos %d %d %s", player->x, player->y, player->name);
+        sendToAllUDP(buffer);
+    }
 }
 
 

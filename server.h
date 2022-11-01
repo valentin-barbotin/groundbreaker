@@ -6,6 +6,7 @@
 
  typedef enum   e_message
  {
+    BROADCAST,
     JOIN,
     MOVE,
     CHAT,
@@ -13,7 +14,7 @@
     START,
     QUIT,
     PLAYERDAT,
-    MYNAME
+    MYNAME,
  }             t_message;
 
  typedef struct     s_peer
@@ -25,6 +26,8 @@
  
 
  void    sendToAll(const char *msg);
+ void    sendToAllUDP(const char *msg);
+ void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *name);
  void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *clientAddr);
  void    handleClientUDP(int socket);
  void    *handleClient(void *clientSocket);
