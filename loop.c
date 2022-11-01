@@ -187,7 +187,6 @@ void    handleKeyUp(const SDL_Event *event) {
                             return;
                         }
 
-                        char    buffer[1024];
                         t_map *tmp[10] = {0};
                         index = -1;
                         for (size_t i = 0; i < g_nbMap; i++)
@@ -207,32 +206,11 @@ void    handleKeyUp(const SDL_Event *event) {
                         printf("index = %d\n", index);
                         game->map = tmp[index];
 
-                        spawnPlayer();
+                        spawnPlayer(1, 1);
 
-                        sprintf(buffer, "START:%hu %hu $", game->map->height, game->map->width);
-
-                        char *ptr = buffer + strlen(buffer);
-                        for (size_t i = 0; i < game->map->height; i++)
-                        {
-                            for (size_t j = 0; j < game->map->width; j++)
-                            {
-                                *ptr++ = game->map->map[i][j];
-                            }
-                        }
-
-                        *ptr = '\0';
-                        
-                        // send map to clients
-                        sendToAll(buffer);
-
-                        //send player to all, except admin (first player)
-                        for (size_t i = 1; i < game->nbPlayers; i++)
-                        {
-                            game->players[i]->x = 2;
-                            game->players[i]->y = 2;
-                            sprintf(buffer, "PLAYERDAT:%s %d %d%c", game->players[i]->name, game->players[i]->x, game->players[i]->y, '\0');
-                            puts(buffer);
-                            sendMsg(buffer, game->players[i]->socket);
+                        if (g_serverRunning) {
+                            // send start game message
+                            multiplayerStart();
                         }
 
                         g_currentState = GAME_PLAY_PLAYING;

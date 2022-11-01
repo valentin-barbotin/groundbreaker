@@ -270,39 +270,98 @@ void    receiveMsg(char *buffer, int socket) {
 
 
 /**
- * @brief Send a message to a socket
+ * @brief Send a message to a socket (UDP)
  * 
  * @param buffer 
  * @param socket 
  */
-void   sendMsgUDP(const char *msg, int socket, struct sockaddr *serverAddress) {
-    printf("Sending message to server: %s\n", msg);
+void   sendMsgUDP(const char *msg, int socket, struct sockaddr_in  *sockaddr) {
+    size_t      msgLen;
+    size_t      total;
+    size_t      nb;
+    size_t      max;
 
-    if (sendto(socket, msg, strlen(msg) + 1, 0, serverAddress, sizeof(serverAddress)) < 0) {
-        fprintf(stderr, "Error sending message to server");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Network error", g_window);
-        exit(1);
+    msgLen = strlen(msg) + 1; // +1 for the null terminator
+    printf("(UDP) msgLen: %zu\n", msgLen);
+
+    total = 0;
+    while (total != msgLen)
+    {
+        max = msgLen - total;
+
+        // in case of error, we need to know how many bytes have been sent
+        nb = sendto(socket, msg + total, max, 0, (struct sockaddr*)sockaddr, sizeof(struct sockaddr));
+        printf("(UDP) send: %s\n", msg + total);
+        if (nb == -1)
+        {
+            fprintf(stderr, "Error sending message to server: %s\n", strerror(errno));
+            exit(1);
+        }
+        total += nb;
+        printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
     }
+
+    printf("(UDP) Sent: (%ld bytes) [%s]\n", total, msg);
 }
 
+
+
 /**
- * @brief Receive a message from a socket
+ * @brief Receive a message from a socket (UDP)
  * 
  * @param buffer 
  * @param socket 
  */
-void    receiveMsgUDP(char *buffer, int socket, struct sockaddr *serverAddress) {
-    int     len = 0;
-    char    c = 0;
+void    receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *clientaddr) {
+    size_t     total;
+    size_t     nb;
+    size_t     max;
+    socklen_t  addrlen;
 
-    do {
-        len += recvfrom(socket, &c, 1, 0, serverAddress, sizeof(serverAddress));
-        buffer[len - 1] = c;
-    } while (c != '\0');
+    max = 1024;
 
-    #ifdef DEBUG
-        printf("Received: %s  size: %d\n", buffer, len);
-    #endif
+    addrlen = sizeof(struct sockaddr);
+    total = 0;
+    while (true)
+    {
+        nb = recvfrom(socket, buffer + total, max, 0, (struct sockaddr*)clientaddr, &addrlen);
+        if (nb == -1)
+        {
+            fprintf(stderr, "(UDP) Error receiving message from server: %s\n", strerror(errno));
+            exit(1);
+        }
+        // if 0, we have received the whole message
+        // TODO: check
+        if (nb == 0)
+        {
+            fprintf(stderr, "Peer closed the connection\n");
+            int shut = shutdown(socket, SHUT_RDWR);
+            if (shut == -1) {
+                fprintf(stderr, "Error shutting down socket: %s\n", strerror(errno));
+            } else {
+                printf("Socket %d shut down\n", socket);
+            }
+            exit(1);
+        }
+
+
+        if (nb > 0) {
+            total += nb;
+        } else {
+            fprintf(stderr, "(UDP) Error receiving message from server: %s\n", strerror(errno));
+            exit(1);
+        }
+
+        // printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
+        //TODO: rework this
+        printf("(UDP) last: %c %d\n", buffer[total - 1], buffer[total - 1]);
+        if (buffer[total - 1] == '\0') {
+            break;
+        }
+    }
+
+    printf("(UDP) Received: (%ld bytes) [%s]\n", total, buffer);
+    buffer[total - 1] = '\0';
 }
 
 bool    checkUsername() {

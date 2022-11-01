@@ -8,8 +8,10 @@
 
  #include <SDL.h>
 
- extern SDL_Window*     g_window;
- extern SDL_Renderer*   g_renderer;
+ extern SDL_Window*         g_window;
+ extern SDL_Renderer*       g_renderer;
+ extern bool                g_serverRunningUDP;
+ 
 
  char                *randomString(unsigned short size);
  void                removeLineFeed(char* str);
@@ -20,8 +22,8 @@
  bool                stringIsEqual(const char *str1, const char *str2);
  SDL_Texture*        textureFromFile(const char* src);
  char*               removeSuffix(const char* src, char* suffix);
- void                sendMsgUDP(const char *msg, int socket, struct sockaddr *serverAddress);
- void                receiveMsgUDP(char *buffer, int socket, struct sockaddr *serverAddress);
+ void                sendMsgUDP(const char *msg, int socket, struct sockaddr_in  *sockaddr);
+ void                receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *sockaddr);
  void                sendMsg(const char *msg, int socket);
  void                receiveMsg(char *buffer, int socket);
  bool                checkUsername();

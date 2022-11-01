@@ -20,14 +20,22 @@
 
 #define DEBUG true
 
-pthread_t   g_clientThread = NULL;
-pthread_t   g_clientThreadUDP = NULL;
-int         g_serverSocket = 0;
-int         g_serverSocketUDP = 0;
+pthread_t           g_clientThread = NULL;
+pthread_t           g_clientThreadUDP = NULL;
+int                 g_serverSocket = 0;
+int                 g_serverSocketUDP = 0;
 
 t_serverConfig g_serverConfig;
 
-void    handleMessageClient(char  *buffer, int server) {
+/**
+ * @brief Handle the message received from the server
+ * if sockaddr is not null, it's a UDP message, else it's a TCP message
+ * 
+ * @param buffer 
+ * @param server 
+ * @param sockaddr 
+ */
+void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in  *sockaddr) {
     char        *pos;
     char        type[128];
     char        *content;
@@ -80,10 +88,11 @@ void    handleMessageClient(char  *buffer, int server) {
             //launch game
             unsigned short h;
             unsigned short w;
+            unsigned short players;
             t_map          *map;
             char           *ptr;
-            sscanf(content, "%hu %hu $", &h, &w);
-            printf("h: %hu, w: %hu\n", h, w);
+            sscanf(content, "%hu %hu %hu $", &h, &w, &players);
+            printf("h: %hu, w: %hu, nb: %hu\n", h, w, players);
 
             if (!h || !w) {
                 puts("Invalid map size");
@@ -108,19 +117,26 @@ void    handleMessageClient(char  *buffer, int server) {
             }
 
             game->map = map;
-            game->map->players = 4; //TODO
+            // amount of players
+            game->map->players = players; //TODO
 
-            puts("Game started");
-            map_print(game->map);
+            spawnPlayer(0, 0);
+            printf("spawned player at %d, %d\n", 0, 0);
 
-            spawnPlayer();
-            g_currentState = GAME_PLAY_PLAYING;
         }
             break;
         
         case PLAYERDAT: {
             player = game->players[game->nbPlayers++];
-            sscanf(content, "%s %d %d", player->name, &player->x, &player->y);
+            sscanf(content, "%s %d %d", player->name, &player->xCell, &player->yCell);
+
+            printf("player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+
+            if (game->nbPlayers == game->map->players) {
+                puts("All players are in the game");
+                printf("game->nbPlayers: %d, game->map->players: %d\n", game->nbPlayers, game->map->players);
+                g_currentState = GAME_PLAY_PLAYING;
+            }
         }
             break;
         
@@ -182,7 +198,7 @@ void    askServerPortCallback() {
     destroyEditBox();
 
     pthread_create(&g_clientThread, NULL, &connectToServer, "client");
-    // pthread_create(&g_clientThreadUDP, NULL, &connectToServerUDP, "client");
+    pthread_create(&g_clientThreadUDP, NULL, &connectToServerUDP, "client");
 }
 
 
@@ -252,7 +268,7 @@ void    *connectToServer(void *arg) {
 
         receiveMsg(buffer, g_serverSocket);
 
-        handleMessageClient(&buffer, g_serverSocket);
+        handleMessageClient(&buffer, g_serverSocket, NULL);
         memset(buffer, 0, 1024);
     } while (true);
     
@@ -263,40 +279,50 @@ void    *connectToServer(void *arg) {
 void    *connectToServerUDP(void *arg) {
     struct sockaddr_in  cl;
     char                buffer[1024];
+    unsigned            short  port;
+
+    port = (unsigned short) atoi(g_serverConfig.port);
 
     // thread does not need to be joined
     pthread_detach(pthread_self());
 
-    printf("(UDP) Connecting to server %s:%s\n", g_serverConfig.host, g_serverConfig.port);
+    printf("(UDP) Connecting to server %s:%d\n", g_serverConfig.host, port);
 
     puts("(UDP) Connecting to server...");
-    g_serverSocketUDP = socket(AF_INET, SOCK_DGRAM, 0);
+    g_serverSocketUDP = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     cl.sin_family = AF_INET;
     cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
-    cl.sin_port = htons((uint16_t) atoi(g_serverConfig.port));
+    cl.sin_port = htons(port);
 
-    int res = connect(g_serverSocketUDP, (struct sockaddr *)&cl, sizeof(cl));
-    if (res < 0) {
-        #ifdef DEBUG
-            perror("(UDP) Error connecting to server");
-            fprintf(stderr, "(UDP) Error connecting to server: %s", strerror(res));
-        #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
-        g_clientThreadUDP = NULL;
-        return NULL;
-    }
+    // int res = connect(g_serverSocketUDP, (struct sockaddr *)&cl, sizeof(cl));
+    // if (res < 0) {
+    //     #ifdef DEBUG
+    //         perror("(UDP) Error connecting to server");
+    //         fprintf(stderr, "(UDP) Error connecting to server: %s", strerror(res));
+    //     #endif
+    //     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
+    //     g_clientThreadUDP = NULL;
+    //     return NULL;
+    // }
 
-    puts("Connected to server");
+    puts("(UDP) Connected to server");
+
+    sprintf(buffer, "MYNAME:%s%c", getPlayer()->name, '\0');
+    sendMsgUDP(buffer, g_serverSocketUDP, &cl);
+    memset(buffer, 0, 1024);
 
     do
     {
+        struct sockaddr_in  sockaddr;
+
         // receive message from client, wait if no message
         #ifdef DEBUG
             puts("Waiting for message from server");
         #endif
 
-        receiveMsgUDP(buffer, g_serverSocket, &cl);
+        receiveMsgUDP(buffer, g_serverSocketUDP, &sockaddr);
 
-        handleMessageClient(&buffer, g_serverSocket);
+        handleMessageClient(&buffer, g_serverSocketUDP, &sockaddr);
+        memset(buffer, 0, 1024);
     } while (true);
 }

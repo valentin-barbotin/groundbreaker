@@ -1,10 +1,12 @@
 #ifndef CLIENT_H
  #define CLIENT_H
 
+ #include <netinet/in.h>
+
  #include "game.h"
  extern t_gameConfig    *gameConfig;
 
- void    handleMessageClient(char  *buffer, int client);
+ void    handleMessageClient(char  *buffer, int client, const struct sockaddr_in  *sockaddr);
  void    askUsernameCallback();
  void    askServerHost();
  void    askServerHostCallback();

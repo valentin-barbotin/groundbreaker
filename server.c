@@ -20,6 +20,9 @@ bool        g_serverRunningUDP = false;
 pthread_t   g_serverThread = NULL;
 int         g_socketsList[3]; // 4 players max
 int         g_socketsListNb = 0;
+t_peer      *g_peersListUDP[3]; // 4 players max
+int         g_peersListUDPNb = 0;
+
 
 // TODO: use players list
 void    sendToAll(const char *msg) {
@@ -28,7 +31,7 @@ void    sendToAll(const char *msg) {
     }
 }
 
-void    handleMessageSrv(char  *buffer, int client) {
+void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *clientAddr) {
     char        *pos;
     char        type[128];
     char        *content;
@@ -64,6 +67,8 @@ void    handleMessageSrv(char  *buffer, int client) {
         action = START;
     } else if (stringIsEqual(type, "QUIT")) {
         action = QUIT;
+    } else if (stringIsEqual(type, "MYNAME")) {
+        action = MYNAME;
     } else {
         #ifdef DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -75,6 +80,24 @@ void    handleMessageSrv(char  *buffer, int client) {
     game = getGame();
     switch (action)
     {
+        case MYNAME:
+            //TODO: check name
+            t_peer  *peer;
+
+            peer = malloc(sizeof(t_peer));
+            if (peer == NULL) {
+                #ifdef DEBUG
+                    printf("Error: malloc failed for peer");
+                #endif
+                exit(1);
+            }
+
+            peer->socket = client;
+            peer->clientAddr = clientAddr;
+            strcpy(peer->name, pos);
+
+            g_peersListUDP[g_peersListUDPNb++] = peer;
+            break;
         case JOIN:
             player = initPlayer();
             strcpy(player->name, pos);
@@ -122,7 +145,7 @@ void   *handleClient(void *clientSocket) {
             printf("Received message from client %d: %s\n", client, buffer);
         #endif
 
-        handleMessageSrv(buffer, client);
+        handleMessageSrv(buffer, client, NULL);
     } while (true);
     return NULL;
 }
@@ -132,26 +155,25 @@ void   *handleClient(void *clientSocket) {
  * 
  * @param socket 
  */
-void   handleClientUDP(int socket, struct sockaddr_in *clientAddr) {
+void   handleClientUDP(int socket) {
     char    buffer[1024];
-
-    #ifdef DEBUG
-        printf("Client addr: %u\n", clientAddr->sin_addr.s_addr);
-    #endif
 
     do
     {
+        struct sockaddr_in  clientAddr;
+
         // receive message from client, wait if no message
         #ifdef DEBUG
-            printf("Waiting for message from client %u\n", clientAddr->sin_addr.s_addr);
+            puts("(UDP) Waiting for message");
         #endif
-        receiveMsgUDP(buffer, socket, clientAddr);
+
+        receiveMsgUDP(buffer, socket, &clientAddr);
 
         #ifdef DEBUG
-            printf("Received message from client %u: %s\n", clientAddr->sin_addr.s_addr, buffer);
+            printf("(UDP) Received message [%s]\n",  buffer);
         #endif
 
-        handleMessageSrv(buffer, socket);
+        handleMessageSrv(buffer, socket, &clientAddr);
     } while (true);
 }
 
@@ -165,7 +187,7 @@ void    launchServer() {
 
     pthread_create(&g_serverThread, NULL, &createServer, "server");
     // for position
-    // pthread_create(&g_serverThread, NULL, &createServerUDP, "server");
+    pthread_create(&g_serverThread, NULL, &createServerUDP, "server");
 }
 
 /**
@@ -188,12 +210,15 @@ void    *createServerUDP(void *arg) {
 
     int                 serverSocket;
     struct sockaddr_in  serverAddress;
+    unsigned short      port;
 
 
-    puts("Starting server...");
+    port = (unsigned short) atoi(gameConfig->server.port);
+
+    puts("(UDP) Starting server...");
 
     // create socket with IPv4 and UDP
-    serverSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    serverSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (serverSocket < 0) {
         #ifdef DEBUG
             perror("Error opening socket");
@@ -205,12 +230,12 @@ void    *createServerUDP(void *arg) {
 
 
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_addr.s_addr = inet_addr(gameConfig->server.host);
-    serverAddress.sin_port = htons((uint16_t) atoi(gameConfig->server.port));
+    serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverAddress.sin_port = htons(port);
 
     if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
         #ifdef DEBUG
-            perror("Error on binding");
+            perror("(UDP) Error on binding");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't bind", g_window);
         g_serverThread = NULL;
@@ -218,7 +243,9 @@ void    *createServerUDP(void *arg) {
     }
     g_serverRunningUDP = true;
 
-    handleClientUDP(serverSocket, &serverAddress);
+    printf("(UDP) Server started on port %d\n", port);
+
+    handleClientUDP(serverSocket);
 }
 
 /**
@@ -244,7 +271,9 @@ void    *createServer(void *arg) {
     struct sockaddr_in  clientAddress;
     int                 clientSocket;
     socklen_t           clientAddressLength;
+    unsigned short      port;
 
+    port = atoi(gameConfig->server.port);
 
     puts("Starting server...");
 
@@ -262,8 +291,8 @@ void    *createServer(void *arg) {
     setsockopt(serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
 
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_addr.s_addr = inet_addr(gameConfig->server.host);
-    serverAddress.sin_port = htons((uint16_t) atoi(gameConfig->server.port));
+    serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverAddress.sin_port = htons(port);
 
     if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
         #ifdef DEBUG
@@ -276,6 +305,8 @@ void    *createServer(void *arg) {
 
     listen(serverSocket, 5);
     g_serverRunning = true;
+
+    printf("Server started on port %d\n", port);
 
     // create thread for each client
     while (true)
@@ -309,5 +340,39 @@ void    *createServer(void *arg) {
             exit(EXIT_FAILURE);
         }
 
+    }
+}
+
+
+void    multiplayerStart() {
+    char            buffer[1024];
+    const t_game    *game;
+
+    game = getGame();
+
+    sprintf(buffer, "START:%hu %hu %hu$", game->map->height, game->map->width, game->nbPlayers);
+
+    char *ptr = buffer + strlen(buffer);
+    for (size_t i = 0; i < game->map->height; i++)
+    {
+        for (size_t j = 0; j < game->map->width; j++)
+        {
+            *ptr++ = game->map->map[i][j];
+        }
+    }
+
+    *ptr = '\0';
+    
+    // send map to clients
+    sendToAll(buffer);
+
+    //send player to all, except admin (first player)
+    for (size_t i = 1; i < game->nbPlayers; i++)
+    {
+        game->players[i]->x = 2;
+        game->players[i]->y = 2;
+        sprintf(buffer, "PLAYERDAT:%s %d %d%c", game->players[i]->name, game->players[i]->x, game->players[i]->y, '\0');
+        puts(buffer);
+        sendMsg(buffer, game->players[i]->socket);
     }
 }

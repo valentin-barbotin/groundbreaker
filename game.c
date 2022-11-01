@@ -12,8 +12,8 @@
  * @brief Place the player in his cell instead of a wall..
  * 
  */
-void    spawnPlayer() {
-    t_game          *game;
+void    spawnPlayer(int x, int y) {
+    const t_game    *game;
     t_player        *player;
     const t_map     *map;
     unsigned int    cellSizeX;
@@ -23,8 +23,8 @@ void    spawnPlayer() {
     player = getPlayer();
     map = game->map;
 
-    player->xCell = 1;
-    player->yCell = 1;
+    player->xCell = x;
+    player->yCell = y;
 
     cellSizeX = gameConfig->video.width / map->width;
     cellSizeY = gameConfig->video.height / map->height;

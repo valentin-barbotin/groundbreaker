@@ -12,15 +12,25 @@
     READY,
     START,
     QUIT,
-    PLAYERDAT
+    PLAYERDAT,
+    MYNAME
  }             t_message;
 
+ typedef struct     s_peer
+ {
+    int                         socket;
+    const struct sockaddr_in    *clientAddr;
+    char                        name[256];
+ }                  t_peer;
+ 
+
  void    sendToAll(const char *msg);
- void    handleMessageSrv(char  *buffer, int client);
- void    handleClientUDP(int socket, struct sockaddr_in *clientAddr);
+ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *clientAddr);
+ void    handleClientUDP(int socket);
  void    *handleClient(void *clientSocket);
  void    launchServer();
  void    *createServerUDP(void *arg);
  void    *createServer();
+ void    multiplayerStart();
 
 #endif
