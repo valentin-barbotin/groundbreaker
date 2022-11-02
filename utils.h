@@ -25,7 +25,7 @@
  SDL_Texture*        textureFromFile(const char* src);
  char*               removeSuffix(const char* src, char* suffix);
  void                sendMsgUDP(const char *msg, int socket, struct sockaddr_in  *sockaddr);
- void                receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *sockaddr);
+ size_t              receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *sockaddr);
  void                sendMsg(const char *msg, int socket);
  size_t              receiveMsg(char *buffer, int socket);
  bool                checkUsername();

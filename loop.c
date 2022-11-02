@@ -397,6 +397,10 @@ void    handleKeyUp(const SDL_Event *event) {
         }
     } else if (inGame()) {
         handleKeyUpPlay(event);
+        t_player *player = getPlayer();
+    
+        player->vx = 0;
+        player->vy = 0;
         movePlayer();
     }
 }

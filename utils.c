@@ -313,7 +313,7 @@ void   sendMsgUDP(const char *msg, int socket, struct sockaddr_in  *sockaddr) {
  * @param buffer 
  * @param socket 
  */
-void    receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *clientaddr) {
+size_t    receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *clientaddr) {
     size_t     total;
     size_t     nb;
     size_t     max;
@@ -363,6 +363,7 @@ void    receiveMsgUDP(char *buffer, int socket, struct sockaddr_in  *clientaddr)
 
     printf("(UDP) Received: (%ld bytes) [%s]\n", total, buffer);
     buffer[total - 1] = '\0';
+    return total;
 }
 
 bool    checkUsername() {
@@ -387,10 +388,12 @@ bool    checkUsername() {
 void    receiveMove(const char *content) {
     int         x;
     int         y;
+    short       vx;
+    short       vy;
     short       playerIndex;
     t_player    *player;
 
-    sscanf(content, "%d %d %hu", &x, &y, &playerIndex);
+    sscanf(content, "%d %d %hu %hu %hu", &x, &y, &vx, &vy, &playerIndex);
 
     player = getGame()->players[playerIndex];
     // //TODO: hashmap to get player by name
@@ -404,6 +407,8 @@ void    receiveMove(const char *content) {
 
     player->x = x;
     player->y = y;
+    player->vx = vx;
+    player->vy = vy;
     //TODO: set direction
 
     // printf("Player %hu moved to %d %d\n", playerIndex, x, y);

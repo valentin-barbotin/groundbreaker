@@ -176,7 +176,10 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
 void   *handleClient(void *clientSocket) {
     // thread does not need to be joined
     pthread_detach(pthread_self());
-    char    buffer[1024];
+    char                buffer[1024];
+    char                *ptr = NULL;
+    size_t              total;
+    size_t              len;
 
     int     client = *(int *)clientSocket;
 
@@ -188,15 +191,29 @@ void   *handleClient(void *clientSocket) {
     {
         // receive message from client, wait if no message
         #ifdef DEBUG
-            printf("Waiting for message from client %d\n", client);
-        #endif
-        receiveMsg(buffer, client);
-
-        #ifdef DEBUG
-            printf("Received message from client %d: %s\n", client, buffer);
+            puts("Waiting for message from server");
         #endif
 
-        handleMessageSrv(buffer, client, NULL);
+        total = receiveMsg(buffer, client);
+        // check if there is a single message in the buffer
+        // if there is more than one message, we need to split the buffer
+        // and process each message separately
+        
+        ptr = buffer;
+        if (ptr == NULL) {
+            printf("ptr is NULL, total: %lu\n", total);
+        }
+        len = 0;
+        do
+        {
+            ptr = buffer + len;
+            len += (strlen(ptr) + 1);
+
+            handleMessageSrv(buffer, client, NULL);
+
+        } while (len != total);
+        
+        memset(buffer, 0, 1024);
     } while (true);
     return NULL;
 }
@@ -207,7 +224,10 @@ void   *handleClient(void *clientSocket) {
  * @param socket 
  */
 void   handleClientUDP(int socket) {
-    char    buffer[1024];
+    char                buffer[1024];
+    char                *ptr = NULL;
+    size_t              total;
+    size_t              len;
 
     do
     {
@@ -218,7 +238,24 @@ void   handleClientUDP(int socket) {
             puts("(UDP) Waiting for message");
         #endif
 
-        receiveMsgUDP(buffer, socket, &clientAddr);
+        total = receiveMsgUDP(buffer, socket, &clientAddr);
+        // check if there is a single message in the buffer
+        // if there is more than one message, we need to split the buffer
+        // and process each message separately
+        
+        ptr = buffer;
+        if (ptr == NULL) {
+            printf("ptr is NULL, total: %lu\n", total);
+        }
+        len = 0;
+        do
+        {
+            ptr = buffer + len;
+            len += (strlen(ptr) + 1);
+
+            handleMessageSrv(buffer, socket, &clientAddr);
+
+        } while (len != total);
 
         #ifdef DEBUG
             printf("(UDP) Received message [%s]\n",  buffer);

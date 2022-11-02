@@ -202,7 +202,7 @@ void    movePlayer() {
     //TODO: replace by isMooving()
     if (player->vx != 0 || player->vy != 0) {
         // update the grid position for other players
-        sprintf(buffer, "MOVE:%d %d %hu%c", player->x, player->y, g_playersMultiIndex, '\0');
+        sprintf(buffer, "MOVE:%d %d %hu %hu %hu%c", player->x, player->y, player->vx, player->vy, g_playersMultiIndex, '\0');
         sendToAllUDP(buffer, NULL);
     }
 }

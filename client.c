@@ -347,8 +347,11 @@ void    *connectToServer(void *arg) {
 
 void    *connectToServerUDP(void *arg) {
     struct sockaddr_in  cl;
-    char                buffer[1024];
     unsigned            short  port;
+    char                buffer[1024];
+    char                *ptr = NULL;
+    size_t              total;
+    size_t              len;
 
     port = (unsigned short) atoi(g_serverConfig.port);
 
@@ -391,9 +394,27 @@ void    *connectToServerUDP(void *arg) {
             puts("Waiting for message from server");
         #endif
 
-        receiveMsgUDP(buffer, g_serverSocketUDP, &sockaddr);
+        total = receiveMsgUDP(buffer, g_serverSocketUDP, &sockaddr);
+        // check if there is a single message in the buffer
+        // if there is more than one message, we need to split the buffer
+        // and process each message separately
+        
+        ptr = buffer;
+        if (ptr == NULL) {
+            printf("ptr is NULL, total: %lu\n", total);
+        }
+        len = 0;
+        do
+        {
+            ptr = buffer + len;
+            len += (strlen(ptr) + 1);
 
-        handleMessageClient(&buffer, g_serverSocketUDP, &sockaddr);
+            printf("len: %lu, total: %lu\n\n", len, total);
+            printf("ptr: %s\n", ptr);
+            handleMessageClient(ptr, g_serverSocketUDP, &sockaddr);
+
+        } while (len != total);
+
         memset(buffer, 0, 1024);
     } while (true);
 }
