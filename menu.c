@@ -61,11 +61,11 @@ void    setupMenu() {
     switch (g_currentState)
     {
         case GAME_MAINMENU_PLAY:
-            bg = "/home/kazuh/Downloads/uwp2625532.jpeg";
+            bg = "back.png";
             break;
         
         default:
-            bg = "/home/kazuh/Downloads/uwp2625532.jpeg";
+            bg = "back.png";
             break;
     }
 
@@ -202,6 +202,7 @@ void    drawLobbyMenu() {
     }
 
     loadFont(FONT_PATH, 30);
+    
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Rows :", true, 0);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Columns :", true, 0);
     drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.25, "Players :", true, 0);

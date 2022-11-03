@@ -4,10 +4,12 @@
 #include "map.h"
 #include "moves.h"
 #include "utils.h"
+#include "sound.h"
 #include "player.h"
 #include "server.h"
 
-#define DEBUG true
+t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
+
 
 /**
  * @brief Place the player in his cell instead of a wall..
@@ -21,6 +23,7 @@ void    spawnPlayer(int x, int y, t_player *player) {
 
     game = getGame();
     map = game->map;
+
 
     player->xCell = x;
     player->yCell = y;
@@ -36,6 +39,15 @@ bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
 }
 
+void setPath() {
+    walk->file = "./assets/sound/walk.ogg";
+    wall->file = "./assets/sound/wall.ogg";
+    unbreakableWall->file = "./assets/sound/unbreakable_wall.ogg";
+    //bomb->file = changemeBombPath;
+    //item->file = changemeItemPath;
+    //life->file = changemeLifePath;
+}
+
 t_game* getGame() {
     static t_game*  game;
 
@@ -48,6 +60,15 @@ t_game* getGame() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
+
+        //TODO
+        walk = malloc(sizeof(t_sound));
+        wall = malloc(sizeof(t_sound));
+        unbreakableWall = malloc(sizeof(t_sound));
+        //bomb = malloc(sizeof(t_sound));
+        //item = malloc(sizeof(t_sound));
+        setPath();
+        ///////////
 
         //TMP max players
         //TODO:
@@ -67,6 +88,9 @@ t_game* getGame() {
 
         strcpy(game->players[0]->name, g_username);
         game->nbPlayers = 1;
+
+        // setPath for sound
+        setPath();
     }
     return game;
 }
@@ -110,6 +134,7 @@ void    movePlayer() {
     game = getGame();
     player = getPlayer();
     map = game->map;
+
 
     if (map == NULL) {
         #ifdef DEBUG
@@ -180,11 +205,72 @@ void    movePlayer() {
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
+            
+            if (Mix_PlayingMusic() == 1) {
+                if(!stopSound(wall)) {
+                    #ifdef DEBUG
+                        fprintf(stderr, "Error: can't stop sound\n");
+                    #endif
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    exit(1);
+                }
+            } else if(Mix_PlayingMusic() == 0) {
+                initMusic(wall);
+                if(wall->music == NULL) {
+                    #ifdef DEBUG
+                        fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
+                    #endif
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    exit(1);
+                }
+                playSound(wall);
+            } else if(Mix_PlayingMusic() == 1) {
+                if(!stopSound(wall)) {
+                    #ifdef DEBUG
+                        fprintf(stderr, "Error: can't stop sound\n");
+                    #endif
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    exit(1);
+                }
+            }
+
             break;
         case UNBREAKABLE_WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
+            
+            if(Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
+
+            if(Mix_PlayingMusic() == 0) {
+                if (walk == NULL) {
+                    #ifdef DEBUG
+                        fprintf(stderr, "Error: malloc failed in movePlayer()\n");
+                    #endif
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    exit(1);
+                }
+                initMusic(unbreakableWall);
+                if(unbreakableWall->music == NULL) {
+                    #ifdef DEBUG
+                        fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
+                    #endif
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    exit(1);
+                }
+
+                // TODO: Timer to not play the sound every frame
+                playSound(unbreakableWall);
+
+            }else if(Mix_PlayingMusic() == 1) {
+                if (!stopSound(unbreakableWall)) {
+                    #ifdef DEBUG
+                        fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
+                    #endif
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    exit(1);
+                }
+            }
             break;
         // case BOMB:
         //     map->map[game->yCell][game->xCell] = PLAYER;
@@ -195,6 +281,29 @@ void    movePlayer() {
         //     // TODO : Remove the item from the map and add it to the inventory
         //     break;
         default:
+            if(isMoving(player)) {
+                if (Mix_PlayingMusic() == 0) {
+                    initMusic(walk);
+                    if(walk->music == NULL) {
+                        #ifdef DEBUG
+                            fprintf(stderr, "Error loading sound : %s\n", Mix_GetError());
+                        #endif
+                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                        exit(1);
+                    }
+                    playSoundLoop(walk);
+                }
+            }else{
+                if(Mix_PlayingMusic() == 1) {
+                    if(!stopSound(walk)) {
+                        #ifdef DEBUG
+                            fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
+                        #endif
+                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                        exit(1);
+                    }
+                }
+            }
             break;
     }
     posToGrid();

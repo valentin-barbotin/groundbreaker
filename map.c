@@ -207,6 +207,8 @@ void    map_fill(const t_map *map) {
 
 
 
+
+
 void    map_destroy(t_map *map) {
     for (int i = 0; i < map->height; i++) {
         free(map->map[i]);
@@ -305,6 +307,7 @@ void getPlayerDirection(SDL_Rect *rect, const t_direction *direction) {
  * @brief Get the player stance (moving or not) and render the player
  * 
  */
+
 void    drawPlayer(const t_player *player) {
     short           spriteW;
     short           spriteH;
@@ -316,6 +319,7 @@ void    drawPlayer(const t_player *player) {
     spriteH = 75;
 
     // position of the player (centered)
+
     rectdest.x = player->x - (spriteW/2);
     rectdest.y = player->y - (spriteH/2);
     rectdest.w = PLAYER_WIDTH;

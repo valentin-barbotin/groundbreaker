@@ -13,6 +13,10 @@
  extern char            g_username[256];
  extern short           g_playersMultiIndex;
 
+ #define TEX_PLAYER     "./assets/bomber.png"
+ #define PLAYER_WIDTH   50
+ #define PLAYER_HEIGHT  73
+
  typedef struct     s_game
  {
      t_map               *map;
@@ -21,8 +25,11 @@
      unsigned short      nbPlayers;
  }                  t_game;
 
+
  void    spawnPlayer(int x, int y, t_player *player);
  bool    inGame();
+ bool    isMoving();
+ void    setPath();
  void    game_quit();
  t_game  *getGame();
  void    movePlayer();

@@ -51,6 +51,9 @@ void setupSDL() {
         #endif
 		exit(EXIT_FAILURE);
 	}
+
+    // setPath for sound
+    setPath();
 }
 
 // export DISPLAY=:0.0
@@ -122,6 +125,7 @@ int main(int argc, char **argv)
             switch (event.type)
             {
                 // Handle a simple click with the mouse
+
                 case SDL_MOUSEBUTTONUP:
                     puts("Mouse button up");
                     handleMouseButtonUp(&event);

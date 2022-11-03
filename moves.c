@@ -29,7 +29,6 @@ void    handleKeyDownPlay(const SDL_Event *event) {
         }
     }
 }
-int k = 0;
 void    handleKeyUpPlay(const SDL_Event *event) {
     t_player    *player;
 
@@ -62,9 +61,6 @@ void    handleKeyUpPlay(const SDL_Event *event) {
     }
 }
 
-bool isMoving() {
-    return (getGame()->vx != 0 || getGame()->vy != 0);
-}
 
 void    checkBorders() {
     t_player    *player;
