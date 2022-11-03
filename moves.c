@@ -1,60 +1,81 @@
 #include "config.h"
 #include "game.h"
 #include "moves.h"
+#include "player.h"
+
+#define DEBUG true
 
 void    handleKeyDownPlay(const SDL_Event *event) {
+    t_player    *player;
+
+    player = getPlayer();
+
      if (event->key.repeat == 0) {
         switch (event->key.keysym.sym) {
             case SDLK_UP:
-                getGame()->vy -= VELOCITY;
+                player->vy -= VELOCITY;
                 break;
             case SDLK_DOWN:
-                getGame()->vy += VELOCITY;
+                player->vy += VELOCITY;
                 break;
             case SDLK_LEFT:
-                getGame()->vx -= VELOCITY;
+                player->vx -= VELOCITY;
                 break;
             case SDLK_RIGHT:
-                getGame()->vx += VELOCITY;
+                player->vx += VELOCITY;
                 break;
             default:
                 break;
         }
+    }
+}
+void    handleKeyUpPlay(const SDL_Event *event) {
+    t_player    *player;
+
+    player = getPlayer();
+
+     if (event->key.repeat == 0) {
+        switch (event->key.keysym.sym) {
+            case SDLK_UP:
+                player->vy += VELOCITY;
+                break;
+            case SDLK_DOWN:
+                player->vy -= VELOCITY;
+                break;
+            case SDLK_LEFT:
+                player->vx += VELOCITY;
+                break;
+            case SDLK_RIGHT:
+                player->vx -= VELOCITY;
+                break;
+            default:
+                break;
+        }
+    }
+    
+    movePlayer(player);
+    
+    // if player stopped moving, send position to other players
+    if (inMultiplayer() && !isMoving(player)) {
+        doSendPos(player);
     }
 }
 
-void    handleKeyUpPlay(const SDL_Event *event) {
-     if (event->key.repeat == 0) {
-        switch (event->key.keysym.sym) {
-            case SDLK_UP:
-                getGame()->vy += VELOCITY;
-                break;
-            case SDLK_DOWN:
-                getGame()->vy -= VELOCITY;
-                break;
-            case SDLK_LEFT:
-                getGame()->vx += VELOCITY;
-                break;
-            case SDLK_RIGHT:
-                getGame()->vx -= VELOCITY;
-                break;
-            default:
-                break;
-        }
-    }
-}
 
 void    checkBorders() {
+    t_player    *player;
+
+    player = getPlayer();
     
-    if (getGame()->x + PLAYER_WIDTH/2 > gameConfig->video.width) {
-        getGame()->x -= VELOCITY;
-    } else if (getGame()->x < 0) {
-        getGame()->x += VELOCITY;
+    if (player->x + PLAYER_WIDTH/2 > gameConfig->video.width) {
+        player->x -= VELOCITY;
+    } else if (player->x < 0) {
+        player->x += VELOCITY;
     }
 
-    if (getGame()->y + PLAYER_HEIGHT/2 > gameConfig->video.height) {
-        getGame()->y -= VELOCITY;
-    } else if (getGame()->y < 0) {
-        getGame()->y += VELOCITY;
+    if (player->y + PLAYER_HEIGHT/2 > gameConfig->video.height) {
+        player->y -= VELOCITY;
+    } else if (player->y < 0) {
+        player->y += VELOCITY;
     }
 }

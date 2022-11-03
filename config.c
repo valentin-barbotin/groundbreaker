@@ -7,6 +7,8 @@
 
 t_gameConfig    *gameConfig = NULL;
 
+#define DEBUG true
+
 
 /**
  * Fill the gameConfig struct with default values
@@ -25,7 +27,7 @@ void    defaultConfig(t_gameConfig *config) {
  * @param {t_globalConfig*} video configuration of the game
  * @return bool true if success
  */
-bool    setupGlobal(const FILE* fd, char* data, t_globalConfig *globalConfig) {
+bool    setupGlobal(FILE* fd, char* data, t_globalConfig *globalConfig) {
     char key[SIZE_DATA];
     char value[SIZE_DATA];
 
@@ -61,7 +63,7 @@ bool    setupGlobal(const FILE* fd, char* data, t_globalConfig *globalConfig) {
  * @param {t_serverConfig *} video configuration of the game
  * @return bool true if success
  */
-bool    setupServer(const FILE* fd, char* data, t_serverConfig *config) {
+bool    setupServer(FILE* fd, char* data, t_serverConfig *config) {
     char key[SIZE_DATA];
     char value[SIZE_DATA];
 
@@ -99,7 +101,7 @@ bool    setupServer(const FILE* fd, char* data, t_serverConfig *config) {
  * @param {t_videoConfig *} video configuration of the game
  * @return bool true if success
  */
-bool    setupVideo(const FILE* fd, char* data, t_videoConfig *config) {
+bool    setupVideo(FILE* fd, char* data, t_videoConfig *config) {
     char key[SIZE_DATA];
     char value[SIZE_DATA];
 
@@ -144,7 +146,7 @@ bool    setupVideo(const FILE* fd, char* data, t_videoConfig *config) {
  * @param {t_audioConfig *} audio configuration of the game
  * @return bool true if success
  */
-bool    setupAudio(const FILE* fd, char* data, t_audioConfig *config) {
+bool    setupAudio(FILE* fd, char* data, t_audioConfig *config) {
     char key[SIZE_DATA];
     char value[SIZE_DATA];
 
@@ -187,7 +189,7 @@ bool    setupAudio(const FILE* fd, char* data, t_audioConfig *config) {
  * @param {t_commandsConfig *} commands configuration of the game
  * @return bool true if success
  */
-bool    setupCommands(const FILE* fd, char* data, t_commandsConfig *config) {
+bool    setupCommands(FILE* fd, char* data, t_commandsConfig *config) {
     char key[SIZE_DATA];
     char value[SIZE_DATA];
 
@@ -231,12 +233,9 @@ bool    setupCommands(const FILE* fd, char* data, t_commandsConfig *config) {
 int     readConfig(t_gameConfig *config) {
     FILE    *fd;
 
-    fd = fopen("./config.ini", "r");
+    fd = fopen("config.ini", "r");
     if (fd == NULL) {
-        fd = fopen("../config.ini", "r");
-        if (fd == NULL) {
-            return EXIT_FAILURE;
-        }
+        return EXIT_FAILURE;
     }
 
     // to define

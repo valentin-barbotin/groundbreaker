@@ -4,6 +4,8 @@
 
 t_lobby *g_lobby;
 
+#define DEBUG true
+
 short   g_currentMap = 0;
 
 /**

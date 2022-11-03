@@ -18,6 +18,7 @@
 #include "map.h"
 #include "game.h"
 #include "moves.h"
+#include "dialog.h"
 
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
@@ -50,6 +51,9 @@ void setupSDL() {
         #endif
 		exit(EXIT_FAILURE);
 	}
+
+    // setPath for sound
+    setPath();
 }
 
 // export DISPLAY=:0.0
@@ -61,7 +65,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error reading config file");
         exit(EXIT_FAILURE);
     }
-    srand(time(NULL));
+    time_t t;
+    srand((unsigned) time(&t));
 
     unsigned int    windowWidth;
     unsigned int    windowHeight;
@@ -101,9 +106,6 @@ int main(int argc, char **argv)
     SDL_Color windowLimitsColor = { 255, 255, 0, 255 };
     SDL_Color blackColor = { 0, 0, 0, 255 };
 
-    SDL_Rect rec = { 0, 0, 512, 512 };
-    SDL_Rect recdst = { 0, 0, 10, 10 };
-
     g_currentState = GAME_MAINMENU;
 
     int running = 1;
@@ -123,28 +125,30 @@ int main(int argc, char **argv)
             switch (event.type)
             {
                 // Handle a simple click with the mouse
-            case SDL_MOUSEBUTTONUP:
-                puts("Mouse button up");
-                handleMouseButtonUp(&event);
-                break;
+
+                case SDL_MOUSEBUTTONUP:
+                    puts("Mouse button up");
+                    handleMouseButtonUp(&event);
+                    break;
+                case SDL_TEXTINPUT:
+                    handleTextEditing(&event);
+                    break;
                 // Handle a key press
-            case SDL_KEYDOWN: {
-                // puts("Key down");
-                handleKeyDown(&event.key);
-                break;
-            }
-                            // Handle a key release
-            case SDL_KEYUP: {
-                    // puts("Key up");
-                handleKeyUp(&event);
-                break;
-            }
-            case SDL_QUIT:
-                puts("Quit");
-                running = 0;
-                break;
-            default:
-                break;
+                case SDL_KEYDOWN:
+                    // puts("Key down");
+                    handleKeyDown(&event.key);
+                    break;
+                // Handle a key release
+                case SDL_KEYUP:
+                        // puts("Key up");
+                    handleKeyUp(&event);
+                    break;
+                case SDL_QUIT:
+                    puts("Quit");
+                    running = 0;
+                    break;
+                default:
+                    break;
             }
         }
         SDL_RenderClear(g_renderer);
@@ -164,8 +168,9 @@ int main(int argc, char **argv)
             // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
         }
 
-        recdst.x = getGame()->x;
-        recdst.y = getGame()->y;
+        if (getEditBox()->active) {
+            displayEditBox();
+        }
 
         pickColor(&windowLimitsColor);
         SDL_RenderDrawRect(g_renderer, &windowLimits);

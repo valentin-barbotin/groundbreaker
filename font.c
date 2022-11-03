@@ -4,6 +4,8 @@
 
 #include "font.h"
 
+#define DEBUG true
+
 
 /**
  * Load a font from a file
@@ -29,14 +31,16 @@ void    loadFont(const char* fontPath, const int size) {
  * 
  * @param src 
  * @param color 
+ * @param wrapped
  * @return SDL_Texture* 
  */
-SDL_Texture*    getTextureFromString(const char* src, const SDL_Color* color, const bool wrapped) {
+SDL_Texture*    getTextureFromString(const char* src, const SDL_Color* color, const unsigned int *wrapped) {
     SDL_Surface* surface;
     SDL_Texture* texture;
 
     if (wrapped) {
-        surface = TTF_RenderText_Blended_Wrapped(g_font, src, *color, 256);
+        // "wrapped" value is the max width of the text in pixels 
+        surface = TTF_RenderText_Blended_Wrapped(g_font, src, *color, *wrapped);
     } else {
         surface = TTF_RenderText_Blended(g_font, src, *color);
     }
@@ -61,15 +65,24 @@ SDL_Texture*    getTextureFromString(const char* src, const SDL_Color* color, co
  * @param x 
  * @param y 
  * @param text 
+ * @param centered 
+ * @param max
  */
-void            drawText(const SDL_Color *color, const unsigned int x, const unsigned int y, const char *text, const bool centered) {
-    SDL_Texture *tex;
-    SDL_Rect    target;
-    int         textWidth;
-    int         textHeight;
-    int         op;
+void            drawText(const SDL_Color *color, const unsigned int x, const unsigned int y, const char *text, const bool centered, const unsigned int max) {
+    if (strlen(text) == 0) {
+        return;
+    }
 
-    tex = getTextureFromString(text, color, false);
+    SDL_Texture     *tex;
+    SDL_Rect        target;
+    int             textWidth;
+    int             textHeight;
+    int             op;
+    unsigned int    max2;
+
+    max2 = max ? max * 0.8 : 0;
+
+    tex = getTextureFromString(text, color, max2 ? &max2 : NULL);
     op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
     if (op != 0) {
         #ifdef DEBUG
