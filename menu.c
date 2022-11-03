@@ -8,6 +8,11 @@
 #include "display.h"
 #include "map.h"
 #include "game.h"
+#include "dialog.h"
+#include "client.h"
+#include "player.h"
+
+#define DEBUG true
 
 SDL_Rect                g_buttonsLocation[4];
 t_menu                  *g_currentMenu;
@@ -18,7 +23,11 @@ extern t_gameConfig     *gameConfig;
 
 
 void openLobby(unsigned int value) {
-    printf("value: %d\n", value);
+    bool    valid = false;
+
+    valid = checkUsername();
+    if (!valid) return;
+
     getMaps();
     g_currentState = GAME_MAINMENU_PLAY;
 }
@@ -34,7 +43,7 @@ void    exitGame() {
 t_menu menuMain = {
     "Main",
     {"Play", "Settings", "Online", "Exit"},
-    {&openLobby, &test2, NULL, &exitGame},
+    {&openLobby, &test2, &joinServer, &exitGame},
     NULL,
     {NULL, NULL, NULL, NULL},
     0,
@@ -78,6 +87,31 @@ void    setupMenu() {
             setupMenuButtons();
             break;
     }
+}
+
+void    drawPlayersList() {
+    SDL_Color   colorBlack = {0, 0, 0, 255};
+    t_game      *game;
+    SDL_Rect    rect;
+
+    game = getGame();
+
+    pickColor(&colorBlack);
+    rect.x = (gameConfig->video.width) * 0.06;
+    rect.y = (gameConfig->video.height) * 0.30;
+    rect.w = (gameConfig->video.width) * 0.40;
+    rect.h = (gameConfig->video.width) * 0.20;
+    SDL_RenderDrawRect(g_renderer, &rect);
+    
+    drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
+
+    for (size_t i = 1; i < game->nbPlayers; i++)
+    {
+        if (game->players[i]->name != NULL) {
+            drawText(&colorBlack, rect.x + 10, rect.y + 10 + (i * 20), game->players[i]->name, false, rect.w);
+        }
+    }
+
 }
 
 void    drawLobbyMenu() {
@@ -160,31 +194,34 @@ void    drawLobbyMenu() {
         
         SDL_RenderFillRect(g_renderer, &rect);
         sprintf(buff, "%lu", i + 1);
-        drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true);
+        drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true, 0);
     }
 
     if (g_nbMap == 0) {
-        drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true);
+        drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true, 0);
     }
 
     loadFont(FONT_PATH, 30);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.1, "Rows :", true);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Columns :", true);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Players :", true);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Rows :", true, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Columns :", true, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.25, "Players :", true, 0);
 
     sprintf(buff, "%d", g_lobby->rows);
-    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.1, buff, true);
+    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true, 0);
 
     sprintf(buff, "%d", g_lobby->columns);
-    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true);
+    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true, 0);
 
     sprintf(buff, "%d", g_lobby->players);
-    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true);
+    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, buff, true, 0);
 
     loadFont(FONT_PATH, 20);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, "You can pick a maximum of 10 maps", true);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.10, "You can pick a maximum of 10 maps", true, 0);
     
-    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(A) Previous (E) Next (space) Select (Enter) play (N) New", false);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
+    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
+    
+    drawPlayersList();
 };
 
 void    setupMenuButtons() {
@@ -223,7 +260,7 @@ void    setupMenuButtons() {
             color = &notSelectedColor;
         }
         
-        tex = getTextureFromString(g_currentMenu->buttons[i], color, false);
+        tex = getTextureFromString(g_currentMenu->buttons[i], color, NULL);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
             #ifdef DEBUG

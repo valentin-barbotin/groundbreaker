@@ -7,6 +7,9 @@
 #include "utils.h"
 #include "game.h"
 #include "display.h"
+#include "player.h"
+
+#define DEBUG true
 
 short       g_nbMap = 0;
 
@@ -265,29 +268,36 @@ void    drawMap() {
         }
     }
 
-    drawPlayer();
+    for (size_t i = 0; i < game->nbPlayers; i++)
+    {
+        drawPlayer(game->players[i]);
+    }
 }
 
-void getPlayerDirection(SDL_Rect *rect) {
-    const t_game  *game;
-
-    game = getGame();
-    rect->x = 47; // default: down
+void getPlayerDirection(SDL_Rect *rect, const t_direction *direction) {
 
     // position of the sprite in the texture
-    if (game->vx > 0) {
-        //right
-        rect->x = 174; 
-    } else if (game->vx < 0) {
-        // left
-        rect->x = 229;
-    }
-    if (game->vy > 0) {
-        // down
-        rect->x = 47;
-    } else if (game->vy < 0) {
-        // up
-        rect->x = 110;
+    switch (*direction)
+    {
+        case DIR_UP_RIGHT:
+        case DIR_UP_LEFT:
+        case DIR_UP:
+            rect->x = 110;
+            break;
+        case DIR_DOWN_RIGHT:
+        case DIR_DOWN_LEFT:
+        case DIR_DOWN:
+            rect->x = 47;
+            break;
+        case DIR_LEFT:
+            rect->x = 229;
+            break;
+        case DIR_RIGHT:
+            rect->x = 174;
+            break;
+        default:
+            rect->x = 47; // default: down
+            break;
     }
 }
 
@@ -295,27 +305,24 @@ void getPlayerDirection(SDL_Rect *rect) {
  * @brief Get the player stance (moving or not) and render the player
  * 
  */
-void    drawPlayer() {
-    const t_game    *game;
+void    drawPlayer(const t_player *player) {
     short           spriteW;
     short           spriteH;
     SDL_Rect        rect;
     SDL_Rect        rectdest;
-
-    game = getGame();
 
     //draw player
     spriteW = 50;
     spriteH = 75;
 
     // position of the player (centered)
-    rectdest.x = game->x - (spriteW/2);
-    rectdest.y = game->y - (spriteH/2);
+    rectdest.x = player->x - (spriteW/2);
+    rectdest.y = player->y - (spriteH/2);
     rectdest.w = PLAYER_WIDTH;
     rectdest.h = PLAYER_HEIGHT;
 
     // position of the sprite in the texture
-    getPlayerDirection(&rect);
+    getPlayerDirection(&rect, &player->direction);
     rect.y = 13;
     rect.w = spriteW;
     rect.h = spriteH;

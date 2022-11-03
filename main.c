@@ -18,6 +18,7 @@
 #include "map.h"
 #include "game.h"
 #include "moves.h"
+#include "dialog.h"
 
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
@@ -121,28 +122,29 @@ int main(int argc, char **argv)
             switch (event.type)
             {
                 // Handle a simple click with the mouse
-            case SDL_MOUSEBUTTONUP:
-                puts("Mouse button up");
-                handleMouseButtonUp(&event);
-                break;
-            // Handle a key press
-            case SDL_KEYDOWN: {
-                // puts("Key down");
-                handleKeyDown(&event.key);
-                break;
-            }
-            // Handle a key release
-            case SDL_KEYUP: {
-                    // puts("Key up");
-                handleKeyUp(&event);
-                break;
-            }
-            case SDL_QUIT:
-                puts("Quit");
-                running = 0;
-                break;
-            default:
-                break;
+                case SDL_MOUSEBUTTONUP:
+                    puts("Mouse button up");
+                    handleMouseButtonUp(&event);
+                    break;
+                case SDL_TEXTINPUT:
+                    handleTextEditing(&event);
+                    break;
+                // Handle a key press
+                case SDL_KEYDOWN:
+                    // puts("Key down");
+                    handleKeyDown(&event.key);
+                    break;
+                // Handle a key release
+                case SDL_KEYUP:
+                        // puts("Key up");
+                    handleKeyUp(&event);
+                    break;
+                case SDL_QUIT:
+                    puts("Quit");
+                    running = 0;
+                    break;
+                default:
+                    break;
             }
         }
         SDL_RenderClear(g_renderer);
@@ -160,6 +162,10 @@ int main(int argc, char **argv)
             // map_print(getGame()->map);
             drawMap();
             // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
+        }
+
+        if (getEditBox()->active) {
+            displayEditBox();
         }
 
         pickColor(&windowLimitsColor);
