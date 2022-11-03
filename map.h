@@ -40,7 +40,7 @@
  void    saveMap(const t_map *map);
  void    getMaps();
  void    drawMap();
- void    getPlayerDirection(SDL_Rect *rect, const t_player *player);
+ void    getPlayerDirection(SDL_Rect *rect, const t_direction *direction);
  void    drawPlayer(const t_player *player);
 
 #endif

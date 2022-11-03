@@ -53,6 +53,13 @@ void    handleKeyUpPlay(const SDL_Event *event) {
                 break;
         }
     }
+    
+    movePlayer(player);
+    
+    // if player stopped moving, send position to other players
+    if (inMultiplayer() && !isMoving(player)) {
+        doSendPos(player);
+    }
 }
 
 void    checkBorders() {

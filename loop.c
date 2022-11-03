@@ -401,6 +401,5 @@ void    handleKeyUp(const SDL_Event *event) {
     
         player->vx = 0;
         player->vy = 0;
-        movePlayer();
     }
 }

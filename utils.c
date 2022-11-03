@@ -386,14 +386,13 @@ bool    checkUsername() {
 }
 
 void    receiveMove(const char *content) {
-    int         x;
-    int         y;
-    short       vx;
-    short       vy;
-    short       playerIndex;
-    t_player    *player;
+    int             x;
+    int             y;
+    short           playerIndex;
+    t_player        *player;
+    unsigned short  direction; // t_direction
 
-    sscanf(content, "%d %d %hu %hu %hu", &x, &y, &vx, &vy, &playerIndex);
+    sscanf(content, "%d %d %hu %hu", &x, &y, &direction, &playerIndex);
 
     player = getGame()->players[playerIndex];
     // //TODO: hashmap to get player by name
@@ -407,9 +406,7 @@ void    receiveMove(const char *content) {
 
     player->x = x;
     player->y = y;
-    player->vx = vx;
-    player->vy = vy;
-    //TODO: set direction
+    player->direction = direction;
 
     // printf("Player %hu moved to %d %d\n", playerIndex, x, y);
 }

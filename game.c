@@ -198,14 +198,9 @@ void    movePlayer() {
             break;
     }
     posToGrid();
+    player->direction = getDirection(player);
 
-    //TODO: replace by isMooving()
-    if ((g_clientThread || g_serverRunning) && (player->vx != 0 || player->vy != 0)) {
-        printf("datttt: %lu  -  %d\n", g_clientThread, g_serverRunning);
-        // update the grid position for other players
-        sprintf(buffer, "MOVE:%d %d %u %hu%c", player->x, player->y, getDirection(player), g_playersMultiIndex, '\0');
-        sendToAllUDP(buffer, NULL);
-    }
+    sendPos();
 }
 
 

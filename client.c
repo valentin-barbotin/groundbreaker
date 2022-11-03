@@ -166,6 +166,7 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             strcpy(player->name, name);
             player->xCell = xCell;
             player->yCell = yCell;
+            player->direction = DIR_IDLE;
 
             printf("player[%hu] %s at %d, %d\n", n, player->name, player->xCell, player->yCell);
 

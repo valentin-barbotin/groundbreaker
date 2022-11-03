@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "player.h"
+#include "server.h"
 #include "game.h"
 
 #define DEBUG true
@@ -10,7 +11,7 @@ char                g_username[256] = {0};
 short               g_playersMultiIndex = 0;
 
 
-char       *getUsername() {
+char            *getUsername() {
     const t_game      *game;
 
     game = getGame();
@@ -22,7 +23,7 @@ char       *getUsername() {
     }
 }
 
-t_player   *initPlayer() {
+t_player        *initPlayer() {
     t_player    *player;
 
     player = malloc(sizeof(t_player));
@@ -45,7 +46,7 @@ t_player   *initPlayer() {
     return player;
 }
 
-t_player   *getPlayer() {
+t_player        *getPlayer() {
     const t_game      *game;
 
     game = getGame();
@@ -56,4 +57,51 @@ t_player   *getPlayer() {
     } else {
         return game->players[0];
     }
+}
+
+t_direction     getDirection(const t_player *player) {
+    if (player->vx == 0 && player->vy == 0) {
+        return DIR_IDLE;
+    } else if (player->vx == 0 && player->vy < 0) {
+        return DIR_UP;
+    } else if (player->vx == 0 && player->vy > 0) {
+        return DIR_DOWN;
+    } else if (player->vx < 0 && player->vy == 0) {
+        return DIR_LEFT;
+    } else if (player->vx > 0 && player->vy == 0) {
+        return DIR_RIGHT;
+    } else if (player->vx < 0 && player->vy < 0) {
+        return DIR_UP_LEFT;
+    } else if (player->vx > 0 && player->vy < 0) {
+        return DIR_UP_RIGHT;
+    } else if (player->vx < 0 && player->vy > 0) {
+        return DIR_DOWN_LEFT;
+    } else if (player->vx > 0 && player->vy > 0) {
+        return DIR_DOWN_RIGHT;
+    }
+    return DIR_IDLE;
+}
+
+bool    inMultiplayer() {
+    return (g_clientThread || g_serverRunning);
+}
+
+bool    isMoving(const t_player *player) {
+    return (player->vx != 0 || player->vy != 0);
+}
+
+void    sendPos() {
+    const t_player    *player;
+
+    player = getPlayer();
+    if (inMultiplayer() && isMoving(player)) {
+        doSendPos(player);
+    }
+}
+
+void    doSendPos(const t_player *player) {
+    char    buffer[256] = {0};
+    // update the grid position for other players
+    sprintf(buffer, "MOVE:%d %d %u %hu%c", player->x, player->y, player->direction, g_playersMultiIndex, '\0');
+    sendToAllUDP(buffer, NULL);
 }

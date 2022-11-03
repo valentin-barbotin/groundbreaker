@@ -274,24 +274,30 @@ void    drawMap() {
     }
 }
 
-void getPlayerDirection(SDL_Rect *rect, const t_player *player) {
-
-    rect->x = 47; // default: down
+void getPlayerDirection(SDL_Rect *rect, const t_direction *direction) {
 
     // position of the sprite in the texture
-    if (player->vx > 0) {
-        //right
-        rect->x = 174; 
-    } else if (player->vx < 0) {
-        // left
-        rect->x = 229;
-    }
-    if (player->vy > 0) {
-        // down
-        rect->x = 47;
-    } else if (player->vy < 0) {
-        // up
-        rect->x = 110;
+    switch (*direction)
+    {
+        case DIR_UP_RIGHT:
+        case DIR_UP_LEFT:
+        case DIR_UP:
+            rect->x = 110;
+            break;
+        case DIR_DOWN_RIGHT:
+        case DIR_DOWN_LEFT:
+        case DIR_DOWN:
+            rect->x = 47;
+            break;
+        case DIR_LEFT:
+            rect->x = 229;
+            break;
+        case DIR_RIGHT:
+            rect->x = 174;
+            break;
+        default:
+            rect->x = 47; // default: down
+            break;
     }
 }
 
@@ -316,7 +322,7 @@ void    drawPlayer(const t_player *player) {
     rectdest.h = PLAYER_HEIGHT;
 
     // position of the sprite in the texture
-    getPlayerDirection(&rect, player);
+    getPlayerDirection(&rect, &player->direction);
     rect.y = 13;
     rect.w = spriteW;
     rect.h = spriteH;
