@@ -23,6 +23,13 @@ bool    inMainMenu() {
     if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
         if (Mix_PlayingMusic() == 0) {
             main_music = malloc(sizeof(t_sound));
+            if(main_music == NULL) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error allocating memory for main_music");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
+            }
             main_music->file = "./assets/sound/main_music.ogg";
             initMusic(main_music);
             if (main_music->music == NULL) {

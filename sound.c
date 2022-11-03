@@ -19,11 +19,6 @@ bool     initAudio(t_sound *sound) {
         flags = MIX_INIT_MP3;
     }
 
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        SDL_Log("Failed to init SDL");
-        return false;
-    }
-
     if (flags != (Mix_Init(flags))) {
         printf("Could not initialize mixer (result: %d).\n", Mix_Init(flags));
         printf("Mix_Init: %s\n", Mix_GetError());

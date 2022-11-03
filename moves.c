@@ -22,7 +22,7 @@ void    handleKeyDownPlay(const SDL_Event *event) {
         }
     }
 }
-int k = 0;
+
 void    handleKeyUpPlay(const SDL_Event *event) {
      if (event->key.repeat == 0) {
         switch (event->key.keysym.sym) {
