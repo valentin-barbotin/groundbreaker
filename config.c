@@ -7,6 +7,8 @@
 
 t_gameConfig    *gameConfig = NULL;
 
+#define DEBUG true
+
 
 /**
  * Fill the gameConfig struct with default values

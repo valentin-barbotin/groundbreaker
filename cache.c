@@ -1,6 +1,8 @@
 #include "cache.h"
 #include "utils.h"
 
+#define DEBUG true
+
 /**
  * @brief Get the Image Cache object
  * 
