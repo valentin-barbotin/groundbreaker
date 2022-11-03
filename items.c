@@ -26,28 +26,15 @@ void   useItem(t_item *item) {
     if (!hasItemInInventory(item)) return;
     if (item->isActive) return;
 
-    item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB_UP]->quantity++ : player->inventory[ITEM_BOMB_UP]->quantity--;
+    item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB_UP]->quantity++ : player->inventory[item->type]->quantity--;
     switch (item->type) {
-        case ITEM_BOMB:
-            player->inventory[ITEM_BOMB]->quantity--;
-            break;
-        case ITEM_BOMB_UP:
-            player->inventory[ITEM_BOMB]->quantity++;
-            break;
-        case ITEM_BOMB_DOWN:
-            player->inventory[ITEM_BOMB]->quantity--;
-            break;
         case ITEM_YELLOW_FLAME:
-            player->inventory[ITEM_YELLOW_FLAME]->quantity--;
             player->scope++;
             break;
         case ITEM_BLUE_FLAME:
-            player->inventory[ITEM_BLUE_FLAME]->quantity--;
             player->scope--;
-            //player.range -= item->range;
             break;
         case ITEM_RED_FLAME:
-            player->inventory[ITEM_RED_FLAME]->quantity--;
             player->scope = 999;
             break;
         case ITEM_PASS_THROUGH_BOMB:
@@ -71,7 +58,7 @@ void   useItem(t_item *item) {
 //            }
             break;
         case ITEM_HEART:
-            // Ici on le met en godMode jusqu'à ce qu'il subisse une explosion après il est plus en false
+            // TODO: on le met en godMode jusqu'à ce qu'il subisse une explosion après il est plus en false
             player->godMode = true;
             break;
         case ITEM_LIFE:

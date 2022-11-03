@@ -130,92 +130,9 @@ void explodeBomb(int xCell, int yCell) {
     // posToGrid but with 2 int pointers
     posToGrid(game->x, game->y);
 
-    // ⚠ Temporaire ⚠
-    // en attendant que la structure Joueur soit faite
-    int SCOPE = 2;
-    
-    for (int i = 1; i <= SCOPE; i++) {
-        // up
-        switch (GETCELL(yCell - i, xCell)) {
-            case WALL:
-                GETCELL(yCell - i, xCell) = GRAVEL;
-                break;
-            case UNBREAKABLE_WALL:
-                // on arrête la bombe dans sa course
-                i = SCOPE;
-                break;
-            case PLAYER:
-                player->health = 0;
-                break;
-            case BOMB:
-                explodeBomb(xCell, yCell - i);
-                break;
-            default:
-                break;
-        }
-    }
-
-    for (int i = 1; i <= SCOPE; i++) {
-        // down
-        switch (GETCELL(yCell + i, xCell)) {
-            case WALL:
-                GETCELL(yCell + i,xCell) = GRAVEL;
-                break;
-            case UNBREAKABLE_WALL:
-                // on arrête la bombe dans sa course
-                i = SCOPE;
-                break;
-            case PLAYER:
-                player->health = 0;
-                break;
-            case BOMB:
-                explodeBomb(xCell, yCell + i);
-                break;
-            default:
-                break;
-        }
-    }
-
-    for (int i = 1; i <= SCOPE; i++) {
-        // left
-        switch (GETCELL(yCell, xCell - i)) {
-            case WALL:
-                GETCELL(yCell,xCell-i) = GRAVEL;
-                break;
-            case UNBREAKABLE_WALL:
-                // on arrête la bombe dans sa course
-                i = SCOPE;
-                break;
-            case PLAYER:
-                player->health = 0;
-                break;
-            case BOMB:
-                explodeBomb(xCell - i, yCell);
-                break;
-            default:
-                break;
-        }
-    }
-
-    for (int i = 1; i <= SCOPE; i++) {
-        // right
-        switch (GETCELL(yCell, xCell + i)) {
-            case WALL:
-                GETCELL(yCell,xCell +i) = GRAVEL;
-                break;
-            case UNBREAKABLE_WALL:
-                // on arrête la bombe dans sa course
-                i = SCOPE;
-                break;
-            case PLAYER:
-                player->health = 0;
-                break;
-            case BOMB:
-                explodeBomb(xCell + i, yCell);
-                break;
-            default:
-                break;
-        }
+    // pour chaque direction (UP, DOWN, LEFT, RIGHT)
+    for (int k = 0; k < NB_DIRECTIONS; k++) {
+        searchDirectionMap(k);
     }
 }
 
@@ -314,5 +231,70 @@ void    movePlayer() {
     }
     posToGrid();
 }
+
+void searchDirectionMap(t_directionMap direction) {
+    t_game *game;
+    const t_map     *map;
+
+    game = getGame();
+    map = game->map;
+
+    if (map == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error: map is NULL in searchDirectionMap()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+
+    // ⚠ Temporaire ⚠
+    // en attendant que la structure Joueur soit implémentée
+    int SCOPE = 2;
+
+    int cell, i;
+    int cellX, cellY;
+    switch(direction) {
+        case UP:
+            cellX = game->xCell;
+            cellY = game->yCell - i;
+            break;
+        case DOWN:
+            cellX = game->xCell;
+            cellY = game->yCell + i;
+            break;
+        case LEFT:
+            cellX = game->xCell - i;
+            cellY = game->yCell;
+            break;
+        case RIGHT:
+            cellX = game->xCell + i;
+            cellY = game->yCell;
+            break;
+        default:
+            break;
+    }
+
+    for (i = 1; i <= SCOPE; i++) {
+        cell = GETCELL(cellY, cellX);
+        switch (cell) {
+            case WALL:
+                cell = GRAVEL;
+                break;
+            case UNBREAKABLE_WALL:
+                // on arrête la bombe dans sa course
+                i = SCOPE;
+                break;
+            case PLAYER:
+                //player->health = 0;
+                break;
+            case BOMB:
+                explodeBomb(cellX, cellY);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 
 
