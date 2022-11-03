@@ -30,7 +30,7 @@
      NB_DIRECTIONS
  }                 t_directionMap;
 
-void    spawnPlayer();
+ void    spawnPlayer();
  bool    inGame();
  void    explodeBomb(int xCell, int yCell);
  void    posToGrid();

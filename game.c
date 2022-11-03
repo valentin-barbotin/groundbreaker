@@ -233,8 +233,10 @@ void    movePlayer() {
 }
 
 void searchDirectionMap(t_directionMap direction) {
-    t_game *game;
-    const t_map     *map;
+    t_game   *game;
+    t_player *player;
+    const    t_map     *map;
+
 
     game = getGame();
     map = game->map;
@@ -285,6 +287,13 @@ void searchDirectionMap(t_directionMap direction) {
                 i = SCOPE;
                 break;
             case PLAYER:
+                if(player->godMode == 1) {
+                    if (player->inventory[ITEM_HEART]->isActive) {
+                        player->inventory[ITEM_HEART]->isActive = false;
+                        player->godMode = 0;
+                    }
+                }
+                // TODO : player is on a bomb so the player must die
                 //player->health = 0;
                 break;
             case BOMB:
