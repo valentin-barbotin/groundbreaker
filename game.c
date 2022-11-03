@@ -88,6 +88,9 @@ t_game* getGame() {
 
         strcpy(game->players[0]->name, g_username);
         game->nbPlayers = 1;
+
+        // setPath for sound
+        setPath();
     }
     return game;
 }
@@ -278,7 +281,7 @@ void    movePlayer() {
         //     // TODO : Remove the item from the map and add it to the inventory
         //     break;
         default:
-            if(isMoving()) {
+            if(isMoving(player)) {
                 if (Mix_PlayingMusic() == 0) {
                     initMusic(walk);
                     if(walk->music == NULL) {
