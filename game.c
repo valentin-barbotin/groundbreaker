@@ -2,6 +2,7 @@
 #include "loop.h"
 #include "game.h"
 #include "map.h"
+#include "player.h"
 #include "moves.h"
 #include "utils.h"
 
@@ -12,8 +13,15 @@
 void    spawnPlayer() {
     t_game          *game;
     const t_map     *map;
+    t_player *player;
+    player = getPlayer();
     unsigned int    cellSizeX;
     unsigned int    cellSizeY;
+
+    if (player == NULL) {
+        printf("Player is NULL");
+    }
+    printf("Player is not NULL because %s", player->scope);
 
     game = getGame();
     map = game->map;
@@ -83,7 +91,7 @@ void    posToGrid() {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-void    posToGridN(int x, int y, int *cellX,int *cellY) {
+void    posToGridN(int x, int y, int *cellX, int *cellY) {
     unsigned int   cellSizeX;
     unsigned int   cellSizeY;
     t_game         *game;
@@ -91,18 +99,18 @@ void    posToGridN(int x, int y, int *cellX,int *cellY) {
     game = getGame();
 
     // can't divide by 0
-    if (game->x) {
+    if (x) {
         cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
         // avoid xCell to be equal to map->width (segfault, col 6 doesn't exist for a map of 6 cols)
-        if (game->x != gameConfig->video.width) {
-            cellX = (game->x / cellSizeX);
+        if (x != gameConfig->video.width) {
+            *cellX = (x / cellSizeX);
         }
     }
 
-    if (game->y) {
+    if (y) {
         cellSizeY = gameConfig->video.height / game->map->height;
-        if (game->y != gameConfig->video.height) {
-            cellY = (game->y / cellSizeY);
+        if (y != gameConfig->video.height) {
+            *cellY = (y / cellSizeY);
         }
     }
 
@@ -110,110 +118,103 @@ void    posToGridN(int x, int y, int *cellX,int *cellY) {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-
-
-bool  isThereA(t_type type) {
+void explodeBomb(int xCell, int yCell) {
+    t_player    *player;
+    player = getPlayer();
     t_map* map;
-    posToGridN(getGame()->x, getGame()->y, &getGame()->xCell, &getGame()->yCell);
-
+    t_game *game = getGame();
     map = getGame()->map;
-    switch (type) {
-        case BOMB:
-            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == BOMB);
-        case WALL:
-            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == WALL);
-        case UNBREAKABLE_WALL:
-            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == UNBREAKABLE_WALL);
-        case PLAYER:
-            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == PLAYER);
-        case EMPTY:
-            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == EMPTY);
-        case GRAVEL:
-            return (map->map[getGame()->y/getGame()->yCell][getGame()->x/getGame()->xCell] == GRAVEL);
-        default:
-            return false;
-    }
-}
+    GETCELL(yCell, xCell) = EMPTY;
 
-void explodeBomb() {
-    t_map* map;
-
-    map = getGame()->map;
-    map->map[getGame()->yCell][getGame()->xCell] = EMPTY;
 
     // posToGrid but with 2 int pointers
-    posToGrid(&getGame()->x, &getGame()->y);
+    posToGrid(game->x, game->y);
 
     // ⚠ Temporaire ⚠
     // en attendant que la structure Joueur soit faite
     int SCOPE = 2;
-
+    
     for (int i = 1; i <= SCOPE; i++) {
         // up
-        if (&getGame()->y - i >= 0) {
-            if (isThereA(WALL)) {
+        switch (GETCELL(yCell - i, xCell)) {
+            case WALL:
+                GETCELL(yCell - i, xCell) = GRAVEL;
                 break;
-            } else if (isThereA(BOMB)) {
-                explodeBomb();
+            case UNBREAKABLE_WALL:
+                // on arrête la bombe dans sa course
+                i = SCOPE;
                 break;
-            } else if (isThereA(PLAYER)) {
-                // kill player
+            case PLAYER:
+                player->health = 0;
                 break;
-            }else if (isThereA(UNBREAKABLE_WALL)) {
+            case BOMB:
+                explodeBomb(xCell, yCell - i);
                 break;
-            } else {
-                continue;
-            }
+            default:
+                break;
         }
+    }
 
+    for (int i = 1; i <= SCOPE; i++) {
         // down
-        if (&getGame()->y + i < map->height) {
-            if (isThereA(WALL)) {
+        switch (GETCELL(yCell + i, xCell)) {
+            case WALL:
+                GETCELL(yCell + i,xCell) = GRAVEL;
                 break;
-            } else if (isThereA(BOMB)) {
-                explodeBomb();
+            case UNBREAKABLE_WALL:
+                // on arrête la bombe dans sa course
+                i = SCOPE;
                 break;
-            } else if (isThereA(PLAYER)) {
-                // TODO: kill player
+            case PLAYER:
+                player->health = 0;
                 break;
-            }else if (isThereA(UNBREAKABLE_WALL)) {
+            case BOMB:
+                explodeBomb(xCell, yCell + i);
                 break;
-            } else {
-                continue;
-            }
+            default:
+                break;
         }
+    }
 
+    for (int i = 1; i <= SCOPE; i++) {
         // left
-        if (&getGame()->x - i >= 0) {
-            if (isThereA(WALL)) {
+        switch (GETCELL(yCell, xCell - i)) {
+            case WALL:
+                GETCELL(yCell,xCell-i) = GRAVEL;
                 break;
-            } else if (isThereA(BOMB)) {
+            case UNBREAKABLE_WALL:
+                // on arrête la bombe dans sa course
+                i = SCOPE;
                 break;
-            } else if (isThereA(PLAYER)) {
-                // TODO : kill player
+            case PLAYER:
+                player->health = 0;
                 break;
-            }else if (isThereA(UNBREAKABLE_WALL)) {
+            case BOMB:
+                explodeBomb(xCell - i, yCell);
                 break;
-            } else {
-                continue;
-            }
+            default:
+                break;
         }
+    }
 
+    for (int i = 1; i <= SCOPE; i++) {
         // right
-        if (&getGame()->x + i < map->width) {
-            if (isThereA(WALL)) {
+        switch (GETCELL(yCell, xCell + i)) {
+            case WALL:
+                GETCELL(yCell,xCell +i) = GRAVEL;
                 break;
-            } else if (isThereA(BOMB)) {
-                explodeBomb();
+            case UNBREAKABLE_WALL:
+                // on arrête la bombe dans sa course
+                i = SCOPE;
                 break;
-            } else if (isThereA(PLAYER)) {
-                // TODO : kill player
+            case PLAYER:
+                player->health = 0;
                 break;
-            }else if (isThereA(UNBREAKABLE_WALL)) {
+            case BOMB:
+                explodeBomb(xCell + i, yCell);
                 break;
-            } else {
-                continue;
-            }
+            default:
+                break;
         }
     }
 }
@@ -289,7 +290,7 @@ void    movePlayer() {
     }
 
 
-    switch (map->map[game->yCell][game->xCell]) {
+    switch (GETCELL(game->yCell, game->xCell)) {
         case WALL:
             // if the player is on a wall then we move him back to the old position
             game->x -= game->vx;

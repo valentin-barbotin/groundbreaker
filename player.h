@@ -20,14 +20,18 @@
      int             health;
      int             score;
      int             scope;
+     bool            godMode;
+     bool            passThroughBomb;
+     bool            bombKick;
+     // TODO : add inventory
      t_item          *inventory[NB_ITEMS];
     }t_player;
 
  t_player   *initPlayer();
  t_player   *getPlayer();
 
- void       useItem(t_item *item);
  void       initInventory();
  bool       hasItemInInventory(t_item *item);
+ void       printInventory();
 
 #endif

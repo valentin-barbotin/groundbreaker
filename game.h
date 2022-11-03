@@ -23,8 +23,7 @@
 
  void    spawnPlayer();
  bool    inGame();
- bool    isThereA(t_type type);
- void    explodeBomb();
+ void    explodeBomb(int xCell, int yCell);
  void    posToGrid();
  void    posToGridN(int x, int y, int *xCell, int *yCell);
  void    game_quit();

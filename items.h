@@ -21,16 +21,12 @@
 
     typedef struct s_item {
         int     type;
-        char    *name;
-        int     x;
-        int     y;
+        int     xCell;
+        int     yCell;
         bool    isRare;
         int     quantity;
         int     duration;
-        struct s_item *next;
         bool    isActive;
-        bool    isUsed;
-        SDL_Texture *texture;
     } t_item;
 
     t_item *getItem(int type);
@@ -41,17 +37,11 @@
 
     void    destroyItem(t_item *item);
 
-    void    useItem(t_item *item);
-
     void    activateItem(t_item *item);
 
     void    deactivateItem(t_item *item);
 
     void    useItem(t_item *item);
-
-
-
-
 
 
 #endif

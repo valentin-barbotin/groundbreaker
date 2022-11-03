@@ -1,69 +1,81 @@
 #include "items.h"
+#include "player.h"
 
 t_item static items[NB_ITEMS] = {
-    {ITEM_BOMB_UP, "Bomb Up", 0, 0,false, 1, 0, 0, NULL, false, false,  NULL},
-    {ITEM_BOMB_DOWN, "Bomb Down", 0, 0, false,1,0, 0, NULL, false, false,  NULL},
-    {ITEM_YELLOW_FLAME, "Yellow Flame", 0, 0, false, 0,1, 0, NULL, false, false,  NULL},
-    {ITEM_BLUE_FLAME, "Blue Flame", 0, 0, false, 0, 1,0, NULL, false, false,   NULL},
-    {ITEM_RED_FLAME, "Red Flame", 0, 0, true, 0, 999, 0, NULL, false, false,  NULL},
-    {ITEM_PASS_THROUGH_BOMB, "Pass Through Bomb", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
-    {ITEM_BOMB_KICK, "Bomb Kick", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
-    {ITEM_INVINCIBILITY, "Invincibility", 0, 0, false, 0, 0, 1000, NULL, false, false,  NULL},
-    {ITEM_HEART, "Heart", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
-    {ITEM_LIFE, "Life", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL}
+    {ITEM_BOMB, 0, 0, false, 1, 10000, false},
+    {ITEM_BOMB_UP, 0, 0, false, 1, 10000, false},
+    {ITEM_BOMB_DOWN, 0, 0, false, 1, 10000, false},
+    {ITEM_YELLOW_FLAME, 0, 0, false, 1, 10000, false},
+    {ITEM_BLUE_FLAME, 0, 0, false, 1, 10000, false},
+    {ITEM_RED_FLAME, 0, 0, false, 1, 10000, false},
+    {ITEM_PASS_THROUGH_BOMB, 0, 0, false, 1, 10000, false},
+    {ITEM_BOMB_KICK, 0, 0, false, 1, 10000, false},
+    {ITEM_INVINCIBILITY, 0, 0, false, 1, 10000, false},
+
 };
 
 
-t_item *getItem(int type)
-{
+t_item     *getItem(int type) {
     return &items[type];
 }
 
+void   useItem(t_item *item) {
+    t_player *player;
+    player = getPlayer();
 
-void   useItem(t_item *item)
-{
-    if (item->isUsed)
-        return;
-    item->isUsed = true;
+    if (!hasItemInInventory(item)) return;
+    if (item->isActive) return;
+
+    item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB_UP]->quantity++ : player->inventory[ITEM_BOMB_UP]->quantity--;
     switch (item->type) {
+        case ITEM_BOMB:
+            player->inventory[ITEM_BOMB]->quantity--;
+            break;
         case ITEM_BOMB_UP:
-            //player.nb_bomb += item->nb_bomb;
+            player->inventory[ITEM_BOMB]->quantity++;
             break;
         case ITEM_BOMB_DOWN:
-            //player.nb_bomb -= item->nb_bomb;
+            player->inventory[ITEM_BOMB]->quantity--;
             break;
         case ITEM_YELLOW_FLAME:
-            //player.range += item->range;
+            player->inventory[ITEM_YELLOW_FLAME]->quantity--;
+            player->scope++;
             break;
         case ITEM_BLUE_FLAME:
+            player->inventory[ITEM_BLUE_FLAME]->quantity--;
+            player->scope--;
             //player.range -= item->range;
             break;
         case ITEM_RED_FLAME:
-            //player.range += item->range;
+            player->inventory[ITEM_RED_FLAME]->quantity--;
+            player->scope = 999;
             break;
         case ITEM_PASS_THROUGH_BOMB:
-//            if(player.bombKick)
-//                player.bombKick = false;
-//            else
-//                player.passThroughBomb = true;
+           if(player->bombKick) {
+               player->bombKick = false;
+           }else {
+               player->passThroughBomb = true;
+           }
             break;
         case ITEM_BOMB_KICK:
-//            if(player.passThroughBomb) {
-//                player.passThroughBomb = false;
-//            }else{
-//                player.bombKick = true;
-//            }
+            if(player->passThroughBomb) {
+                player->passThroughBomb = false;
+            }else{
+                player->bombKick = true;
+            }
             break;
         case ITEM_INVINCIBILITY:
-            //player.invincibility = true;
+              player->godMode = true;
 //            while (item->duration > 0) {
 //                item->duration--;
 //            }
             break;
         case ITEM_HEART:
+            // Ici on le met en godMode jusqu'à ce qu'il subisse une explosion après il est plus en false
+            player->godMode = true;
             break;
         case ITEM_LIFE:
-            //player.life += 1;
+            player->health += 1;
             break;
     }
 }
