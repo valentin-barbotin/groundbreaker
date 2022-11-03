@@ -250,7 +250,7 @@ void    handleKeyUp(const SDL_Event *event) {
                             multiplayerStart();
                         }
 
-                        spawnPlayer();
+                        spawnPlayer(1, 1, getPlayer());
 
                         g_currentState = GAME_PLAY_PLAYING;
 

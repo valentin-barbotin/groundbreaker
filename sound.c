@@ -106,7 +106,6 @@ bool    playSoundLoop(t_sound *sound) {
 bool    stopSound(t_sound *sound) {
     if (!initMusic(sound)) return false;
     Mix_HaltMusic();
-    Mix_FreeMusic(sound->music);
     sound->music = NULL;
     Mix_CloseAudio();
 
