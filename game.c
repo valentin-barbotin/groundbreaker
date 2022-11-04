@@ -19,8 +19,6 @@ t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
 void    spawnPlayer(int x, int y, t_player *player) {
     const t_game    *game;
     const t_map     *map;
-    t_player *player;
-    player = getPlayer();
     unsigned int    cellSizeX;
     unsigned int    cellSizeY;
 
@@ -169,7 +167,7 @@ void explodeBomb(int xCell, int yCell) {
 
 
     // posToGrid but with 2 int pointers
-    posToGrid(game->x, game->y);
+    posToGrid(player->x, player->y);
 
     // pour chaque direction (UP, DOWN, LEFT, RIGHT)
     for (int k = 0; k < NB_DIRECTIONS; k++) {
@@ -252,7 +250,7 @@ void    movePlayer() {
     }
 
 
-    switch (GETCELL(game->yCell, game->xCell)) {
+    switch (GETCELL(player->yCell, player->xCell)) {
         case WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
@@ -325,11 +323,11 @@ void    movePlayer() {
             }
             break;
         // case BOMB:
-        //     map->map[game->yCell][game->xCell] = PLAYER;
+        //     map->map[player->yCell][player->xCell] = PLAYER;
         //     // TODO : player is on a bomb so the player must die
         //     break;
         // case ITEM:
-        //     map->map[game->yCell][game->xCell] = PLAYER;
+        //     map->map[player->yCell][player->xCell] = PLAYER;
         //     // TODO : Remove the item from the map and add it to the inventory
         //     break;
         default:
@@ -389,20 +387,20 @@ void searchDirectionMap(t_directionMap direction) {
     int cellX, cellY;
     switch(direction) {
         case UP:
-            cellX = game->xCell;
-            cellY = game->yCell - i;
+            cellX = player->xCell;
+            cellY = player->yCell - i;
             break;
         case DOWN:
-            cellX = game->xCell;
-            cellY = game->yCell + i;
+            cellX = player->xCell;
+            cellY = player->yCell + i;
             break;
         case LEFT:
-            cellX = game->xCell - i;
-            cellY = game->yCell;
+            cellX = player->xCell - i;
+            cellY = player->yCell;
             break;
         case RIGHT:
-            cellX = game->xCell + i;
-            cellY = game->yCell;
+            cellX = player->xCell + i;
+            cellY = player->yCell;
             break;
         default:
             break;

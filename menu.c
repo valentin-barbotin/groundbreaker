@@ -61,11 +61,11 @@ void    setupMenu() {
     switch (g_currentState)
     {
         case GAME_MAINMENU_PLAY:
-            bg = "back.png";
+            bg = "./assets/wall.png";
             break;
         
         default:
-            bg = "back.png";
+            bg = "./assets/wall.png";
             break;
     }
 

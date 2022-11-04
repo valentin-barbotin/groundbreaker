@@ -128,9 +128,10 @@ void       initInventory() {
     */
 }
 bool        hasItemInInventory(t_item *item) {
-    t_player    *player;
+    t_player *player;
     player = getPlayer();
     if (player->inventory[item->type] != NULL && player->inventory[item->type]->quantity > 0) {
         return true;
     }
     return false;
+}

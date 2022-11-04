@@ -1,8 +1,6 @@
  #include <stdbool.h>
-
  #include "items.h"
-     int             score;
-#endif
+
 #ifndef PLAYER_H
  #define PLAYER_H
 
@@ -56,8 +54,8 @@
  bool            isMoving(const t_player *player);
  void            sendPos();
  void            doSendPos(const t_player *player);
-
-#endif
  void       printInventory();
  bool       hasItemInInventory(t_item *item);
  void       initInventory();
+
+#endif
