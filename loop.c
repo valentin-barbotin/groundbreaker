@@ -1,4 +1,5 @@
 #include <math.h>
+#include <pthread.h>
 
 #include "config.h"
 #include "lobby.h"
@@ -7,8 +8,20 @@
 #include "game.h"
 #include "moves.h"
 
+#include "timer.h"
+#include "sound.h"
+#include "utils.h"
+#include "dialog.h"
+#include "client.h"
+#include "server.h"
+
+#define DEBUG true
+
 extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
+extern int              g_serverSocket;
+
+t_sound                *main_music = NULL;
 
 /**
  * @brief Check if we are in the main menu or a sub menu
@@ -16,6 +29,38 @@ extern int              g_currentState;
  * @return bool
  */
 bool    inMainMenu() {
+    if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
+        if (Mix_PlayingMusic() == 0) {
+            main_music = malloc(sizeof(t_sound));
+            if(main_music == NULL) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error allocating memory for main_music");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
+            }
+            main_music->file = "./assets/sound/main_music.ogg";
+            initMusic(main_music);
+            if (main_music->music == NULL) {
+                #ifdef DEBUG
+                                fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                exit(1);
+            }
+            Mix_VolumeMusic(25);
+            playSoundLoop(main_music);
+
+        }
+    }else if(Mix_PlayingMusic() == 1 && main_music->music != NULL) {
+        if (!stopSound(main_music)) {
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Can't open stop the music\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
+        }
+    }
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
@@ -63,8 +108,26 @@ void    handleMouseButtonUp(const SDL_Event *event) {
 }
 
 void    handleKeyDown(const SDL_Event *event) {
+    t_dialog *dialog = getEditBox();
+
+    if (dialog->active) {
+        switch (event->key.keysym.sym)
+        {
+           case SDLK_BACKSPACE:
+                if (dialog->edit[0] != '\0') {
+                    dialog->edit[strlen(dialog->edit) - 1] = '\0';
+                }
+                break;
+        
+            default:
+                break;
+        }
+    }
+
     switch (g_currentState)
     {
+        case GAME_MAINMENU:
+            break;
         case GAME_PLAY_PLAYING:
             handleKeyDownPlay(event);
             break;
@@ -74,11 +137,70 @@ void    handleKeyDown(const SDL_Event *event) {
     }
 }
 
+/**
+ * @brief Append a character to the edit box
+ * 
+ * @param event 
+ */
+void    handleTextEditing(const SDL_Event *event) {
+    t_dialog *dialog = getEditBox();
+
+    // limit text length
+    if (strlen(dialog->edit) >= 30) return;
+
+
+    if (dialog->active) {
+        strcat(dialog->edit, event->text.text);
+    }
+}
+
 //TODO: refacto
 void    handleKeyUp(const SDL_Event *event) {
+    t_dialog *dialog = getEditBox();
+
+    // if in dialog
+    // bla bla
+
+    if (dialog->active) {
+        switch (event->key.keysym.sym)
+        {
+            case SDLK_c:
+                if (event->key.keysym.mod & KMOD_CTRL) {
+                    SDL_SetClipboardText(dialog->edit);
+                }
+                break;
+            case SDLK_v:
+                if (event->key.keysym.mod & KMOD_CTRL) {
+                    char *clipboard = SDL_GetClipboardText();
+                    if (clipboard != NULL) {
+                        strcpy(dialog->edit, clipboard);
+                        SDL_free(clipboard);
+                    }
+                }
+                break;
+            case SDLK_RETURN:
+                if (dialog->callback != NULL) {
+                    #ifdef DEBUG
+                        puts("CALLBACK");
+                    #endif
+                    dialog->callback(dialog->edit);
+                }
+
+                break;
+        
+            default:
+                break;
+        }
+        return;
+    }
+
+
     if (inMainMenu()) {
         short index = -1;
         switch (event->key.keysym.sym) {
+            case SDLK_o:
+                joinServer();
+                break;
             case SDLK_ESCAPE:
                 if (g_currentState == GAME_MAINMENU_PLAY) {
                     g_currentState = GAME_MAINMENU;
@@ -93,7 +215,14 @@ void    handleKeyUp(const SDL_Event *event) {
                         //TODO: pick a random map from selected ones and launch the game (solo)
                         printf("Launch game\n");
                         t_game *game = getGame();
-                        // t_map *maps = getMaps();
+
+                        if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
+                            #ifdef DEBUG
+                                puts("Not enough players");
+                            #endif
+                            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+                            return;
+                        }
 
                         t_map *tmp[10] = {0};
                         index = -1;
@@ -113,16 +242,34 @@ void    handleKeyUp(const SDL_Event *event) {
                         index = rand() % index; //pick a random map between the selected ones
                         printf("index = %d\n", index);
                         game->map = tmp[index];
-                        // // memcpy(&game->map->map, &maps[index].map, sizeof(game->map->map));
 
-                        spawnPlayer();
+                        spawnPlayer(1, 1, getPlayer());
+
+                        if (g_serverRunning) {
+                            // send start game message
+                            multiplayerStart();
+                        }
+
+                        spawnPlayer(1, 1, getPlayer());
 
                         g_currentState = GAME_PLAY_PLAYING;
+
                         break;
                     
                     default:
                         index = g_currentMenu->selectedButton;
                         makeSelection(index);
+                        break;
+                }
+                break;
+            case SDLK_h:
+                switch (g_currentState)
+                {
+                    case GAME_MAINMENU_PLAY:
+                        launchServer();
+                        break;
+                    
+                    default:
                         break;
                 }
                 break;
@@ -271,7 +418,6 @@ void    handleKeyUp(const SDL_Event *event) {
                         printf("DOWN: %d\n", g_currentMenu->selectedButton);
                         break;
                 }
-
                 break;
             case SDLK_a:
                 if (g_currentState == GAME_MAINMENU_PLAY) {
@@ -290,6 +436,9 @@ void    handleKeyUp(const SDL_Event *event) {
         }
     } else if (inGame()) {
         handleKeyUpPlay(event);
-        movePlayer();
+        t_player *player = getPlayer();
+    
+        player->vx = 0;
+        player->vy = 0;
     }
 }

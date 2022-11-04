@@ -9,5 +9,6 @@
  void    handleKeyDownPlay(const SDL_Event *event);
  void    handleKeyUpPlay(const SDL_Event *event);
  void    checkBorders();
+ bool    isMoving();
 
 #endif

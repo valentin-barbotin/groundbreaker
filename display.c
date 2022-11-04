@@ -3,6 +3,8 @@
 #include "cache.h"
 #include "config.h"
 
+#define DEBUG true
+
 extern t_gameConfig    *gameConfig;
 
 /**

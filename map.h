@@ -5,6 +5,7 @@
  #include <SDL.h>
 
  #include "config.h"
+ #include "player.h"
 
  #define TEX_WALL "./assets/wall.png"
  #define TEX_UNBREAKABLE_WALL "./assets/unbreak.png"
@@ -42,7 +43,7 @@
  void    saveMap(const t_map *map);
  void    getMaps();
  void    drawMap();
- void    getPlayerDirection(SDL_Rect *rect);
- void    drawPlayer();
+ void    getPlayerDirection(SDL_Rect *rect, const t_direction *direction);
+ void    drawPlayer(const t_player *player);
 
 #endif
