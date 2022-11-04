@@ -1,6 +1,3 @@
- #include <stdbool.h>
- #include "items.h"
-
 #ifndef PLAYER_H
  #define PLAYER_H
 
@@ -38,11 +35,6 @@
      int             yCell;
      int             health;
      int             score;
-     int             scope;
-     bool            godMode;
-     bool            passThroughBomb;
-     bool            bombKick;
-     t_item          *inventory[NB_ITEMS];
      t_direction     direction;
  }                  t_player;
 
@@ -54,8 +46,5 @@
  bool            isMoving(const t_player *player);
  void            sendPos();
  void            doSendPos(const t_player *player);
- void       printInventory();
- bool       hasItemInInventory(t_item *item);
- void       initInventory();
 
 #endif
