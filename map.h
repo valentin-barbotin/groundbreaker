@@ -1,6 +1,6 @@
 #ifndef MAP_H
  #define MAP_H
- 
+
  #include <stdbool.h>
  #include <SDL.h>
 
@@ -10,6 +10,8 @@
  #define TEX_WALL "./assets/wall.png"
  #define TEX_UNBREAKABLE_WALL "./assets/unbreak.png"
  #define TEX_DIRT "./assets/dirt.png"
+
+ #define GETCELL(x, y) (map->map[y][x])
 
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
@@ -29,6 +31,7 @@
          WALL= 'W',
          UNBREAKABLE_WALL = 'U',
          EMPTY = ' ',
+         GRAVEL = 'G',
          ITEM = 'I',
          PLAYER = 'P'
  }               t_type;
