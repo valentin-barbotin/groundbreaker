@@ -5,15 +5,11 @@
 
  #include "map.h"
  #include "player.h"
-
- #define TEX_PLAYER     "./assets/bomber.png"
- #define PLAYER_WIDTH   50
- #define PLAYER_HEIGHT  73
+ #include "assets.h"
 
  extern char            g_username[256];
  extern short           g_playersMultiIndex;
 
- #define TEX_PLAYER     "./assets/bomber.png"
  #define PLAYER_WIDTH   50
  #define PLAYER_HEIGHT  73
 

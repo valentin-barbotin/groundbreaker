@@ -7,6 +7,9 @@
 #include "sound.h"
 #include "player.h"
 #include "server.h"
+#include "assets.h"
+
+#define DEBUG
 
 t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
 
@@ -40,9 +43,9 @@ bool    inGame() {
 }
 
 void setPath() {
-    walk->file = "./assets/sound/walk.ogg";
-    wall->file = "./assets/sound/wall.ogg";
-    unbreakableWall->file = "./assets/sound/unbreakable_wall.ogg";
+    walk->file = SOUND_WALK;
+    wall->file = SOUND_WALL;
+    unbreakableWall->file = SOUND_UNBREAKABLE_WALL;
     //bomb->file = changemeBombPath;
     //item->file = changemeItemPath;
     //life->file = changemeLifePath;

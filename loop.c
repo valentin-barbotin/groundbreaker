@@ -14,6 +14,7 @@
 #include "dialog.h"
 #include "client.h"
 #include "server.h"
+#include "assets.h"
 
 #define DEBUG true
 
@@ -39,7 +40,7 @@ bool    inMainMenu() {
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                 exit(1);
             }
-            main_music->file = "./assets/sound/main_music.ogg";
+            main_music->file = SOUND_MUSIC_MAIN;
             initMusic(main_music);
             if (main_music->music == NULL) {
                 #ifdef DEBUG

@@ -11,6 +11,7 @@
 #include "dialog.h"
 #include "client.h"
 #include "player.h"
+#include "assets.h"
 
 #define DEBUG true
 
@@ -52,24 +53,12 @@ t_menu menuMain = {
 };
 
 void    setupMenu() {
-    char            *bg;
 
     if (g_currentMenu == NULL) {
         g_currentMenu = &menuMain;
     }
 
-    switch (g_currentState)
-    {
-        case GAME_MAINMENU_PLAY:
-            bg = "back.png";
-            break;
-        
-        default:
-            bg = "back.png";
-            break;
-    }
-
-    if (bg && setBackgroundImage(bg)) {
+    if (setBackgroundImage(TEX_MENU_BACKGROUND)) {
         #ifdef DEBUG
             fprintf(stderr, "Error setting background image");
         #endif

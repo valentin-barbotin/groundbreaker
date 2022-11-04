@@ -6,10 +6,7 @@
 
  #include "config.h"
  #include "player.h"
-
- #define TEX_WALL "./assets/wall.png"
- #define TEX_UNBREAKABLE_WALL "./assets/unbreak.png"
- #define TEX_DIRT "./assets/dirt.png"
+ #include "assets.h"
 
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
