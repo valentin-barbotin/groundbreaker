@@ -51,9 +51,6 @@ void setupSDL() {
         #endif
 		exit(EXIT_FAILURE);
 	}
-
-    // setPath for sound
-    setPath();
 }
 
 // export DISPLAY=:0.0
