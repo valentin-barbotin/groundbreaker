@@ -208,29 +208,29 @@ void    movePlayer() {
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
-            
+
             if (Mix_PlayingMusic() == 1) {
-                if(!stopSound(wall)) {
+                if (!stopSound(wall)) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error: can't stop sound\n");
+                            fprintf(stderr, "Error: can't stop sound\n");
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
                 }
-            } else if(Mix_PlayingMusic() == 0) {
+            } else if (Mix_PlayingMusic() == 0) {
                 initMusic(wall);
-                if(wall->music == NULL) {
+                if (wall->music == NULL) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
+                            fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
                 }
                 playSound(wall);
-            } else if(Mix_PlayingMusic() == 1) {
-                if(!stopSound(wall)) {
+            } else if (Mix_PlayingMusic() == 1) {
+                if (!stopSound(wall)) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error: can't stop sound\n");
+                            fprintf(stderr, "Error: can't stop sound\n");
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
@@ -242,21 +242,21 @@ void    movePlayer() {
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
-            
-            if(Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
 
-            if(Mix_PlayingMusic() == 0) {
+            if (Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
+
+            if (Mix_PlayingMusic() == 0) {
                 if (walk == NULL) {
-                    #ifdef DEBUG
+                #ifdef DEBUG
                         fprintf(stderr, "Error: malloc failed in movePlayer()\n");
-                    #endif
+                #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
                 }
                 initMusic(unbreakableWall);
-                if(unbreakableWall->music == NULL) {
+                if (unbreakableWall->music == NULL) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
+                                fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
@@ -265,7 +265,7 @@ void    movePlayer() {
                 // TODO: Timer to not play the sound every frame
                 playSound(unbreakableWall);
 
-            }else if(Mix_PlayingMusic() == 1) {
+            } else if (Mix_PlayingMusic() == 1) {
                 if (!stopSound(unbreakableWall)) {
                     #ifdef DEBUG
                         fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
@@ -275,14 +275,38 @@ void    movePlayer() {
                 }
             }
             break;
-        // case BOMB:
-        //     map->map[game->yCell][game->xCell] = PLAYER;
-        //     // TODO : player is on a bomb so the player must die
-        //     break;
-        // case ITEM:
-        //     map->map[game->yCell][game->xCell] = PLAYER;
-        //     // TODO : Remove the item from the map and add it to the inventory
-        //     break;
+        case BOMB:
+            // if the player is on a bomb kill him if he is not invicible
+            if (player->godMode == 1) {
+                break;
+            } else if (player->passThroughBomb) {
+                // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
+                break;
+            }else if(player->bombKick) {
+                if (map->map[player->yCell + player->vy][player->xCell + player->vx] == EMPTY) {
+                    // move the bomb to the next cell
+                    map->map[player->yCell + player->vy][player->xCell + player->vx] = BOMB;
+                    map->map[player->yCell][player->xCell] = EMPTY;
+                    // move the player to the next cell
+                    player->x += player->vx;
+                    player->y += player->vy;
+                }
+                break;
+            } else if (player->canSurviveExplosion) {
+                player->canSurviveExplosion = 0;
+                player->inventory[ITEM_HEART]->quantity = -1;
+                break;
+            } else {
+                player->x -= player->vx;
+                player->y -= player->vy;
+                player->health -= 100;
+                break;
+            }
+
+        case ITEM:
+            player->inventory[map->map[player->yCell][player->xCell]]->quantity++;
+            map->map[player->yCell][player->xCell] = EMPTY;
+            break;
         default:
             if(isMoving(player)) {
                 if (Mix_PlayingMusic() == 0) {
@@ -344,9 +368,9 @@ void    posToGridN(int x, int y, int *cellX, int *cellY) {
 
 void explodeBomb(int xCell, int yCell) {
     t_player    *player;
-    player = getPlayer();
     t_map* map;
-    t_game *game = getGame();
+
+    player = getPlayer();
     map = getGame()->map;
     GETCELL(yCell, xCell) = EMPTY;
 
@@ -365,15 +389,13 @@ void searchDirectionMap(t_directionMap direction) {
     t_game   *game;
     t_player *player;
     const    t_map     *map;
-
-
     game = getGame();
     map = game->map;
 
     if (map == NULL) {
-#ifdef DEBUG
-        fprintf(stderr, "Error: map is NULL in searchDirectionMap()\n");
-#endif
+        #ifdef DEBUG
+                fprintf(stderr, "Error: map is NULL in searchDirectionMap()\n");
+        #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
         exit(1);
     }
