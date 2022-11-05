@@ -21,8 +21,16 @@
      unsigned short      nbPlayers;
  }                  t_game;
 
+ typedef enum      e_directionMap
+ {
+     UP,
+     DOWN,
+     LEFT,
+     RIGHT,
+     NB_DIRECTIONS
+ }                 t_directionMap;
 
- void    spawnPlayer(int x, int y, t_player *player);
+void    spawnPlayer(int x, int y, t_player *player);
  bool    inGame();
  bool    isMoving();
  void    setPath();
@@ -30,5 +38,8 @@
  t_game  *getGame();
  void    movePlayer();
  void    posToGrid();
+ void    posToGridN(int x, int y, int *xCell, int *yCell);
+ void    searchDirectionMap(t_directionMap directionMap);
+ void    explodeBomb(int xCell, int yCell);
 
 #endif

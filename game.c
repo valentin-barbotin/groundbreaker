@@ -315,4 +315,121 @@ void    movePlayer() {
     sendPos();
 }
 
+void    posToGridN(int x, int y, int *cellX, int *cellY) {
+    unsigned int   cellSizeX;
+    unsigned int   cellSizeY;
+    t_game         *game;
 
+    game = getGame();
+
+    // can't divide by 0
+    if (x) {
+        cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+        // avoid xCell to be equal to map->width (segfault, col 6 doesn't exist for a map of 6 cols)
+        if (x != gameConfig->video.width) {
+            *cellX = (x / cellSizeX);
+        }
+    }
+
+    if (y) {
+        cellSizeY = gameConfig->video.height / game->map->height;
+        if (y != gameConfig->video.height) {
+            *cellY = (y / cellSizeY);
+        }
+    }
+
+    // find the nearest multiple of cellSize(s)
+    // ex: 768 / 166 = 4.6 => 4
+}
+
+void explodeBomb(int xCell, int yCell) {
+    t_player    *player;
+    player = getPlayer();
+    t_map* map;
+    t_game *game = getGame();
+    map = getGame()->map;
+    GETCELL(yCell, xCell) = EMPTY;
+
+
+    // posToGrid but with 2 int pointers
+    posToGrid(player->x, player->y);
+
+    // pour chaque direction (UP, DOWN, LEFT, RIGHT)
+    for (int k = 0; k < NB_DIRECTIONS; k++) {
+        searchDirectionMap(k);
+    }
+}
+
+
+void searchDirectionMap(t_directionMap direction) {
+    t_game   *game;
+    t_player *player;
+    const    t_map     *map;
+
+
+    game = getGame();
+    map = game->map;
+
+    if (map == NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "Error: map is NULL in searchDirectionMap()\n");
+#endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+
+    // ⚠ Temporaire ⚠
+    // en attendant que la structure Joueur soit implémentée
+    int SCOPE = 2;
+
+    int cell, i;
+    int cellX, cellY;
+    switch(direction) {
+        case UP:
+            cellX = player->xCell;
+            cellY = player->yCell - i;
+            break;
+        case DOWN:
+            cellX = player->xCell;
+            cellY = player->yCell + i;
+            break;
+        case LEFT:
+            cellX = player->xCell - i;
+            cellY = player->yCell;
+            break;
+        case RIGHT:
+            cellX = player->xCell + i;
+            cellY = player->yCell;
+            break;
+        default:
+            break;
+    }
+
+    for (i = 1; i <= SCOPE; i++) {
+        cell = GETCELL(cellY, cellX);
+        switch (cell) {
+            case WALL:
+                cell = GRAVEL;
+                break;
+            case UNBREAKABLE_WALL:
+                // on arrête la bombe dans sa course
+                i = SCOPE;
+                break;
+            case PLAYER:
+                if(player->godMode == 1) {
+                    if (player->inventory[ITEM_HEART]->isActive) {
+                        player->inventory[ITEM_HEART]->isActive = false;
+                        player->godMode = 0;
+                    }
+                }
+                // TODO : player is on a bomb so the player must die
+                //player->health = 0;
+                break;
+            case BOMB:
+                explodeBomb(cellX, cellY);
+                break;
+            default:
+                break;
+        }
+    }
+}
