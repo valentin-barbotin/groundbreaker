@@ -42,6 +42,8 @@ t_player        *initPlayer() {
     player->vy = 0;
     player->xCell = 0;
     player->yCell = 0;
+    player->health = 100;
+    player->scope = 2;
 
     return player;
 }
@@ -134,4 +136,10 @@ bool        hasItemInInventory(t_item *item) {
         return true;
     }
     return false;
+}
+
+bool        isAlive() {
+    t_player    *player;
+    player = getPlayer();
+    return (player->health > 0);
 }

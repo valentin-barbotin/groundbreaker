@@ -41,6 +41,7 @@ extern SDL_Window*     g_window;
      bool            godMode;
      bool            passThroughBomb;
      bool            bombKick;
+     bool            canSurviveExplosion;
      t_item          *inventory[NB_ITEMS];
  }                  t_player;
 
@@ -55,5 +56,6 @@ extern SDL_Window*     g_window;
  void            printInventory();
  bool            hasItemInInventory(t_item *item);
  void            initInventory();
+ bool            isAlive();
 
 #endif
