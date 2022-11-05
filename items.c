@@ -11,7 +11,8 @@ t_item static items[NB_ITEMS] = {
         {ITEM_PASS_THROUGH_BOMB, 0, 0, false, 1, 10000, false},
         {ITEM_BOMB_KICK, 0, 0, false, 1, 10000, false},
         {ITEM_INVINCIBILITY, 0, 0, false, 1, 10000, false},
-
+        {ITEM_HEART, 0, 0, false, 1, 10000, false},
+        {ITEM_LIFE, 0, 0, false, 1, 10000, false}
 };
 
 
