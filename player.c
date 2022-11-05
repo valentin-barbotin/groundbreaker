@@ -105,3 +105,33 @@ void    doSendPos(const t_player *player) {
     sprintf(buffer, "MOVE:%d %d %u %hu%c", player->x, player->y, player->direction, g_playersMultiIndex, '\0');
     sendToAllUDP(buffer, NULL);
 }
+
+void        printInventory() {
+    t_player    *player;
+    player = getPlayer();
+    /*
+    for(int k = 0; k < NB_ITEMS; k++) {
+        if (player->inventory[k] != NULL) {
+            printf("Item %d: %d", k, player->inventory[k]->quantity);
+        }
+    }
+     */
+}
+void       initInventory() {
+    t_player    *player;
+    player = getPlayer();
+    // TODO : init inventore, example : player->inventory[ITEM_BOMB] = initItem(ITEM_BOMB);
+    /*
+    for(int k = 1; k < NB_ITEMS; k++) {
+        player->inventory[k] = initItem(k);
+    }
+    */
+}
+bool        hasItemInInventory(t_item *item) {
+    t_player    *player;
+    player = getPlayer();
+    if (player->inventory[item->type] != NULL && player->inventory[item->type]->quantity > 0) {
+        return true;
+    }
+    return false;
+}

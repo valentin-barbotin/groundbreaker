@@ -4,8 +4,9 @@
  #include <stdbool.h>
 
  #include <SDL.h>
+#include "items.h"
 
- extern SDL_Window*     g_window;
+extern SDL_Window*     g_window;
  extern SDL_Renderer*   g_renderer;
  extern bool            g_serverRunning;
 
@@ -36,6 +37,11 @@
      int             health;
      int             score;
      t_direction     direction;
+     int             scope;
+     bool            godMode;
+     bool            passThroughBomb;
+     bool            bombKick;
+     t_item          *inventory[NB_ITEMS];
  }                  t_player;
 
  char            *getUsername();
@@ -46,5 +52,8 @@
  bool            isMoving(const t_player *player);
  void            sendPos();
  void            doSendPos(const t_player *player);
+ void            printInventory();
+ bool            hasItemInInventory(t_item *item);
+ void            initInventory();
 
 #endif
