@@ -177,7 +177,7 @@ void    movePlayer() {
 
     //if the player is moving out of the map then we move him at the other side if possible
     if (player->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
-        if (map->map[player->yCell][0] == EMPTY) {
+        if(GETCELL(0, player->yCell) == EMPTY) {
             // move the player to the other side
             player->x = 0;
         }
@@ -185,14 +185,14 @@ void    movePlayer() {
         // if the player is on the left side of the map and he is moving left then we move him to the right side of the map
         
         // check if the player can be placed on the next cell
-        if (map->map[player->yCell][game->map->width - 1] == EMPTY) {
+        if (GETCELL(game->map->width-1, player->yCell) == EMPTY) {
             // move the player to the other side
             player->x = gameConfig->video.width - PLAYER_WIDTH/2;
         }
     }
 
     if (player->y >= (gameConfig->video.height - PLAYER_HEIGHT/2)) {
-        if (map->map[0][player->xCell] == EMPTY) {
+        if (GETCELL(player->xCell, 0) == EMPTY) {
             // move the player to the other side
             player->y = 0;
         }
@@ -200,14 +200,14 @@ void    movePlayer() {
         // if the player is on the top side of the map and he is moving up then we move him to the bottom side of the map
         
         // check if the player can be placed on the next cell
-        if (map->map[game->map->height - 1][player->xCell] == EMPTY) {
+        if (GETCELL(player->xCell, game->map->height-1) == EMPTY) {
             // move the player to the other side
             player->y = gameConfig->video.height - PLAYER_HEIGHT/2;
         }
     }
 
 
-    switch (map->map[player->yCell][player->xCell]) {
+    switch (GETCELL(player->xCell, player->yCell)) {
         case WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
@@ -287,10 +287,10 @@ void    movePlayer() {
                 // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
                 break;
             }else if(player->bombKick) {
-                if (map->map[player->yCell + player->vy][player->xCell + player->vx] == EMPTY) {
+                if (GETCELL(player->xCell + player->vx, player->yCell + player->vy) == EMPTY) {
                     // move the bomb to the next cell
-                    map->map[player->yCell + player->vy][player->xCell + player->vx] = BOMB;
-                    map->map[player->yCell][player->xCell] = EMPTY;
+                    GETCELL(player->xCell + player->vx, player->yCell + player->vy) = BOMB;
+                    GETCELL(player->xCell, player->yCell) = EMPTY;
                     // move the player to the next cell
                     player->x += player->vx;
                     player->y += player->vy;
@@ -308,8 +308,8 @@ void    movePlayer() {
             }
 
         case ITEM:
-            player->inventory[map->map[player->yCell][player->xCell]]->quantity++;
-            map->map[player->yCell][player->xCell] = EMPTY;
+            player->inventory[GETCELL(player->xCell, player->yCell)]->quantity++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
             break;
         default:
             if(isMoving(player)) {
@@ -442,15 +442,32 @@ void searchDirectionMap(t_directionMap direction) {
                 i = SCOPE;
                 break;
             case PLAYER:
-                if(player->godMode == 1) {
-                    if (player->inventory[ITEM_HEART]->isActive) {
-                        player->inventory[ITEM_HEART]->isActive = false;
-                        player->godMode = 0;
+                // if the player is on a bomb kill him if he is not invicible
+                if (player->godMode == 1) {
+                    break;
+                } else if (player->passThroughBomb) {
+                    // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
+                    break;
+                }else if(player->bombKick) {
+                    if (GETCELL(player->xCell + player->vx, player->yCell + player->vy) == EMPTY) {
+                        // move the bomb to the next cell
+                        GETCELL(player->xCell + player->vx, player->yCell + player->vy) = BOMB;
+                        GETCELL(player->xCell, player->yCell) = EMPTY;
+                        // move the player to the next cell
+                        player->x += player->vx;
+                        player->y += player->vy;
                     }
+                    break;
+                } else if (player->canSurviveExplosion) {
+                    player->canSurviveExplosion = 0;
+                    player->inventory[ITEM_HEART]->quantity = -1;
+                    break;
+                } else {
+                    player->x -= player->vx;
+                    player->y -= player->vy;
+                    player->health -= 100;
+                    break;
                 }
-                // TODO : player is on a bomb so the player must die
-                //player->health = 0;
-                break;
             case BOMB:
                 explodeBomb(cellX, cellY);
                 break;
