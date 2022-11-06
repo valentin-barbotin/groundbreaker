@@ -62,9 +62,12 @@ void   useItem(t_item *item) {
             break;
         case ITEM_INVINCIBILITY:
             player->godMode = true;
-//            while (item->duration > 0) {
-//                item->duration--;
-//            }
+            // TODO : START A TIMER OF 10 SECONDS
+            // t_timer *timerInvincibility = malloc(sizeof(t_timer));
+            // timer->startTicks = SDL_GetTicks();
+            // timer->duration = 10000;
+            // timer->isPaused = false;
+            // startTimer(timerInvincibility);
             break;
         case ITEM_HEART:
             // TODO: on le met en godMode jusqu'à ce qu'il subisse une explosion après il est plus en false

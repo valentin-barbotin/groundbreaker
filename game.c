@@ -156,6 +156,11 @@ void    movePlayer() {
     //     explodeBomb(player->xCell, player->yCell);
     // }
 
+    // TODO: if the timer is finished, the item disappears
+    // if(getTimeLeft(timerInvincible) == 0) {
+    //     player->invincible = false;
+    // }
+
     checkBorders();
 
     // make the move
