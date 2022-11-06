@@ -45,6 +45,7 @@ t_player        *initPlayer() {
     player->health = 100;
     player->scope = 2;
 
+    initInventory();
     return player;
 }
 
@@ -119,16 +120,35 @@ void        printInventory() {
     }
      */
 }
+
 void       initInventory() {
-    t_player    *player;
-    player = getPlayer();
-    // TODO : init inventore, example : player->inventory[ITEM_BOMB] = initItem(ITEM_BOMB);
-    /*
-    for(int k = 1; k < NB_ITEMS; k++) {
-        player->inventory[k] = initItem(k);
-    }
+    //t_player    *player;
+    //player = getPlayer();
+    // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
+    // printf type of item_bomb
+    // printf("Item bomb: %d", getItem(ITEM_BOMB)->type);
+
+   // init inventory of t_item          *inventory[NB_ITEMS];
+  /*
+   player->inventory[0] = getItem(ITEM_BOMB);
+    printf("Item bomb: %d", player->inventory[0]);
     */
+        /*
+        for (int k = ITEM_BOMB; k < NB_ITEMS; k++) {
+            //malloc(sizeof(t_item));
+            printf("p");
+            //player->inventory[k] = malloc(sizeof(t_item));
+            //player->inventory[k] = getItem(k);
+        }
+         */
+
 }
+
+/**
+ * @brief      Player has the item in his inventory
+ * @param item
+ * @return
+ */
 bool        hasItemInInventory(t_item *item) {
     t_player    *player;
     player = getPlayer();
@@ -138,6 +158,11 @@ bool        hasItemInInventory(t_item *item) {
     return false;
 }
 
+/**
+ * @brief      Verify if the player is alive
+ * @param item
+ * @return
+ */
 bool        isAlive() {
     t_player    *player;
     player = getPlayer();

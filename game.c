@@ -151,6 +151,11 @@ void    movePlayer() {
         exit(1);
     }
 
+    // TODO: if the timer is finished, the bomb explodes
+    // if(getTimeLeft(timerBomb) == 0) {
+    //     explodeBomb(player->xCell, player->yCell);
+    // }
+
     checkBorders();
 
     // make the move
@@ -287,14 +292,8 @@ void    movePlayer() {
                 // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
                 break;
             }else if(player->bombKick) {
-                if (GETCELL(player->xCell + player->vx, player->yCell + player->vy) == EMPTY) {
-                    // move the bomb to the next cell
-                    GETCELL(player->xCell + player->vx, player->yCell + player->vy) = BOMB;
-                    GETCELL(player->xCell, player->yCell) = EMPTY;
-                    // move the player to the next cell
-                    player->x += player->vx;
-                    player->y += player->vy;
-                }
+                // search in direction of the player and kick the bomb
+                searchDirectionMap(player->direction, 999);
                 break;
             } else if (player->canSurviveExplosion) {
                 player->canSurviveExplosion = 0;
@@ -384,16 +383,17 @@ void explodeBomb(int xCell, int yCell) {
 
     // pour chaque direction (UP, DOWN, LEFT, RIGHT)
     for (int k = 0; k < NB_DIRECTIONS; k++) {
-        searchDirectionMap(k);
+        searchDirectionMap(k, player->scope);
     }
 }
 
 
-void searchDirectionMap(t_directionMap direction) {
+void searchDirectionMap(t_direction direction, int scope) {
     t_game   *game;
     t_player *player;
     const    t_map     *map;
     game = getGame();
+    player = getPlayer();
     map = game->map;
 
     if (map == NULL) {
@@ -404,26 +404,22 @@ void searchDirectionMap(t_directionMap direction) {
         exit(1);
     }
 
-    // ⚠ Temporaire ⚠
-    // en attendant que la structure Joueur soit implémentée
-    int SCOPE = 2;
-
     int cell, i;
     int cellX, cellY;
     switch(direction) {
-        case UP:
+        case DIR_UP:
             cellX = player->xCell;
             cellY = player->yCell - i;
             break;
-        case DOWN:
+        case DIR_DOWN:
             cellX = player->xCell;
             cellY = player->yCell + i;
             break;
-        case LEFT:
+        case DIR_LEFT:
             cellX = player->xCell - i;
             cellY = player->yCell;
             break;
-        case RIGHT:
+        case DIR_RIGHT:
             cellX = player->xCell + i;
             cellY = player->yCell;
             break;
@@ -431,15 +427,25 @@ void searchDirectionMap(t_directionMap direction) {
             break;
     }
 
-    for (i = 1; i <= SCOPE; i++) {
+    for (i = 1; i <= scope; i++) {
         cell = GETCELL(cellY, cellX);
         switch (cell) {
             case WALL:
                 cell = GRAVEL;
+                if(player->bombKick) {
+                    // on met la bombe sur la case précédente
+                    GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
+                    return;
+                }
                 break;
             case UNBREAKABLE_WALL:
                 // on arrête la bombe dans sa course
-                i = SCOPE;
+                if(player->bombKick) {
+                    // on met la bombe sur la case précédente
+                    GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
+                    return;
+                }
+                i = scope;
                 break;
             case PLAYER:
                 // if the player is on a bomb kill him if he is not invicible

@@ -27,8 +27,16 @@ void   useItem(t_item *item) {
     if (!hasItemInInventory(item)) return;
     if (item->isActive) return;
 
-    item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB_UP]->quantity++ : player->inventory[item->type]->quantity--;
+    item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB]->quantity++ : player->inventory[item->type]->quantity--;
     switch (item->type) {
+        case ITEM_BOMB:
+            // TODO : START A TIMER OF 10 SECONDS
+            // t_timer *timerBomb = malloc(sizeof(t_timer));
+            // timer->startTicks = SDL_GetTicks();
+            // timer->duration = 10000;
+            // timer->isPaused = false;
+            // startTimer(timerBomb);
+            break;
         case ITEM_YELLOW_FLAME:
             player->scope++;
             break;

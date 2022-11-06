@@ -22,7 +22,8 @@ extern SDL_Window*     g_window;
             DIR_UP_LEFT,
             DIR_UP_RIGHT,
             DIR_DOWN_LEFT,
-            DIR_DOWN_RIGHT
+            DIR_DOWN_RIGHT,
+            NB_DIRECTIONS = 4
  }                  t_direction;
 
  typedef struct     s_player
