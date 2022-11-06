@@ -16,7 +16,7 @@ t_item items[NB_ITEMS] = {
 };
 
 
-t_item     *getItem(int type) {
+t_item     *getItem(t_item_type type) {
     return &items[type];
 }
 
@@ -24,7 +24,7 @@ void   useItem(t_item *item) {
     t_player *player;
     player = getPlayer();
 
-    if (!hasItemInInventory(item)) return;
+    if (!hasItemInInventory(player, item)) return;
     if (item->isActive) return;
 
     item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB]->quantity++ : player->inventory[item->type]->quantity--;

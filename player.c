@@ -45,7 +45,7 @@ t_player        *initPlayer() {
     player->health = 100;
     player->scope = 2;
 
-    initInventory();
+    initInventory(player);
     return player;
 }
 
@@ -121,12 +121,8 @@ void        printInventory() {
      */
 }
 
-void       initInventory() {
-    t_player    *player;
-    player = getPlayer();
+void       initInventory(t_player *player) {
     // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
-
-
    player->inventory[0] = getItem(ITEM_BOMB);
 
         /*
@@ -145,9 +141,7 @@ void       initInventory() {
  * @param item
  * @return
  */
-bool        hasItemInInventory(t_item *item) {
-    t_player    *player;
-    player = getPlayer();
+bool        hasItemInInventory(t_player *player, t_item *item) {
     if (player->inventory[item->type] != NULL && player->inventory[item->type]->quantity > 0) {
         return true;
     }
@@ -159,8 +153,6 @@ bool        hasItemInInventory(t_item *item) {
  * @param item
  * @return
  */
-bool        isAlive() {
-    t_player    *player;
-    player = getPlayer();
+bool        isAlive(t_player *player) {
     return (player->health > 0);
 }

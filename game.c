@@ -147,7 +147,7 @@ void    movePlayer() {
         exit(1);
     }
 
-    if (!isAlive()) {
+    if (!isAlive(player)) {
         exit(1);
     }
 
@@ -400,6 +400,7 @@ void searchDirectionMap(t_direction direction, int scope) {
     game = getGame();
     player = getPlayer();
     map = game->map;
+    int cell, i, cellX, cellY;
 
     if (map == NULL) {
         #ifdef DEBUG
@@ -409,8 +410,6 @@ void searchDirectionMap(t_direction direction, int scope) {
         exit(1);
     }
 
-    int cell, i;
-    int cellX, cellY;
     switch(direction) {
         case DIR_UP:
             cellX = player->xCell;

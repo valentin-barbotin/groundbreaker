@@ -55,8 +55,8 @@ extern SDL_Window*     g_window;
  void            sendPos();
  void            doSendPos(const t_player *player);
  void            printInventory();
- bool            hasItemInInventory(t_item *item);
- void            initInventory();
- bool            isAlive();
+ bool            hasItemInInventory(t_player *player, t_item *item);
+ void            initInventory(t_player *player);
+ bool            isAlive(t_player *player);
 
 #endif
