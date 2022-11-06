@@ -122,17 +122,13 @@ void        printInventory() {
 }
 
 void       initInventory() {
-    //t_player    *player;
-    //player = getPlayer();
+    t_player    *player;
+    player = getPlayer();
     // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
-    // printf type of item_bomb
-    // printf("Item bomb: %d", getItem(ITEM_BOMB)->type);
 
-   // init inventory of t_item          *inventory[NB_ITEMS];
-  /*
+
    player->inventory[0] = getItem(ITEM_BOMB);
-    printf("Item bomb: %d", player->inventory[0]);
-    */
+
         /*
         for (int k = ITEM_BOMB; k < NB_ITEMS; k++) {
             //malloc(sizeof(t_item));

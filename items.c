@@ -1,7 +1,7 @@
 #include "items.h"
 #include "player.h"
 
-t_item static items[NB_ITEMS] = {
+t_item items[NB_ITEMS] = {
         {ITEM_BOMB, 0, 0, false, 1, 10000, false},
         {ITEM_BOMB_UP, 0, 0, false, 1, 10000, false},
         {ITEM_BOMB_DOWN, 0, 0, false, 1, 10000, false},
