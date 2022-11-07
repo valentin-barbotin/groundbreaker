@@ -8,6 +8,7 @@
 #include "game.h"
 #include "display.h"
 #include "player.h"
+#include "inventory.h"
 
 #define DEBUG true
 
@@ -269,6 +270,8 @@ void    drawMap() {
             drawTexture(tex, &rect, &rectdest);
         }
     }
+
+    drawInventory();
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
