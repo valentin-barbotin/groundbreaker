@@ -469,7 +469,7 @@ void searchDirectionMap(t_direction direction, int scope) {
                     }
                     break;
                 } else if (player->canSurviveExplosion) {
-                    player->canSurviveExplosion = 0;
+                    player->canSurviveExplosion = false;
                     player->inventory[ITEM_HEART]->quantity = -1;
                     break;
                 } else {
