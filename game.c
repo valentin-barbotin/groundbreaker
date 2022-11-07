@@ -295,13 +295,14 @@ void    movePlayer() {
                 break;
             } else if (player->passThroughBomb) {
                 // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
+                searchDirectionMap(getDirection(player), 2);
                 break;
             }else if(player->bombKick) {
                 // search in direction of the player and kick the bomb
                 searchDirectionMap(player->direction, 999);
                 break;
             } else if (player->canSurviveExplosion) {
-                player->canSurviveExplosion = 0;
+                player->canSurviveExplosion = false;
                 player->inventory[ITEM_HEART]->quantity = -1;
                 break;
             } else {
@@ -479,6 +480,11 @@ void searchDirectionMap(t_direction direction, int scope) {
                     break;
                 }
             case BOMB:
+                if(player->passThroughBomb) {
+                    player->x += player->vx;
+                    break;
+                }
+                
                 explodeBomb(cellX, cellY);
                 break;
             default:
