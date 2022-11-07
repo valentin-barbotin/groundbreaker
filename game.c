@@ -484,7 +484,7 @@ void searchDirectionMap(t_direction direction, int scope) {
                     player->x += player->vx;
                     break;
                 }
-                
+
                 explodeBomb(cellX, cellY);
                 break;
             default:
