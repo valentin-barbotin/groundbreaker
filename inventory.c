@@ -24,7 +24,7 @@ void drawInventory() {
     SDL_RenderFillRect(g_renderer, &rect);
     loadFont(FONT_PATH, 10);
     pickColor(&colorWhite);
-    
+
     // TODO : replace 10 by 'NB_ITEMS'
     for (int separator = 0; separator < 10; separator++) {
         SDL_RenderDrawLine(g_renderer, rect.x + (rect.w / 10) * separator, rect.y, rect.x + (rect.w / 10) * separator, rect.y + rect.h);
