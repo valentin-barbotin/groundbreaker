@@ -4,6 +4,5 @@
  void    drawInventory();
  void    drawInventoryItem(int changemeFuturItem);
  void    drawInventoryItemName(int changemeFuturItem);
- void    selectInventoryItem(int changemeFuturItem);
-
+ void    drawSelectedItem();
 #endif
