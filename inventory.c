@@ -29,7 +29,7 @@ void drawInventory() {
     for (int separator = 0; separator < 10; separator++) {
         SDL_RenderDrawLine(g_renderer, rect.x + (rect.w / 10) * separator, rect.y, rect.x + (rect.w / 10) * separator, rect.y + rect.h);
         // TODO : replace 1 by player->inventory[ITEM_NAME]->quantity
-        drawText(&colorWhite, rect.x + (rect.w / 10) * separator + 10, rect.y + 10, "1", false, rect.w);
+        drawText(&colorWhite, rect.x + (rect.w / 10) * separator + 10, rect.y + 10, "0", false, rect.w);
     }
 
 
