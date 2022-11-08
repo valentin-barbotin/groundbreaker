@@ -8,6 +8,7 @@
 
 void drawInventory() {
     SDL_Color colorRed = {255, 0, 0, 255};
+    SDL_Color colorWhite = {255, 255, 255, 255};
     t_game      *game;
     SDL_Rect    rect;
 
@@ -19,13 +20,16 @@ void drawInventory() {
     rect.y = (gameConfig->video.height) * 0.92;
     rect.w = (gameConfig->video.width) * 0.65;
     rect.h = (gameConfig->video.width) * 0.05;
-    SDL_RenderDrawRect(g_renderer, &rect);
 
+    SDL_RenderFillRect(g_renderer, &rect);
+    loadFont(FONT_PATH, 10);
+    pickColor(&colorWhite);
+    
     // TODO : replace 10 by 'NB_ITEMS'
     for (int separator = 0; separator < 10; separator++) {
         SDL_RenderDrawLine(g_renderer, rect.x + (rect.w / 10) * separator, rect.y, rect.x + (rect.w / 10) * separator, rect.y + rect.h);
         // TODO : replace 1 by player->inventory[ITEM_NAME]->quantity
-        drawText(&colorRed, rect.x + (rect.w / 10) * separator + 10, rect.y + 10, "1", false, rect.w);
+        drawText(&colorWhite, rect.x + (rect.w / 10) * separator + 10, rect.y + 10, "1", false, rect.w);
     }
 
 
