@@ -64,6 +64,8 @@ t_game* getGame() {
             exit(1);
         }
 
+        game->map = NULL;
+
         //TODO
         walk = malloc(sizeof(t_sound));
         wall = malloc(sizeof(t_sound));
@@ -89,7 +91,6 @@ t_game* getGame() {
             game->players[i] = initPlayer();
         }
 
-        strcpy(game->players[0]->name, g_username);
         game->nbPlayers = 1;
 
         // setPath for sound

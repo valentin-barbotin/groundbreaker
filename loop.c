@@ -247,11 +247,16 @@ void    handleKeyUp(const SDL_Event *event) {
                         spawnPlayer(1, 1, getPlayer());
 
                         if (g_serverRunning) {
+
+                            if (game->nbPlayers == game->map->players) {
+                                // not enough players to start the game
+                                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+                                return;
+                            }
+
                             // send start game message
                             multiplayerStart();
                         }
-
-                        spawnPlayer(1, 1, getPlayer());
 
                         g_currentState = GAME_PLAY_PLAYING;
 

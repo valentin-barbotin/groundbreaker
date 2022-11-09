@@ -23,6 +23,7 @@
  }                  t_menu;
 
  void    setupMenu();
+ void    drawPlayersList();
  void    drawLobbyMenu();
  void    setupMenuButtons();
 
