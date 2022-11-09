@@ -52,6 +52,16 @@ t_menu menuMain = {
     // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
 };
 
+t_menu menuPause = {
+    "Pause",
+    {"Resume", "Settings", "Exit"},
+    {&resumeGame, &test2, &exitGame},
+    NULL,
+    {NULL, NULL, NULL, NULL},
+    0,
+    3
+};
+
 void    setupMenu() {
 
     if (g_currentMenu == NULL) {

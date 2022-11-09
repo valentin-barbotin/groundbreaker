@@ -196,7 +196,7 @@ void    handleKeyUp(const SDL_Event *event) {
     }
 
 
-    if (inMainMenu()) {
+    if (inMainMenu() || isGamePaused()) {
         short index = -1;
         switch (event->key.keysym.sym) {
             case SDLK_o:

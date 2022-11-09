@@ -42,6 +42,19 @@ bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
 }
 
+bool    isGamePaused() {
+    return (g_currentState == GAME_PLAY_PAUSE);
+}
+
+void    resumeGame() {
+    g_currentState = GAME_PLAY_PLAYING;
+}
+
+void    pauseGame() {
+    g_currentState = GAME_PLAY_PAUSE;
+    g_currentMenu = &menuPause;
+}
+
 void setPath() {
     walk->file = SOUND_WALK;
     wall->file = SOUND_WALL;
