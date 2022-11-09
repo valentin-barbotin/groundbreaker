@@ -159,10 +159,14 @@ int main(int argc, char **argv)
             SDL_Delay(30);
         } else if (inGame())
         {
-            movePlayer();
-            // map_print(getGame()->map);
             drawMap();
-            // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
+
+            if (isGamePaused()) {
+                setupMenu();
+                SDL_Delay(30);
+            } else {
+                movePlayer();
+            }
         }
 
         if (getEditBox()->active) {

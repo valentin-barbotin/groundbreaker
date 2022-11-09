@@ -42,6 +42,19 @@ bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
 }
 
+bool    isGamePaused() {
+    return (g_currentState == GAME_PLAY_PAUSE);
+}
+
+void    resumeGame() {
+    g_currentState = GAME_PLAY_PLAYING;
+}
+
+void    pauseGame() {
+    g_currentState = GAME_PLAY_PAUSE;
+    g_currentMenu = &menuPause;
+}
+
 void setPath() {
     walk->file = SOUND_WALK;
     wall->file = SOUND_WALL;
@@ -63,6 +76,8 @@ t_game* getGame() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
+
+        game->map = NULL;
 
         //TODO
         walk = malloc(sizeof(t_sound));
@@ -89,7 +104,6 @@ t_game* getGame() {
             game->players[i] = initPlayer();
         }
 
-        strcpy(game->players[0]->name, g_username);
         game->nbPlayers = 1;
 
         // setPath for sound

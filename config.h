@@ -19,6 +19,7 @@
     GAME_MAINMENU_END, // Used by inMainMenu to determine if the game is in the main menu or not
     
     GAME_PLAY_PLAYING,
+    GAME_PLAY_PAUSE,
  } GAME_MODES;
 
  //Global

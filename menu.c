@@ -52,6 +52,16 @@ t_menu menuMain = {
     // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
 };
 
+t_menu menuPause = {
+    "Pause",
+    {"Resume", "Settings", "Exit"},
+    {&resumeGame, &test2, &exitGame},
+    NULL,
+    {NULL, NULL, NULL, NULL},
+    0,
+    3
+};
+
 void    setupMenu() {
 
     if (g_currentMenu == NULL) {
@@ -92,49 +102,32 @@ void    drawPlayersList() {
     rect.h = (gameConfig->video.width) * 0.20;
     SDL_RenderDrawRect(g_renderer, &rect);
     
-    drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
+    // drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
 
-    for (size_t i = 1; i < game->nbPlayers; i++)
+    for (size_t i = 0; i < game->nbPlayers; i++)
     {
-        if (game->players[i]->name != NULL) {
+        if (strlen(game->players[i]->name)) {
             drawText(&colorBlack, rect.x + 10, rect.y + 10 + (i * 20), game->players[i]->name, false, rect.w);
         }
     }
-
 }
 
-void    drawLobbyMenu() {
+void    drawLobbyMaps() {
     SDL_Rect    rect;
-    SDL_Color   colorWhite = {255, 255, 255, 255};
-    SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlack = {0, 0, 0, 255};
+    SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
     SDL_Color   colorRed = {255, 0, 0, 255};
-    t_game      *game;
-    const t_map *map;
-    char        buff[7];
     int         gap;
+    char        buff[7];
     short       j;
     short       nbMaps;
     short       fromGap;
+    t_game      *game;
 
-    if (g_lobby == NULL) {
-        g_lobby = malloc(sizeof(t_lobby));
-        if (g_lobby == NULL) {
-            #ifdef DEBUG
-                fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-            exit(1);
-        }
-        g_lobby->columns = 4;
-        g_lobby->rows = 4;
-        g_lobby->players = 2;
-    }
 
     game = getGame();
 
-    setBackgroundColor(&colorWhite);
 
     // Draw the map list
     rect.x = 0;
@@ -189,27 +182,63 @@ void    drawLobbyMenu() {
     if (g_nbMap == 0) {
         drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true, 0);
     }
+}
 
-    loadFont(FONT_PATH, 30);
+void    drawLobbyMenu() {
+    SDL_Rect    rect;
+    SDL_Color   colorWhite = {255, 255, 255, 255};
+    SDL_Color   colorYellow = {255, 255, 0, 255};
+    SDL_Color   colorBlack = {0, 0, 0, 255};
+    SDL_Color   colorBlue = {0, 0, 255, 255};
+    SDL_Color   colorRed = {255, 0, 0, 255};
+    const t_map *map;
+    char        buff[7];
+    int         gap;
+    short       j;
+    short       nbMaps;
+    short       fromGap;
+
+    if (g_lobby == NULL) {
+        g_lobby = malloc(sizeof(t_lobby));
+        if (g_lobby == NULL) {
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
+        }
+        g_lobby->columns = 4;
+        g_lobby->rows = 4;
+        g_lobby->players = 2;
+    }
+
+    setBackgroundColor(&colorWhite);
+
+    // as a client, we don't need maps
+    if (!g_clientThread) {
+        drawLobbyMaps();
+
+        loadFont(FONT_PATH, 30);
     
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Rows :", true, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Columns :", true, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.25, "Players :", true, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Rows :", true, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Columns :", true, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.25, "Players :", true, 0);
 
-    sprintf(buff, "%d", g_lobby->rows);
-    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true, 0);
+        sprintf(buff, "%d", g_lobby->rows);
+        drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true, 0);
 
-    sprintf(buff, "%d", g_lobby->columns);
-    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true, 0);
+        sprintf(buff, "%d", g_lobby->columns);
+        drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true, 0);
 
-    sprintf(buff, "%d", g_lobby->players);
-    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, buff, true, 0);
+        sprintf(buff, "%d", g_lobby->players);
+        drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, buff, true, 0);
 
-    loadFont(FONT_PATH, 20);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.10, "You can pick a maximum of 10 maps", true, 0);
-    
-    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
+        loadFont(FONT_PATH, 20);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.10, "You can pick a maximum of 10 maps", true, 0);
+        
+        drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
+    }
     
     drawPlayersList();
 };

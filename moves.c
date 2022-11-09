@@ -34,22 +34,42 @@ void    handleKeyUpPlay(const SDL_Event *event) {
 
     player = getPlayer();
 
-     if (event->key.repeat == 0) {
-        switch (event->key.keysym.sym) {
-            case SDLK_UP:
-                player->vy += VELOCITY;
-                break;
-            case SDLK_DOWN:
-                player->vy -= VELOCITY;
-                break;
-            case SDLK_LEFT:
-                player->vx += VELOCITY;
-                break;
-            case SDLK_RIGHT:
-                player->vx -= VELOCITY;
-                break;
-            default:
-                break;
+    puts("key up 2");
+
+    if (!isGamePaused()) {
+        printf("11 %d\n", (event->key.keysym.sym));
+        if (event->key.repeat == 0) {
+            switch (event->key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    puts("pause");
+                    pauseGame();
+                case SDLK_UP:
+                    player->vy += VELOCITY;
+                    break;
+                case SDLK_DOWN:
+                    player->vy -= VELOCITY;
+                    break;
+                case SDLK_LEFT:
+                    player->vx += VELOCITY;
+                    break;
+                case SDLK_RIGHT:
+                    player->vx -= VELOCITY;
+                    break;
+                default:
+                    break;
+            }
+        }
+    } else {
+        printf("22 %d\n", (event->key.keysym.sym));
+        if (event->key.repeat == 0) {
+            switch (event->key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    puts("resume");
+                    resumeGame();
+                    break;
+                default:
+                    break;
+            }
         }
     }
     
