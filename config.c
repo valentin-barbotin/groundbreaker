@@ -218,6 +218,26 @@ bool    setupCommands(FILE* fd, char* data, t_commandsConfig *config) {
             case c_right:
                 config->right = *value;
                 break;
+            case c_use_item:
+                config->use_item = *value;
+            case c_item_1:
+                config->item_1 = *value;
+            case c_item_2:
+                config->item_2 = *value;
+            case c_item_3:
+                config->item_3 = *value;
+            case c_item_4:
+                config->item_4 = *value;
+            case c_item_5:
+                config->item_5 = *value;
+            case c_item_6:
+                config->item_6 = *value;
+            case c_item_7:
+                config->item_7 = *value;
+            case c_item_8:
+                config->item_8 = *value;
+            case c_item_9:
+                config->item_9 = *value;
             
             default:
                 break;
