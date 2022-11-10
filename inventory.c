@@ -3,6 +3,7 @@
 #include "game.h"
 #include "utils.h"
 #include "font.h"
+#include "display.h"
 
 #define DEBUG true
 
@@ -11,7 +12,7 @@ void drawInventory() {
     SDL_Color colorWhite = {255, 255, 255, 255};
     t_game      *game;
     t_player      *player;
-    SDL_Rect    rect;
+    SDL_Rect    rect, rectItem, rectDest;
 
     player = getPlayer();
 
@@ -24,6 +25,11 @@ void drawInventory() {
     rect.w = (gameConfig->video.width) * 0.65;
     rect.h = (gameConfig->video.width) * 0.05;
 
+    rectItem.x = 0;
+    rectItem.y = 0;
+    rectItem.w = 758;
+    rectItem.h = 988;
+
     SDL_RenderFillRect(g_renderer, &rect);
     loadFont(FONT_PATH, 10);
     pickColor(&colorWhite);
@@ -33,14 +39,24 @@ void drawInventory() {
     for (int separator = 0; separator < 10; separator++) {
         SDL_RenderDrawLine(g_renderer, rect.x + (rect.w / 10) * separator, rect.y, rect.x + (rect.w / 10) * separator, rect.y + rect.h);
         // TODO : replace 0 by player->inventory[ITEM_NAME]->quantity
-        drawText(&colorWhite, rect.x + (rect.w / 10) * separator + 10, rect.y + 10, "0", false, rect.w);
+        drawText(&colorWhite, rect.x + (rect.w / 10) * separator + 5, rect.y + 6, "0", false, rect.w);
 
-        if(player->inventory.x == NULL) {
-            player->inventory.x = rect.x + (rect.w / 10) * separator;
-            player->inventory.y = rect.y;
-            player->inventory.w = rect.w / 10;
-            player->inventory.h = rect.h;
-        }
+        player->inventory.x = rect.x + (rect.w / 10) * separator;
+        player->inventory.y = rect.y;
+        player->inventory.w = rect.w / 10;
+        player->inventory.h = rect.h;
+
+        SDL_RenderDrawRect(g_renderer, &rect);
+
+
+        rectDest.x = rect.x + (rect.w / 10) * separator;
+        rectDest.y = rect.y;
+        rectDest.w = player->inventory.w;
+        rectDest.h = rect.h;
+
+        //TODO : replace TEX_BLUE_FLAME by player->inventory[ITEM_NAME]->texture
+        drawTexture(TEX_BOMB_UP, &rectItem, &rectDest);
+
     }
 }
 
@@ -52,9 +68,6 @@ void drawSelectedItem() {
     player = getPlayer();
 
     game = getGame();
-
-    // TODO: trouver une fonction SDL pour faire ça
-    //deleteOldSelectedItem();
 
     pickColor(&colorYellow);
 
@@ -71,9 +84,4 @@ void drawSelectedItem() {
         rect.h += 2;
         SDL_RenderDrawRect(g_renderer, &rect);
     }
-}
-
-void deleteOldSelectedItem() {
-    // Cette fonction supprime toute la map (tout ce qui a été déssiné précédemment)
-    //SDL_RenderClear(g_renderer);
 }
