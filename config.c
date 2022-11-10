@@ -9,6 +9,46 @@ t_gameConfig    *gameConfig = NULL;
 
 #define DEBUG true
 
+void    saveSetting(const char *key, const char *value) {
+    FILE    *fd;
+    char    buff[SIZE_DATA];
+    char    *pos;
+    long    posStart;
+
+    fd = fopen("config.ini", "r+");
+    if (fd == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error opening config file");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        return;
+    }
+
+    //check if key is blacklisted
+    while (fgets(buff, SIZE_DATA, fd), !feof(fd))
+    {
+        removeLineFeed(buff);
+        char firstChar = *buff; // *data = data[0]
+        if (firstChar == '[' || firstChar == '\0') {
+            continue;
+        }
+
+        pos = strchr(buff, '=');
+        if (pos == NULL) {
+            continue;
+        }
+        posStart = ftell(fd) - strlen(buff) - 1;
+        *pos = '\0';
+
+        if (stringIsEqual(buff, key)) {
+            fseek(fd, posStart, SEEK_SET);
+            fprintf(fd, "%s=%s\n", key, value);
+
+            fclose(fd);
+            return;
+        }
+    }
+}
 
 /**
  * Fill the gameConfig struct with default values

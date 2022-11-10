@@ -117,6 +117,7 @@
  }                  t_gameConfig;
 
 
+ void    saveSetting(const char *key, const char *value);
  void    defaultConfig(t_gameConfig *config);
  bool    setupGlobal(FILE* fd, char* data, t_globalConfig *globalConfig);
  bool    setupServer(FILE* fd, char* data, t_serverConfig *config);

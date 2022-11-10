@@ -4,6 +4,7 @@
 #include "menu.h"
 #include "settings.h"
 #include "dialog.h"
+#include "config.h"
 
 void    editSettingCallback() {
     const t_dialog  *dialog;
@@ -14,46 +15,67 @@ void    editSettingCallback() {
     switch (dialog->arg)
     {
         case SETTING_VIDEO_FULLSCREEN:
+            saveSetting("fullscreen", value);
             break;
         case SETTING_VIDEO_WIDTH:
+            saveSetting("width", value);
             break;
         case SETTING_VIDEO_HEIGHT:
+            saveSetting("height", value);
             break;
         case SETTING_VIDEO_VSYNC:
+            saveSetting("vsync", value);
             break;
         case SETTING_AUDIO_GLOBAL_VOL:
+            saveSetting("volume", value);
             break;
         case SETTING_AUDIO_MUSICS_VOL:
+            saveSetting("music_vol", value);
             break;
         case SETTING_AUDIO_SOUNDS_VOL:
+            saveSetting("sound_vol", value);
             break;
         case SETTING_CONTROLS_UP:
+            saveSetting("up", value);
             break;
         case SETTING_CONTROLS_DOWN:
+            saveSetting("down", value);
             break;
         case SETTING_CONTROLS_LEFT:
+            saveSetting("left", value);
             break;
         case SETTING_CONTROLS_RIGHT:
+            saveSetting("right", value);
             break;
         case SETTING_CONTROLS_USE_ITEM:
+            saveSetting("use_item", value);
             break;
         case SETTING_CONTROLS_ITEM_1:
+            saveSetting("item_1", value);
             break;
         case SETTING_CONTROLS_ITEM_2:
+            saveSetting("item_2", value);
             break;
         case SETTING_CONTROLS_ITEM_3:
+            saveSetting("item_3", value);
             break;
         case SETTING_CONTROLS_ITEM_4:
+            saveSetting("item_4", value);
             break;
         case SETTING_CONTROLS_ITEM_5:
+            saveSetting("item_5", value);
             break;
         case SETTING_CONTROLS_ITEM_6:
+            saveSetting("item_6", value);
             break;
         case SETTING_CONTROLS_ITEM_7:
+            saveSetting("item_7", value);
             break;
         case SETTING_CONTROLS_ITEM_8:
+            saveSetting("item_8", value);
             break;
         case SETTING_CONTROLS_ITEM_9:
+            saveSetting("item_9", value);
             break;
         
         default:
