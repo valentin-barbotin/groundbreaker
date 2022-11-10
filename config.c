@@ -9,6 +9,64 @@ t_gameConfig    *gameConfig = NULL;
 
 #define DEBUG true
 
+/**
+ * @brief Update the config file
+ * 
+ * @param key 
+ * @param value 
+ */
+void    saveSetting(const char *key, const char *value) {
+    FILE        *fd;
+    char        *buff;
+    char        *pos;
+    char        *posEnd;
+    
+    buff = readFile("config.ini");
+    if (buff == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error reading config.ini");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+
+    // find the key
+    pos = strstr(buff, key);
+    if (pos == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error finding key in config.ini");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+
+    // find the end of the line
+    posEnd = strchr(pos, '\n');
+    if (posEnd == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error finding end of line in config.ini");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+    // cut the buffer in half from the start of the line
+    *pos = '\0';
+
+    fd = fopen("config.ini", "w");
+    if (fd == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error opening config.ini");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+
+    // write the first part of the buffer, then the key and value, then the rest of the buffer (from the end of the line)
+    fprintf(fd, "%s%s=%s%s\n", buff, key, value, posEnd);
+
+    fclose(fd);
+    free(buff);
+}
 
 /**
  * Fill the gameConfig struct with default values
@@ -218,6 +276,26 @@ bool    setupCommands(FILE* fd, char* data, t_commandsConfig *config) {
             case c_right:
                 config->right = *value;
                 break;
+            case c_use_item:
+                config->use_item = *value;
+            case c_item_1:
+                config->item_1 = *value;
+            case c_item_2:
+                config->item_2 = *value;
+            case c_item_3:
+                config->item_3 = *value;
+            case c_item_4:
+                config->item_4 = *value;
+            case c_item_5:
+                config->item_5 = *value;
+            case c_item_6:
+                config->item_6 = *value;
+            case c_item_7:
+                config->item_7 = *value;
+            case c_item_8:
+                config->item_8 = *value;
+            case c_item_9:
+                config->item_9 = *value;
             
             default:
                 break;

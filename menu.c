@@ -12,10 +12,11 @@
 #include "client.h"
 #include "player.h"
 #include "assets.h"
+#include "settings.h"
 
 #define DEBUG true
 
-SDL_Rect                g_buttonsLocation[4];
+SDL_Rect                g_buttonsLocation[MAX_MENU_BUTTONS];
 t_menu                  *g_currentMenu;
 short                   g_currentOption = 0;
 extern int              g_currentState;
@@ -41,15 +42,96 @@ void    exitGame() {
     g_currentState = GAME_EXIT;
 }
 
-t_menu menuMain = {
-    "Main",
-    {"Play", "Settings", "Online", "Exit"},
-    {&openLobby, &test2, &joinServer, &exitGame},
+t_menu menuCommands5 = {
+    "Commands 5",
+    {"Item 8", "Item 9", "Back"},
+    {&editItem8, &editItem9, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL},
+    0,
+    3
+};
+
+t_menu menuCommands4 = {
+    "Commands 4",
+    {"Item 5", "Item 6", "Item 7", "Next", "Back"},
+    {&editItem5, &editItem6, &editItem7, NULL, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, &menuCommands5, NULL},
+    0,
+    5
+};
+
+t_menu menuCommands3 = {
+    "Commands 3",
+    {"Item 2", "Item 3", "Item 4", "Next", "Back"},
+    {&editItem2, &editItem3, &editItem4, NULL, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, &menuCommands4, NULL},
+    0,
+    5
+};
+
+t_menu menuCommands2 = {
+    "Commands 2",
+    {"Right", "Use item", "Item 1", "Next", "Back"},
+    {&editRight, &editUseItem, &editItem1, NULL, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, &menuCommands3, NULL},
+    0,
+    5
+};
+
+t_menu menuCommands1 = {
+    "Commands 1",
+    {"Up", "Down", "Left", "Next", "Back"},
+    {&editUp, &editDown, &editLeft, NULL, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, &menuCommands2, NULL},
+    0,
+    5
+    // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
+};
+
+
+t_menu menuAudio = {
+    "Audio",
+    {"Volume", "Musics volume", "Sounds Volume", "Back"},
+    {&editGlobalVol, &editMusicsVol, &editSoundsVol, &exitMenu},
     NULL,
     {NULL, NULL, NULL, NULL},
     0,
     4
-    // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
+};
+
+t_menu menuVideo = {
+    "Video",
+    {"Fullscreen", "Width", "Height", "VSync", "Back"},
+    {&editFullscreen, &editWidth, &editHeight, &editVSync, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, NULL},
+    0,
+    5
+};
+
+t_menu menuSettings = {
+    "Main",
+    {"Video", "Audio", "Commands", "Back"},
+    {NULL, NULL, NULL, &exitMenu},
+    NULL,
+    {&menuVideo, &menuAudio, &menuCommands1, NULL},
+    0,
+    4
+};
+
+t_menu menuMain = {
+    "Main",
+    {"Play", "Settings", "Online", "Exit"},
+    {&openLobby, NULL, &joinServer, &exitGame},
+    NULL,
+    {NULL, &menuSettings, NULL, NULL},
+    0,
+    4
 };
 
 t_menu menuPause = {
@@ -305,4 +387,20 @@ void    setupMenuButtons() {
         SDL_DestroyTexture(tex);
         g_buttonsLocation[i] = target;
     }
+}
+
+void    exitMenu() {
+    g_currentMenu = (g_currentMenu->parent == NULL) ? &menuMain : g_currentMenu->parent;
+}
+
+void    assignMenuParents() {
+    menuVideo.parent = &menuSettings;
+    menuAudio.parent = &menuSettings;
+    menuCommands5.parent = &menuCommands4;
+    menuCommands4.parent = &menuCommands3;
+    menuCommands3.parent = &menuCommands2;
+    menuCommands2.parent = &menuCommands1;
+    menuCommands1.parent = &menuSettings;
+
+    menuSettings.parent = &menuMain;
 }
