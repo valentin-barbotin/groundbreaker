@@ -23,6 +23,7 @@
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
 extern t_gameConfig    *gameConfig;
+extern void    assignMenuParents();
 
 #define DEBUG true
 
@@ -64,6 +65,8 @@ int main(int argc, char **argv)
     }
     time_t t;
     srand((unsigned) time(&t));
+
+    assignMenuParents();
 
     unsigned int    windowWidth;
     unsigned int    windowHeight;
