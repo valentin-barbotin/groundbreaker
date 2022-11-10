@@ -36,6 +36,16 @@
      int             health;
      int             score;
      t_direction     direction;
+     // à supprrimer car c'est que pour le dev/debug
+     struct             s_inventory {
+         unsigned short x;
+         unsigned short y;
+         unsigned short w;
+         unsigned short h;
+         unsigned short oldX;
+         unsigned short oldY;
+
+     }                  inventory
  }                  t_player;
 
  char            *getUsername();

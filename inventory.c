@@ -13,7 +13,9 @@ void drawInventory() {
     t_player      *player;
     SDL_Rect    rect;
 
-    game = getGame();
+    player = getPlayer();
+
+    player->inventory.x = NULL;
 
     pickColor(&colorRed);
 
@@ -33,31 +35,45 @@ void drawInventory() {
         // TODO : replace 0 by player->inventory[ITEM_NAME]->quantity
         drawText(&colorWhite, rect.x + (rect.w / 10) * separator + 10, rect.y + 10, "0", false, rect.w);
 
-        //player->inventory[separator]->xCell = rect.x + (rect.w / 10) * separator;
-        //player->inventory[separator]->yCell = rect.y;
+        if(player->inventory.x == NULL) {
+            player->inventory.x = rect.x + (rect.w / 10) * separator;
+            player->inventory.y = rect.y;
+            player->inventory.w = rect.w / 10;
+            player->inventory.h = rect.h;
+        }
     }
 }
 
 void drawSelectedItem() {
-    SDL_Color   colorBlue = {0, 0, 255, 255};
+    SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Rect    rect;
     t_game      *game;
+    t_player    *player;
+    player = getPlayer();
 
     game = getGame();
 
-    pickColor(&colorBlue);
+    // TODO: trouver une fonction SDL pour faire ça
+    //deleteOldSelectedItem();
 
-    // TODO : create a function to draw a rectangle with yellow color (the color should be changed) bcs it's the selected item
+    pickColor(&colorYellow);
 
-    // First idea but it's not working and i will change it
-    /*
-    rect.x = (gameConfig->video.width) * 0.175;
-    rect.y = (gameConfig->video.height) * 0.92;
-    rect.w = (gameConfig->video.width) * 0.05;
-    rect.h = (gameConfig->video.width) * 0.05;
+    rect.x = player->inventory.x;
+    rect.y = player->inventory.y;
+    rect.w = player->inventory.w;
+    rect.h = player->inventory.h;
 
-    SDL_RenderFillRect(g_renderer, &rect);
-    */
-
+    // Increase the width of the rectangle
+    for (int i = 0; i < 3; i++) {
+        rect.x -= 1;
+        rect.y -= 1;
+        rect.w += 2;
+        rect.h += 2;
+        SDL_RenderDrawRect(g_renderer, &rect);
+    }
 }
 
+void deleteOldSelectedItem() {
+    // Cette fonction supprime toute la map (tout ce qui a été déssiné précédemment)
+    //SDL_RenderClear(g_renderer);
+}

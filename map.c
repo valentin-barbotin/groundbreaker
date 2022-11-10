@@ -272,6 +272,7 @@ void    drawMap() {
     }
 
     drawInventory();
+    drawSelectedItem();
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
