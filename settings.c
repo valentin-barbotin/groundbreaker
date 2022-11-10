@@ -35,13 +35,31 @@ void    editSettingCallback() {
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
                 return;
             }
-            if (value[0] != '0' && value[0] != '1') {
+            if (*value != '0' && *value != '1' && *value != '2') {
                 #ifdef DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
                 return;
             }
+
+            int mode;
+            switch (*value)
+            {
+                case 1:
+                    mode = SDL_WINDOW_FULLSCREEN_DESKTOP;
+                    break;
+                case 2:
+                    mode = SDL_WINDOW_FULLSCREEN;
+                    break;
+                
+                default:
+                    mode = 0; // windowed
+                    break;
+            }
+
+            gameConfig->video.fullscreen = mode;
+            SDL_SetWindowFullscreen(g_window, gameConfig->video.fullscreen);
 
             saveSetting("fullscreen", value);
             break;
@@ -54,8 +72,10 @@ void    editSettingCallback() {
                 return;
             }
 
-            sprintf(buffer, "%d", atoi(value));
-            saveSetting("width", buffer);
+            gameConfig->video.width = atoi(value);
+            SDL_SetWindowSize(g_window, atoi(value), gameConfig->video.height);
+
+            saveSetting("width", value);
             break;
         case SETTING_VIDEO_HEIGHT:
             if (strspn(value, "0123456789") != strlen(value)) {
@@ -66,9 +86,10 @@ void    editSettingCallback() {
                 return;
             }
 
-            sprintf(buffer, "%d", atoi(value));
+            gameConfig->video.height = atoi(value);
+            SDL_SetWindowSize(g_window, gameConfig->video.width, atoi(value));
 
-            saveSetting("height", buffer);
+            saveSetting("height", value);
             break;
         case SETTING_VIDEO_VSYNC:
             if (strlen(value) != 1) {
@@ -304,7 +325,13 @@ void    editSettingCallback() {
 }
 
 void    editFullscreen() {
-    puts("editFullscreen");
+    t_dialog  *dialog;
+
+    dialog = createEditBox("Fullscreen (0: windowed, 1 fullscreen desktop, 2 fullscreen)", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+
+    memset(dialog->edit, 0, sizeof(dialog->edit));
+    dialog->callback = editSettingCallback;
+    dialog->arg = SETTING_VIDEO_FULLSCREEN;
 }
 void    editWidth() {
     t_dialog  *dialog;

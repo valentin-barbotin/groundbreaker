@@ -2,6 +2,8 @@
  #define SETTINGS_H
  
  extern t_menu                  *g_currentMenu;
+ extern SDL_Window*             g_window;
+ extern SDL_Renderer*           g_renderer;
 
  typedef enum    e_settings {
      SETTING_VIDEO_FULLSCREEN,

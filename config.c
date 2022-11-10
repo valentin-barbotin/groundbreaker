@@ -62,7 +62,7 @@ void    saveSetting(const char *key, const char *value) {
     }
 
     // write the first part of the buffer, then the key and value, then the rest of the buffer (from the end of the line)
-    fprintf(fd, "%s%s=%s%s", buff, key, value, posEnd);
+    fprintf(fd, "%s%s=%s%s\n", buff, key, value, posEnd);
 
     fclose(fd);
     free(buff);
