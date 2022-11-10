@@ -9,45 +9,63 @@ t_gameConfig    *gameConfig = NULL;
 
 #define DEBUG true
 
+/**
+ * @brief Update the config file
+ * 
+ * @param key 
+ * @param value 
+ */
 void    saveSetting(const char *key, const char *value) {
-    FILE    *fd;
-    char    buff[SIZE_DATA];
-    char    *pos;
-    long    posStart;
-
-    fd = fopen("config.ini", "r+");
-    if (fd == NULL) {
+    FILE        *fd;
+    char        *buff;
+    char        *pos;
+    char        *posEnd;
+    
+    buff = readFile("config.ini");
+    if (buff == NULL) {
         #ifdef DEBUG
-            fprintf(stderr, "Error opening config file");
+            fprintf(stderr, "Error reading config.ini");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-        return;
+        exit(1);
     }
 
-    //check if key is blacklisted
-    while (fgets(buff, SIZE_DATA, fd), !feof(fd))
-    {
-        removeLineFeed(buff);
-        char firstChar = *buff; // *data = data[0]
-        if (firstChar == '[' || firstChar == '\0') {
-            continue;
-        }
-
-        pos = strchr(buff, '=');
-        if (pos == NULL) {
-            continue;
-        }
-        posStart = ftell(fd) - strlen(buff) - 1;
-        *pos = '\0';
-
-        if (stringIsEqual(buff, key)) {
-            fseek(fd, posStart, SEEK_SET);
-            fprintf(fd, "%s=%s\n", key, value);
-
-            fclose(fd);
-            return;
-        }
+    // find the key
+    pos = strstr(buff, key);
+    if (pos == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error finding key in config.ini");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
     }
+
+    // find the end of the line
+    posEnd = strchr(pos, '\n');
+    if (posEnd == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error finding end of line in config.ini");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+    // cut the buffer in half from the start of the line
+    *pos = '\0';
+
+    fd = fopen("config.ini", "w");
+    if (fd == NULL) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error opening config.ini");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+
+    // write the first part of the buffer, then the key and value, then the rest of the buffer (from the end of the line)
+    fprintf(fd, "%s%s=%s%s", buff, key, value, posEnd);
+
+    fclose(fd);
+    free(buff);
 }
 
 /**
