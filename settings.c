@@ -6,76 +6,294 @@
 #include "dialog.h"
 #include "config.h"
 
+#define DEBUG true
+
 void    editSettingCallback() {
     const t_dialog  *dialog;
     const char      *value;
+    char            buffer[SIZE_DATA];
+    unsigned int    vol;
 
     dialog = getEditBox();
     value = dialog->edit;
+
+    if (!strlen(value)) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error: empty value");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Empty value", g_window);
+        return;
+    }
+
     switch (dialog->arg)
     {
         case SETTING_VIDEO_FULLSCREEN:
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+            if (value[0] != '0' && value[0] != '1') {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
             saveSetting("fullscreen", value);
             break;
         case SETTING_VIDEO_WIDTH:
-            saveSetting("width", value);
+            if (strspn(value, "0123456789") != strlen(value)) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: value must be a number");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%d", atoi(value));
+            saveSetting("width", buffer);
             break;
         case SETTING_VIDEO_HEIGHT:
-            saveSetting("height", value);
+            if (strspn(value, "0123456789") != strlen(value)) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: value must be a number");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%d", atoi(value));
+
+            saveSetting("height", buffer);
             break;
         case SETTING_VIDEO_VSYNC:
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+            if (value[0] != '0' && value[0] != '1') {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
             saveSetting("vsync", value);
             break;
         case SETTING_AUDIO_GLOBAL_VOL:
-            saveSetting("volume", value);
+            vol = atoi(value);
+            if (vol > 100) {
+                vol = 100;
+            }
+            if (vol < 100) {
+                vol = 0;
+            }
+            sprintf(buffer, "%d", vol);
+
+            saveSetting("volume", buffer);
+
+            gameConfig->audio.volume = vol;
             break;
         case SETTING_AUDIO_MUSICS_VOL:
-            saveSetting("music_vol", value);
+            vol = atoi(value);
+            if (vol > 100) {
+                vol = 100;
+            }
+            if (vol < 100) {
+                vol = 0;
+            }
+            sprintf(buffer, "%d", vol);
+
+            saveSetting("music_vol", buffer);
+            gameConfig->audio.music_volume = vol;
             break;
         case SETTING_AUDIO_SOUNDS_VOL:
-            saveSetting("sound_vol", value);
+            vol = atoi(value);
+            if (vol > 100) {
+                vol = 100;
+            }
+            if (vol < 100) {
+                vol = 0;
+            }
+            sprintf(buffer, "%d", vol);
+
+            saveSetting("sound_vol", buffer);
+            gameConfig->audio.sound_volume = vol;
             break;
         case SETTING_CONTROLS_UP:
-            saveSetting("up", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("up", buffer);
             break;
         case SETTING_CONTROLS_DOWN:
-            saveSetting("down", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("down", buffer);
             break;
         case SETTING_CONTROLS_LEFT:
-            saveSetting("left", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("left", buffer);
             break;
         case SETTING_CONTROLS_RIGHT:
-            saveSetting("right", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("right", buffer);
             break;
         case SETTING_CONTROLS_USE_ITEM:
-            saveSetting("use_item", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("use_item", buffer);
             break;
         case SETTING_CONTROLS_ITEM_1:
-            saveSetting("item_1", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_1", buffer);
             break;
         case SETTING_CONTROLS_ITEM_2:
-            saveSetting("item_2", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_2", buffer);
             break;
         case SETTING_CONTROLS_ITEM_3:
-            saveSetting("item_3", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_3", buffer);
             break;
         case SETTING_CONTROLS_ITEM_4:
-            saveSetting("item_4", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_4", buffer);
             break;
         case SETTING_CONTROLS_ITEM_5:
-            saveSetting("item_5", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_5", buffer);
             break;
         case SETTING_CONTROLS_ITEM_6:
-            saveSetting("item_6", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_6", buffer);
             break;
         case SETTING_CONTROLS_ITEM_7:
-            saveSetting("item_7", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_7", buffer);
             break;
         case SETTING_CONTROLS_ITEM_8:
-            saveSetting("item_8", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_8", buffer);
             break;
         case SETTING_CONTROLS_ITEM_9:
-            saveSetting("item_9", value);
+            if (strlen(value) != 1) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+            sprintf(buffer, "%c", *value);
+            saveSetting("item_9", buffer);
             break;
         
         default:
