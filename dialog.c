@@ -26,6 +26,10 @@ t_dialog    *createEditBox(const char *text, const int fontSize, SDL_Color color
     dialog->fontSize = fontSize;
     dialog->color = color;
     dialog->backgroundColor = backgroundColor;
+    dialog->arg = 0;
+
+    SDL_StartTextInput();
+
     return dialog;
 }
 
