@@ -42,8 +42,9 @@ void    exitGame() {
     g_currentState = GAME_EXIT;
 }
 
-t_menu menuCommands5 = {
-    "Commands 5",
+
+t_menu menuCommands3 = {
+    "Commands 3",
     {"Item 8", "Item 9", "Back"},
     {&editItem8, &editItem9, &exitMenu},
     NULL,
@@ -52,45 +53,24 @@ t_menu menuCommands5 = {
     3
 };
 
-t_menu menuCommands4 = {
-    "Commands 4",
-    {"Item 5", "Item 6", "Item 7", "Next", "Back"},
-    {&editItem5, &editItem6, &editItem7, NULL, &exitMenu},
-    NULL,
-    {NULL, NULL, NULL, &menuCommands5, NULL},
-    0,
-    5
-};
-
-t_menu menuCommands3 = {
-    "Commands 3",
-    {"Item 2", "Item 3", "Item 4", "Next", "Back"},
-    {&editItem2, &editItem3, &editItem4, NULL, &exitMenu},
-    NULL,
-    {NULL, NULL, NULL, &menuCommands4, NULL},
-    0,
-    5
-};
-
 t_menu menuCommands2 = {
     "Commands 2",
-    {"Right", "Use item", "Item 1", "Next", "Back"},
-    {&editRight, &editUseItem, &editItem1, NULL, &exitMenu},
+    {"Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Next", "Back"},
+    {&editItem2, &editItem3, &editItem4, &editItem5, &editItem6, &editItem7, NULL, &exitMenu},
     NULL,
-    {NULL, NULL, NULL, &menuCommands3, NULL},
+    {NULL, NULL, NULL, NULL, NULL, NULL, &menuCommands3, NULL},
     0,
-    5
+    8
 };
 
 t_menu menuCommands1 = {
     "Commands 1",
-    {"Up", "Down", "Left", "Next", "Back"},
-    {&editUp, &editDown, &editLeft, NULL, &exitMenu},
+    {"Up", "Down", "Left", "Right", "Use item", "Item 1", "Next", "Back"},
+    {&editUp, &editDown, &editLeft, &editRight, &editUseItem, &editItem1, NULL, &exitMenu},
     NULL,
-    {NULL, NULL, NULL, &menuCommands2, NULL},
+    {NULL, NULL, NULL, NULL, NULL, NULL, &menuCommands2, NULL},
     0,
-    5
-    // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
+    8
 };
 
 
@@ -404,8 +384,6 @@ void    exitMenu() {
 void    assignMenuParents() {
     menuVideo.parent = &menuSettings;
     menuAudio.parent = &menuSettings;
-    menuCommands5.parent = &menuCommands4;
-    menuCommands4.parent = &menuCommands3;
     menuCommands3.parent = &menuCommands2;
     menuCommands2.parent = &menuCommands1;
     menuCommands1.parent = &menuSettings;

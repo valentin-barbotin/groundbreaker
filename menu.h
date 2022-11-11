@@ -12,7 +12,7 @@
  extern short           g_nbMap;
  extern t_lobby         *g_lobby;
 
- #define MAX_MENU_BUTTONS 5
+ #define MAX_MENU_BUTTONS 9
 
  typedef struct     s_menu {
     char             *name;
