@@ -86,3 +86,5 @@ void drawSelectedItem() {
         SDL_RenderDrawRect(g_renderer, &rect);
     }
 }
+
+// TODO : create a function named getSlot() which return the number of the slot where the item is with (rect.x and rect.w) - rect.x change according to the slot

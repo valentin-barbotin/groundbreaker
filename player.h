@@ -36,7 +36,7 @@
      int             health;
      int             score;
      t_direction     direction;
-     // à supprrimer car c'est que pour le dev/debug
+     // TODO: à supprrimer car c'est que pour le dev/debug (en attendant que la branche useItems soit mergée)
      struct             s_inventory {
          unsigned short x;
          unsigned short y;
