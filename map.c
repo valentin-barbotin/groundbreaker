@@ -8,6 +8,7 @@
 #include "game.h"
 #include "display.h"
 #include "player.h"
+#include "font.h"
 
 #define DEBUG true
 
@@ -313,6 +314,7 @@ void    drawPlayer(const t_player *player) {
     short           spriteH;
     SDL_Rect        rect;
     SDL_Rect        rectdest;
+    SDL_Color       textColor = {255, 255, 255, 255};
 
     //draw player
     spriteW = 50;
@@ -332,4 +334,7 @@ void    drawPlayer(const t_player *player) {
     rect.h = spriteH;
 
     drawTexture(TEX_PLAYER, &rect, &rectdest);
+
+    // draw player name
+    drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, player->name, true, 0);
 }
