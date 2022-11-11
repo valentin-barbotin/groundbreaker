@@ -330,10 +330,13 @@ void    setupMenuButtons() {
     SDL_Texture     *tex;
     SDL_Color       notSelectedColor;
     SDL_Color       selectedColor;
+    SDL_Color       backgroundColor = {0, 0, 0, 128};
     SDL_Color       *color;
-    SDL_Rect        target;
+    SDL_Rect        rect;
     int             textWidth;
     int             textHeight;
+    int             x;
+    int             y;
 
     selectedColor.r = 255;
     selectedColor.g = 0;
@@ -345,6 +348,16 @@ void    setupMenuButtons() {
     notSelectedColor.b = 255;
     notSelectedColor.a = 255;
 
+    rect.x = gameConfig->video.width * 0.25;
+    rect.y = gameConfig->video.height * 0.05;
+    rect.w = gameConfig->video.width * 0.5;
+    rect.h = gameConfig->video.height * 0.90;
+
+    // background
+    pickColor(&backgroundColor);
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+    SDL_RenderFillRect(g_renderer, &rect);
+
     for (unsigned int i = 0; i < g_currentMenu->nbButtons; i++)
     {
         unsigned short  j;
@@ -355,13 +368,16 @@ void    setupMenuButtons() {
 
         j = g_currentMenu->selectedButton;
 
-        if ((g_currentMenu->buttons + j) == (g_currentMenu->buttons + i)) {
-            color = &selectedColor;
-        } else {
-            color = &notSelectedColor;
-        }
-        
-        tex = getTextureFromString(g_currentMenu->buttons[i], color, NULL);
+        color = ((g_currentMenu->buttons + j) == (g_currentMenu->buttons + i)) ? &selectedColor : &notSelectedColor;
+
+        x = gameConfig->video.width * 0.5;
+        y = gameConfig->video.height * (0.10 * (i + 1));
+
+        loadFont(FONT_PATH, 40);
+        drawText(color, x, y, g_currentMenu->buttons[i], true, 0);
+
+        // get rect
+        tex = getTextureFromString(g_currentMenu->buttons[i], color, 0);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
             #ifdef DEBUG
@@ -370,22 +386,14 @@ void    setupMenuButtons() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
-
-        target.x = (gameConfig->video.width)/2 - textWidth/2;
-        target.y = 100 * i;
-        target.w = 100;
-        target.h = 100;
-
-        op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
-        if (op < 0) {
-            #ifdef DEBUG
-                fprintf(stderr, "Erreur SDL_RenderCopy : %s\n", SDL_GetError());
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-            exit(1);
-        }
         SDL_DestroyTexture(tex);
-        g_buttonsLocation[i] = target;
+
+        rect.x = x - textWidth/2;
+        rect.y = y - textHeight / 2;
+        rect.w = textWidth;
+        rect.h = textHeight;
+
+        g_buttonsLocation[i] = rect;
     }
 }
 
