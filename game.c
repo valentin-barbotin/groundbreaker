@@ -383,7 +383,6 @@ void explodeBomb(int xCell, int yCell) {
     map = getGame()->map;
     GETCELL(yCell, xCell) = EMPTY;
 
-
     // posToGrid but with 2 int pointers
     posToGrid(player->x, player->y);
 

@@ -1,5 +1,6 @@
 #include "items.h"
 #include "player.h"
+#include "game.h"
 
 t_item items[NB_ITEMS] = {
         {ITEM_BOMB, 0, 0, false, 1, 10000, false},
@@ -23,6 +24,8 @@ t_item     *getItem(t_item_type type) {
 void   useItem(t_item *item) {
     t_player *player;
     player = getPlayer();
+    SDL_TimerID timer_bomb_id, timer_invicibility_id;
+
 
     if (!hasItemInInventory(player, item)) return;
     if (item->isActive) return;
@@ -31,6 +34,8 @@ void   useItem(t_item *item) {
     switch (item->type) {
         case ITEM_BOMB:
             // TODO : START A TIMER OF 10 SECONDS
+            // SDL TIMER
+            timer_bomb_id = SDL_AddTimer(item[ITEM_BOMB].duration, bombTimer, NULL);
             // t_timer *timerBomb = malloc(sizeof(t_timer));
             // timer->startTicks = SDL_GetTicks();
             // timer->duration = 10000;
@@ -63,6 +68,7 @@ void   useItem(t_item *item) {
         case ITEM_INVINCIBILITY:
             player->godMode = true;
             // TODO : START A TIMER OF 10 SECONDS
+            timer_bomb_id = SDL_AddTimer(item[ITEM_INVINCIBILITY].duration, invincibilityTimer, NULL);
             // t_timer *timerInvincibility = malloc(sizeof(t_timer));
             // timer->startTicks = SDL_GetTicks();
             // timer->duration = 10000;
@@ -71,10 +77,22 @@ void   useItem(t_item *item) {
             break;
         case ITEM_HEART:
             // TODO: on le met en godMode jusqu'à ce qu'il subisse une explosion après il est plus en false
-            player->godMode = true;
+            player->canSurviveExplosion = true;
             break;
         case ITEM_LIFE:
             player->health += 1;
             break;
     }
+}
+
+Uint32 bombTimer(Uint32 interval, void *param) {
+    explodeBomb(items[ITEM_BOMB].xCell, items[ITEM_BOMB].yCell);
+    return 0;
+}
+
+Uint32 invincibilityTimer(Uint32 interval, void *param) {
+    t_player *player;
+    player = getPlayer();
+    player->godMode = false;
+    return 0;
 }

@@ -27,7 +27,7 @@ typedef struct s_item {
     int     yCell;
     bool    isRare;
     int     quantity;
-    int     duration;
+    Uint32     duration;
     bool    isActive;
 } t_item;
 
@@ -44,6 +44,10 @@ void    activateItem(t_item *item);
 void    deactivateItem(t_item *item);
 
 void    useItem(t_item *item);
+
+Uint32  bombTimer(Uint32 interval, void *param);
+
+Uint32  invincibilityTimer(Uint32 interval, void *param);
 
 
 #endif
