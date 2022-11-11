@@ -48,6 +48,39 @@ void    handleKeyUpPlay(const SDL_Event *event) {
             case SDLK_RIGHT:
                 player->vx -= VELOCITY;
                 break;
+            case SDLK_1:
+                //   drawSelectedItem(ITEM_BOMB);
+                break;
+            case SDLK_2:
+                //   drawSelectedItem(ITEM_BOMB_UP);
+                break;
+            case SDLK_3:
+                //   drawSelectedItem(ITEM_BOMB_DOWN);
+                break;
+            case SDLK_4:
+                //   drawSelectedItem(ITEM_YELLOW_FLAME);
+                break;
+            case SDLK_5:
+                //   drawSelectedItem(ITEM_BLUE_FLAME);
+                break;
+            case SDLK_6:
+                //   drawSelectedItem(ITEM_RED_FLAME);
+                break;
+            case SDLK_7:
+                //   drawSelectedItem(ITEM_THROUGH_BOMB);
+                break;
+            case SDLK_8:
+                //   drawSelectedItem(ITEM_BOMB_KICK);
+                break;
+            case SDLK_9:
+                //   drawSelectedItem(ITEM_INVINCIBILITY);
+                break;
+            case SDLK_0:
+                //   drawSelectedItem(ITEM_HEART);
+                break;
+            case SDLK_RIGHTPAREN:
+                //  drawSelectedItem(ITEM_LIFE);
+                break;
             default:
                 break;
         }

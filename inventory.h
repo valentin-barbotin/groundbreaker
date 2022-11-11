@@ -4,7 +4,7 @@
  void    drawInventory();
  void    drawInventoryItem(int changemeFuturItem);
  void    drawInventoryItemName(int changemeFuturItem);
+ // TODO : ADD PARAMETERS
  void    drawSelectedItem();
- void    deleteOldSelectedItem();
 
 #endif

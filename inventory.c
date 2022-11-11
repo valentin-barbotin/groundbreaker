@@ -60,6 +60,7 @@ void drawInventory() {
     }
 }
 
+// TODO : add 1 parameter to the function to know which item is selected (example : ITEM_BOMB is the first slot because ITEM_BOMB is the first item of the enum)
 void drawSelectedItem() {
     SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Rect    rect;
