@@ -11,10 +11,12 @@
 #include "dialog.h"
 #include "client.h"
 #include "player.h"
+#include "assets.h"
+#include "settings.h"
 
 #define DEBUG true
 
-SDL_Rect                g_buttonsLocation[4];
+SDL_Rect                g_buttonsLocation[MAX_MENU_BUTTONS];
 t_menu                  *g_currentMenu;
 short                   g_currentOption = 0;
 extern int              g_currentState;
@@ -40,36 +42,95 @@ void    exitGame() {
     g_currentState = GAME_EXIT;
 }
 
-t_menu menuMain = {
-    "Main",
-    {"Play", "Settings", "Online", "Exit"},
-    {&openLobby, &test2, &joinServer, &exitGame},
+
+t_menu menuCommands3 = {
+    "Commands 3",
+    {"Item 8", "Item 9", "Back"},
+    {&editItem8, &editItem9, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL},
+    0,
+    3
+};
+
+t_menu menuCommands2 = {
+    "Commands 2",
+    {"Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Next", "Back"},
+    {&editItem2, &editItem3, &editItem4, &editItem5, &editItem6, &editItem7, NULL, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, NULL, NULL, NULL, &menuCommands3, NULL},
+    0,
+    8
+};
+
+t_menu menuCommands1 = {
+    "Commands 1",
+    {"Up", "Down", "Left", "Right", "Use item", "Item 1", "Next", "Back"},
+    {&editUp, &editDown, &editLeft, &editRight, &editUseItem, &editItem1, NULL, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, NULL, NULL, NULL, &menuCommands2, NULL},
+    0,
+    8
+};
+
+
+t_menu menuAudio = {
+    "Audio",
+    {"Volume", "Musics volume", "Sounds Volume", "Back"},
+    {&editGlobalVol, &editMusicsVol, &editSoundsVol, &exitMenu},
     NULL,
     {NULL, NULL, NULL, NULL},
     0,
     4
-    // {&menuPlay, &menuSettings, &menuOnline, NULL, NULL}
+};
+
+t_menu menuVideo = {
+    "Video",
+    {"Fullscreen", "Width", "Height", "VSync", "Back"},
+    {&editFullscreen, &editWidth, &editHeight, &editVSync, &exitMenu},
+    NULL,
+    {NULL, NULL, NULL, NULL},
+    0,
+    5
+};
+
+t_menu menuSettings = {
+    "Main",
+    {"Video", "Audio", "Commands", "Back"},
+    {NULL, NULL, NULL, &exitMenu},
+    NULL,
+    {&menuVideo, &menuAudio, &menuCommands1, NULL},
+    0,
+    4
+};
+
+t_menu menuMain = {
+    "Main",
+    {"Play", "Settings", "Online", "Exit"},
+    {&openLobby, NULL, &joinServer, &exitGame},
+    NULL,
+    {NULL, &menuSettings, NULL, NULL},
+    0,
+    4
+};
+
+t_menu menuPause = {
+    "Pause",
+    {"Resume", "Settings", "Exit"},
+    {&resumeGame, &test2, &exitGame},
+    NULL,
+    {NULL, NULL, NULL, NULL},
+    0,
+    3
 };
 
 void    setupMenu() {
-    char            *bg;
 
     if (g_currentMenu == NULL) {
         g_currentMenu = &menuMain;
     }
 
-    switch (g_currentState)
-    {
-        case GAME_MAINMENU_PLAY:
-            bg = "back.png";
-            break;
-        
-        default:
-            bg = "back.png";
-            break;
-    }
-
-    if (bg && setBackgroundImage(bg)) {
+    if (setBackgroundImage(TEX_MENU_BACKGROUND)) {
         #ifdef DEBUG
             fprintf(stderr, "Error setting background image");
         #endif
@@ -103,49 +164,32 @@ void    drawPlayersList() {
     rect.h = (gameConfig->video.width) * 0.20;
     SDL_RenderDrawRect(g_renderer, &rect);
     
-    drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
+    // drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
 
-    for (size_t i = 1; i < game->nbPlayers; i++)
+    for (size_t i = 0; i < game->nbPlayers; i++)
     {
-        if (game->players[i]->name != NULL) {
+        if (strlen(game->players[i]->name)) {
             drawText(&colorBlack, rect.x + 10, rect.y + 10 + (i * 20), game->players[i]->name, false, rect.w);
         }
     }
-
 }
 
-void    drawLobbyMenu() {
+void    drawLobbyMaps() {
     SDL_Rect    rect;
-    SDL_Color   colorWhite = {255, 255, 255, 255};
-    SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlack = {0, 0, 0, 255};
+    SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
     SDL_Color   colorRed = {255, 0, 0, 255};
-    t_game      *game;
-    const t_map *map;
-    char        buff[7];
     int         gap;
+    char        buff[7];
     short       j;
     short       nbMaps;
     short       fromGap;
+    t_game      *game;
 
-    if (g_lobby == NULL) {
-        g_lobby = malloc(sizeof(t_lobby));
-        if (g_lobby == NULL) {
-            #ifdef DEBUG
-                fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-            exit(1);
-        }
-        g_lobby->columns = 4;
-        g_lobby->rows = 4;
-        g_lobby->players = 2;
-    }
 
     game = getGame();
 
-    setBackgroundColor(&colorWhite);
 
     // Draw the map list
     rect.x = 0;
@@ -182,6 +226,8 @@ void    drawLobbyMenu() {
         rect.w = w;
         rect.h = h;
 
+        drawMapInRect(&rect, i);
+
         if (i == g_currentMap) {
             pickColor(&colorBlue);
         } else {
@@ -192,7 +238,8 @@ void    drawLobbyMenu() {
             }
         }
         
-        SDL_RenderFillRect(g_renderer, &rect);
+        SDL_RenderDrawRect(g_renderer, &rect);
+
         sprintf(buff, "%lu", i + 1);
         drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true, 0);
     }
@@ -200,27 +247,63 @@ void    drawLobbyMenu() {
     if (g_nbMap == 0) {
         drawText(&colorBlack, gameConfig->video.width / 2, gameConfig->video.height * 0.80, "No map found", true, 0);
     }
+}
 
-    loadFont(FONT_PATH, 30);
+void    drawLobbyMenu() {
+    SDL_Rect    rect;
+    SDL_Color   colorWhite = {255, 255, 255, 255};
+    SDL_Color   colorYellow = {255, 255, 0, 255};
+    SDL_Color   colorBlack = {0, 0, 0, 255};
+    SDL_Color   colorBlue = {0, 0, 255, 255};
+    SDL_Color   colorRed = {255, 0, 0, 255};
+    const t_map *map;
+    char        buff[7];
+    int         gap;
+    short       j;
+    short       nbMaps;
+    short       fromGap;
+
+    if (g_lobby == NULL) {
+        g_lobby = malloc(sizeof(t_lobby));
+        if (g_lobby == NULL) {
+            #ifdef DEBUG
+                fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            exit(1);
+        }
+        g_lobby->columns = 4;
+        g_lobby->rows = 4;
+        g_lobby->players = 2;
+    }
+
+    setBackgroundColor(&colorWhite);
+
+    // as a client, we don't need maps
+    if (!g_clientThread) {
+        drawLobbyMaps();
+
+        loadFont(FONT_PATH, 30);
     
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Rows :", true, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Columns :", true, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.25, "Players :", true, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.15, "Rows :", true, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.20, "Columns :", true, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.15, (gameConfig->video.height) * 0.25, "Players :", true, 0);
 
-    sprintf(buff, "%d", g_lobby->rows);
-    drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true, 0);
+        sprintf(buff, "%d", g_lobby->rows);
+        drawText(g_currentOption == 0 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.15, buff, true, 0);
 
-    sprintf(buff, "%d", g_lobby->columns);
-    drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true, 0);
+        sprintf(buff, "%d", g_lobby->columns);
+        drawText(g_currentOption == 1 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.20, buff, true, 0);
 
-    sprintf(buff, "%d", g_lobby->players);
-    drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, buff, true, 0);
+        sprintf(buff, "%d", g_lobby->players);
+        drawText(g_currentOption == 2 ? &colorBlue : &colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.25, buff, true, 0);
 
-    loadFont(FONT_PATH, 20);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.10, "You can pick a maximum of 10 maps", true, 0);
-    
-    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
-    drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
+        loadFont(FONT_PATH, 20);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.30, (gameConfig->video.height) * 0.10, "You can pick a maximum of 10 maps", true, 0);
+        
+        drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
+        drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
+    }
     
     drawPlayersList();
 };
@@ -230,10 +313,13 @@ void    setupMenuButtons() {
     SDL_Texture     *tex;
     SDL_Color       notSelectedColor;
     SDL_Color       selectedColor;
+    SDL_Color       backgroundColor = {0, 0, 0, 128};
     SDL_Color       *color;
-    SDL_Rect        target;
+    SDL_Rect        rect;
     int             textWidth;
     int             textHeight;
+    int             x;
+    int             y;
 
     selectedColor.r = 255;
     selectedColor.g = 0;
@@ -245,6 +331,16 @@ void    setupMenuButtons() {
     notSelectedColor.b = 255;
     notSelectedColor.a = 255;
 
+    rect.x = gameConfig->video.width * 0.25;
+    rect.y = gameConfig->video.height * 0.05;
+    rect.w = gameConfig->video.width * 0.5;
+    rect.h = gameConfig->video.height * 0.90;
+
+    // background
+    pickColor(&backgroundColor);
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+    SDL_RenderFillRect(g_renderer, &rect);
+
     for (unsigned int i = 0; i < g_currentMenu->nbButtons; i++)
     {
         unsigned short  j;
@@ -255,13 +351,16 @@ void    setupMenuButtons() {
 
         j = g_currentMenu->selectedButton;
 
-        if ((g_currentMenu->buttons + j) == (g_currentMenu->buttons + i)) {
-            color = &selectedColor;
-        } else {
-            color = &notSelectedColor;
-        }
-        
-        tex = getTextureFromString(g_currentMenu->buttons[i], color, NULL);
+        color = ((g_currentMenu->buttons + j) == (g_currentMenu->buttons + i)) ? &selectedColor : &notSelectedColor;
+
+        x = gameConfig->video.width * 0.5;
+        y = gameConfig->video.height * (0.10 * (i + 1));
+
+        loadFont(FONT_PATH, 40);
+        drawText(color, x, y, g_currentMenu->buttons[i], true, 0);
+
+        // get rect
+        tex = getTextureFromString(g_currentMenu->buttons[i], color, 0);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
             #ifdef DEBUG
@@ -270,21 +369,27 @@ void    setupMenuButtons() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
-
-        target.x = (gameConfig->video.width)/2 - textWidth/2;
-        target.y = 100 * i;
-        target.w = 100;
-        target.h = 100;
-
-        op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
-        if (op < 0) {
-            #ifdef DEBUG
-                fprintf(stderr, "Erreur SDL_RenderCopy : %s\n", SDL_GetError());
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-            exit(1);
-        }
         SDL_DestroyTexture(tex);
-        g_buttonsLocation[i] = target;
+
+        rect.x = x - textWidth/2;
+        rect.y = y - textHeight / 2;
+        rect.w = textWidth;
+        rect.h = textHeight;
+
+        g_buttonsLocation[i] = rect;
     }
+}
+
+void    exitMenu() {
+    g_currentMenu = (g_currentMenu->parent == NULL) ? &menuMain : g_currentMenu->parent;
+}
+
+void    assignMenuParents() {
+    menuVideo.parent = &menuSettings;
+    menuAudio.parent = &menuSettings;
+    menuCommands3.parent = &menuCommands2;
+    menuCommands2.parent = &menuCommands1;
+    menuCommands1.parent = &menuSettings;
+
+    menuSettings.parent = &menuMain;
 }

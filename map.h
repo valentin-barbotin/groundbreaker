@@ -6,10 +6,7 @@
 
  #include "config.h"
  #include "player.h"
-
- #define TEX_WALL "./assets/wall.png"
- #define TEX_UNBREAKABLE_WALL "./assets/unbreak.png"
- #define TEX_DIRT "./assets/dirt.png"
+ #include "assets.h"
 
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
@@ -39,6 +36,7 @@
  void    map_print(const t_map *map);
  void    saveMap(const t_map *map);
  void    getMaps();
+ void    drawMapInRect(const SDL_Rect *rectList, size_t index);
  void    drawMap();
  void    getPlayerDirection(SDL_Rect *rect, const t_direction *direction);
  void    drawPlayer(const t_player *player);

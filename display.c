@@ -22,22 +22,33 @@ int     setBackgroundColor(const SDL_Color* color) {
 }
 
 int     setBackgroundImage(const char *name) {
-    int w;
-    int h;
-    SDL_Rect source = {0, 0, 0, 0};
-    SDL_Rect target = {0, 0, 0, 0};
+    SDL_Rect        source = {0, 0, 0, 0};
+    SDL_Rect        target = {0, 0, 0, 0};
+    SDL_Texture     *texture;
 
-    SDL_Texture *tex = getImage(name);
-    if (tex == NULL) {
+    texture = getImage(name);
+    if (texture == NULL) {
         return 1;
     }
-    SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-    source.w = w;
-    source.h = h;
+
+    if (SDL_QueryTexture(texture, NULL, NULL, &source.w, &source.h) < 0) {
+        #ifdef DEBUG
+            fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
 
     target.w = gameConfig->video.width;
     target.h = gameConfig->video.height;
-    drawTexture(name, &source, &target);
+    if (!drawTexture(name, &source, &target)) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error setting background image");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Error setting background image", NULL);
+        exit(1);
+    }
+
     return 0;
 }
 

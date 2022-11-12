@@ -36,5 +36,6 @@
  void    *createServerUDP(void *arg);
  void    *createServer();
  void    multiplayerStart();
+ void    sendPlayerToAll();
 
 #endif

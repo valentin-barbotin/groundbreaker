@@ -7,6 +7,9 @@
 #include "sound.h"
 #include "player.h"
 #include "server.h"
+#include "assets.h"
+
+#define DEBUG
 
 t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
 
@@ -39,10 +42,23 @@ bool    inGame() {
     return (g_currentState >= GAME_PLAY_PLAYING);
 }
 
+bool    isGamePaused() {
+    return (g_currentState == GAME_PLAY_PAUSE);
+}
+
+void    resumeGame() {
+    g_currentState = GAME_PLAY_PLAYING;
+}
+
+void    pauseGame() {
+    g_currentState = GAME_PLAY_PAUSE;
+    g_currentMenu = &menuPause;
+}
+
 void setPath() {
-    walk->file = "./assets/sound/walk.ogg";
-    wall->file = "./assets/sound/wall.ogg";
-    unbreakableWall->file = "./assets/sound/unbreakable_wall.ogg";
+    walk->file = SOUND_WALK;
+    wall->file = SOUND_WALL;
+    unbreakableWall->file = SOUND_UNBREAKABLE_WALL;
     //bomb->file = changemeBombPath;
     //item->file = changemeItemPath;
     //life->file = changemeLifePath;
@@ -60,6 +76,8 @@ t_game* getGame() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
+
+        game->map = NULL;
 
         //TODO
         walk = malloc(sizeof(t_sound));
@@ -86,7 +104,6 @@ t_game* getGame() {
             game->players[i] = initPlayer();
         }
 
-        strcpy(game->players[0]->name, g_username);
         game->nbPlayers = 1;
 
         // setPath for sound
@@ -312,4 +329,69 @@ void    movePlayer() {
     sendPos();
 }
 
+void    handleMouseButtonUpPlaying(const SDL_Event *event) {
+    for (unsigned short i = 0; i < g_currentMenu->nbButtons; ++i) {
+        // get click position
+        int xStart = g_buttonsLocation[i].x;
+        int yStart = g_buttonsLocation[i].y;
 
+        SDL_Point click = { event->button.x, event->button.y };
+        SDL_Rect button = { xStart, yStart, g_buttonsLocation[i].w, g_buttonsLocation[i].h };
+
+        if (SDL_PointInRect(&click, &button))
+        {
+            makeSelection(i);
+        }
+    }
+}
+
+
+void    launchGame() {
+    t_game            *game;
+    short             index;
+    t_map             *tmp[10] = {0};
+
+    game = getGame();
+
+    if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
+        #ifdef DEBUG
+            puts("Not enough players");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+        return;
+    }
+
+    index = -1;
+    for (size_t i = 0; i < g_nbMap; i++)
+    {
+        if (game->maps[i].selected) {
+            if (index == -1) index = 0; //used to check if we have at least one map selected
+            tmp[index++] = &game->maps[i];
+        }
+    }
+    if (index == -1) {
+        printf("No map selected\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "You must select a map", g_window);
+        return;
+    }
+
+    index = rand() % index; //pick a random map between the selected ones
+    printf("index = %d\n", index);
+    game->map = tmp[index];
+
+    spawnPlayer(1, 1, getPlayer());
+
+    if (g_serverRunning) {
+
+        if (game->nbPlayers == game->map->players) {
+            // not enough players to start the game
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+            return;
+        }
+
+        // send start game message
+        multiplayerStart();
+    }
+
+    g_currentState = GAME_PLAY_PLAYING;
+}
