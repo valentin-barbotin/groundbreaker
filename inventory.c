@@ -8,7 +8,9 @@
 #define DEBUG true
 
 void drawInventory() {
-    SDL_Color colorRed = {255, 0, 0, 255};
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+
+    SDL_Color colorGrey = {128, 128, 128, 128};
     SDL_Color colorWhite = {255, 255, 255, 255};
     t_game      *game;
     t_player      *player;
@@ -18,7 +20,7 @@ void drawInventory() {
 
     player->inventory.x = NULL;
 
-    pickColor(&colorRed);
+    pickColor(&colorGrey);
 
     rect.x = (gameConfig->video.width) * 0.175;
     rect.y = (gameConfig->video.height) * 0.92;
