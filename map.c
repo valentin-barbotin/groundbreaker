@@ -169,12 +169,13 @@ t_map   *map_create(unsigned short width, unsigned short height) {
 };
 
 void    map_fill(const t_map *map) {
+    int    random;
     if (map == NULL) return;
 
+    // Fill the map with empty tiles
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             map->map[i][j] = EMPTY;
-
         }
     }
     for (int i = 0; i < map->height; i++) {
@@ -183,26 +184,32 @@ void    map_fill(const t_map *map) {
             map->map[i][0] = UNBREAKABLE_WALL;
             map->map[i][map->width - 1] = UNBREAKABLE_WALL;
             map->map[0][j] = UNBREAKABLE_WALL;
-
-
-        }
-}
-    for (int i = 2; i < map->height-2; i++) {
-        for (int j = 2; j < map->width-2; j++) {
-            map->map[i][(j % 2) * j] = WALL;
-            map->map[(i %2)*i][j] = EMPTY;
-            map->map[i][0] = UNBREAKABLE_WALL;
-            map->map[0][j] = UNBREAKABLE_WALL;
-            map->map[1][1] = PLAYER;
-            map->map[map->height - 2][map->width - 2] = PLAYER;
         }
     }
+
+    // Place the unbreakables walls
     for (int i = 2; i < map->height-2; i++) {
         for (int j = 2; j < map->width-2; j++) {
-            map->map[1][0] = EMPTY;
-            map->map[1][map->width - 1] = EMPTY;
-
+            if (i % 2 == 0 && j % 2 == 0) {
+                map->map[i][j] = UNBREAKABLE_WALL;
+            }
         }
+    }
+
+    // if 1, holes are placed at the top of the map and at the bottom
+    if (rand() % 2) {
+        random = rand() % ((map->width - 2) + 1);
+        if (random == 0) random++;
+        if (random == map->width - 1) random--;
+        map->map[0][random] = EMPTY;
+        map->map[map->height - 1][random] = EMPTY;
+    } else {
+        // if 0, holes are placed at the left of the map and at the right
+        random = rand() % ((map->height - 2) + 1);
+        if (random == 0) random++;
+        if (random == map->height- 1) random--;
+        map->map[random][0] = EMPTY;
+        map->map[random][map->width - 1] = EMPTY;
     }
 }
 

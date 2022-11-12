@@ -239,15 +239,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows--;
-                                if (g_lobby->rows < 1) {
-                                    g_lobby->rows = 1;
+                                g_lobby->rows -= 2;
+                                if (g_lobby->rows < 3) {
+                                    g_lobby->rows = 3;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns--;
-                                if (g_lobby->columns < 1) {
-                                    g_lobby->columns = 1;
+                                g_lobby->columns -= 2;
+                                if (g_lobby->columns < 3) {
+                                    g_lobby->columns = 3;
                                 }
                                 break;
                             case 2:
@@ -274,15 +274,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows++;
-                                if (g_lobby->rows > 10) {
-                                    g_lobby->rows = 10;
+                                g_lobby->rows += 2;
+                                if (g_lobby->rows > 9) {
+                                    g_lobby->rows = 9;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns++;
-                                if (g_lobby->columns > 10) {
-                                    g_lobby->columns = 10;
+                                g_lobby->columns += 2;
+                                if (g_lobby->columns > 9) {
+                                    g_lobby->columns = 9;
                                 }
                                 break;
                             case 2:

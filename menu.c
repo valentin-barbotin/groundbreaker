@@ -272,8 +272,8 @@ void    drawLobbyMenu() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
-        g_lobby->columns = 4;
-        g_lobby->rows = 4;
+        g_lobby->columns = 5;
+        g_lobby->rows = 5;
         g_lobby->players = 2;
     }
 
