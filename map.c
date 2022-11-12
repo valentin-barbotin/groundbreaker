@@ -228,6 +228,49 @@ void    map_print(const t_map *map) {
     printf("\n");
 };
 
+void    drawMapInRect(const SDL_Rect *rectList, size_t index) {
+    SDL_Rect        rect;
+    SDL_Rect        rectdest;
+    const char      *tex;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+    const t_game    *game;
+    const t_map     *map;
+    
+    game = getGame();
+    map = &game->maps[index];
+    cellSizeX = rectList->w / map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    cellSizeY = rectList->h / map->height;
+
+    for (int i = 0; i < map->height; i++) {
+        for (int j = 0; j < map->width; j++) {
+            switch (map->map[i][j])
+            {
+                case WALL:
+                    tex = TEX_WALL;
+                    break;
+                case UNBREAKABLE_WALL:
+                    tex = TEX_UNBREAKABLE_WALL;
+                    break;
+                default:
+                    tex = TEX_DIRT; //player & empty
+                    break;
+            }
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 288; //TODO: dynamic
+            rect.h = 288;
+
+            rectdest.x = j * cellSizeX + rectList->x;
+            rectdest.y = i * cellSizeY + rectList->y;
+            rectdest.w = cellSizeX;
+            rectdest.h = cellSizeY;
+            drawTexture(tex, &rect, &rectdest);
+        }
+    }
+}
+
 
 void    drawMap() {
     SDL_Rect        rect;

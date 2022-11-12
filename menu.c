@@ -226,6 +226,8 @@ void    drawLobbyMaps() {
         rect.w = w;
         rect.h = h;
 
+        drawMapInRect(&rect, i);
+
         if (i == g_currentMap) {
             pickColor(&colorBlue);
         } else {
@@ -236,7 +238,8 @@ void    drawLobbyMaps() {
             }
         }
         
-        SDL_RenderFillRect(g_renderer, &rect);
+        SDL_RenderDrawRect(g_renderer, &rect);
+
         sprintf(buff, "%lu", i + 1);
         drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true, 0);
     }
