@@ -14,6 +14,19 @@
 t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
 
 
+void    injectItems(const t_map *map) {
+    for (size_t i = 1; i < map->height - 1; i++)
+    {
+        for (size_t j = 1; j < map->width - 1; j++)
+        {
+            if (map->map[i][j] == EMPTY && rand() % 100 < 30)
+            {
+                map->map[i][j] = (rand() % 100 < 50) ? LOOT : WALL;
+            }
+        }
+    }
+}
+
 /**
  * @brief Place the player in his cell instead of a wall..
  * 
@@ -378,6 +391,8 @@ void    launchGame() {
     index = rand() % index; //pick a random map between the selected ones
     printf("index = %d\n", index);
     game->map = tmp[index];
+
+    injectItems(game->map);
 
     spawnPlayer(1, 1, getPlayer());
 

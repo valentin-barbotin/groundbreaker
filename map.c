@@ -253,9 +253,6 @@ void    drawMapInRect(const SDL_Rect *rectList, size_t index) {
         for (int j = 0; j < map->width; j++) {
             switch (map->map[i][j])
             {
-                case WALL:
-                    tex = TEX_WALL;
-                    break;
                 case UNBREAKABLE_WALL:
                     tex = TEX_UNBREAKABLE_WALL;
                     break;
@@ -299,6 +296,9 @@ void    drawMap() {
             {
                 case WALL:
                     tex = TEX_WALL;
+                    break;
+                case LOOT:
+                    tex = TEX_LOOT;
                     break;
                 case UNBREAKABLE_WALL:
                     tex = TEX_UNBREAKABLE_WALL;

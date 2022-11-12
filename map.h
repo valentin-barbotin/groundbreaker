@@ -27,7 +27,8 @@
          UNBREAKABLE_WALL = 'U',
          EMPTY = ' ',
          ITEM = 'I',
-         PLAYER = 'P'
+         PLAYER = 'P',
+         LOOT = 'L'
  }               t_type;
 
  t_map   *map_create(unsigned short width, unsigned short height);
