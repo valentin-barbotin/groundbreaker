@@ -14,7 +14,8 @@
  #define PLAYER_WIDTH   50
  #define PLAYER_HEIGHT  73
 
- extern t_menu  menuPause;
+ extern t_menu      menuPause;
+ extern SDL_Rect    g_buttonsLocation[MAX_MENU_BUTTONS];
 
  typedef struct     s_game
  {
@@ -35,5 +36,6 @@
  t_game  *getGame();
  void    movePlayer();
  void    posToGrid();
+ void    handleMouseButtonUpPlaying(const SDL_Event *event);
 
 #endif

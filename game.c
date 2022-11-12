@@ -329,4 +329,69 @@ void    movePlayer() {
     sendPos();
 }
 
+void    handleMouseButtonUpPlaying(const SDL_Event *event) {
+    for (unsigned short i = 0; i < g_currentMenu->nbButtons; ++i) {
+        // get click position
+        int xStart = g_buttonsLocation[i].x;
+        int yStart = g_buttonsLocation[i].y;
 
+        SDL_Point click = { event->button.x, event->button.y };
+        SDL_Rect button = { xStart, yStart, g_buttonsLocation[i].w, g_buttonsLocation[i].h };
+
+        if (SDL_PointInRect(&click, &button))
+        {
+            makeSelection(i);
+        }
+    }
+}
+
+
+void    launchGame() {
+    t_game            *game;
+    short             index;
+    t_map             *tmp[10] = {0};
+
+    game = getGame();
+
+    if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
+        #ifdef DEBUG
+            puts("Not enough players");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+        return;
+    }
+
+    index = -1;
+    for (size_t i = 0; i < g_nbMap; i++)
+    {
+        if (game->maps[i].selected) {
+            if (index == -1) index = 0; //used to check if we have at least one map selected
+            tmp[index++] = &game->maps[i];
+        }
+    }
+    if (index == -1) {
+        printf("No map selected\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "You must select a map", g_window);
+        return;
+    }
+
+    index = rand() % index; //pick a random map between the selected ones
+    printf("index = %d\n", index);
+    game->map = tmp[index];
+
+    spawnPlayer(1, 1, getPlayer());
+
+    if (g_serverRunning) {
+
+        if (game->nbPlayers == game->map->players) {
+            // not enough players to start the game
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+            return;
+        }
+
+        // send start game message
+        multiplayerStart();
+    }
+
+    g_currentState = GAME_PLAY_PLAYING;
+}
