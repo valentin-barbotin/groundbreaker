@@ -1,16 +1,17 @@
 #include "items.h"
 
 t_item static items[NB_ITEMS] = {
-    {ITEM_BOMB_UP, "Bomb Up", 0, 0,false, 1, 0, 0, NULL, false, false,  NULL},
-    {ITEM_BOMB_DOWN, "Bomb Down", 0, 0, false,1,0, 0, NULL, false, false,  NULL},
-    {ITEM_YELLOW_FLAME, "Yellow Flame", 0, 0, false, 0,1, 0, NULL, false, false,  NULL},
-    {ITEM_BLUE_FLAME, "Blue Flame", 0, 0, false, 0, 1,0, NULL, false, false,   NULL},
-    {ITEM_RED_FLAME, "Red Flame", 0, 0, true, 0, 999, 0, NULL, false, false,  NULL},
-    {ITEM_PASS_THROUGH_BOMB, "Pass Through Bomb", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
-    {ITEM_BOMB_KICK, "Bomb Kick", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
-    {ITEM_INVINCIBILITY, "Invincibility", 0, 0, false, 0, 0, 1000, NULL, false, false,  NULL},
-    {ITEM_HEART, "Heart", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
-    {ITEM_LIFE, "Life", 0, 0, false, 0, 0, 0, NULL, false, false,  NULL}
+        {ITEM_BOMB, 0, 0, 0,false, 100, 0, 0, NULL, false, false,  NULL},
+        {ITEM_BOMB_UP, 0, 0, 0,false, 1, 0, 0, NULL, false, false,  NULL},
+        {ITEM_BOMB_DOWN, 0, 0, 0, false,1,0, 0, NULL, false, false,  NULL},
+        {ITEM_YELLOW_FLAME, 0, 0, 0, false, 0,1, 0, NULL, false, false,  NULL},
+        {ITEM_BLUE_FLAME, 0, 0, 0, false, 0, 1,0, NULL, false, false,   NULL},
+        {ITEM_RED_FLAME, 0, 0, 0, true, 0, 999, 0, NULL, false, false,  NULL},
+        {ITEM_PASS_THROUGH_BOMB, 0, 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
+        {ITEM_BOMB_KICK, 0, 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
+        {ITEM_INVINCIBILITY, 0, 0, 0, false, 0, 0, 1000, NULL, false, false,  NULL},
+        {ITEM_HEART, 0, 0, 0, false, 0, 0, 0, NULL, false, false,  NULL},
+        {ITEM_LIFE, 0, 0, 0, false, 0, 0, 0, NULL, false, false,  NULL}
 };
 
 

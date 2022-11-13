@@ -10,6 +10,8 @@
 #include "player.h"
 
 #define DEBUG true
+#define GETCELL(i,j)(map->[i][j])
+
 
 short       g_nbMap = 0;
 
@@ -257,6 +259,53 @@ void    drawMap() {
                     break;
             }
 
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 288; //TODO: dynamic
+            rect.h = 288;
+
+            rectdest.x = j * cellSizeX;
+            rectdest.y = i * cellSizeY;
+            rectdest.w = cellSizeX;
+            rectdest.h = cellSizeY;
+            drawTexture(tex, &rect, &rectdest);
+
+            switch (map->map[i][j]){
+                case BOMB:
+                    tex = TEX_BOMB;
+                    break;
+                case BOMB_UP:
+                    tex = TEX_BOMB_UP;
+                    break;
+                case BOMB_DOWN:
+                    tex = TEX_BOMB_DOWN;
+                    break;
+                case YELLOW:
+                    tex = TEX_YELLOW_FLAME;
+                    break;
+                case RED:
+                    tex = TEX_RED_FLAME;
+                    break;
+                case BLUE:
+                    tex = TEX_BLUE_FLAME;
+                    break;
+                case BOMB_KICK:
+                    tex = TEX_BOMB_KICK;
+                    break;
+                case PASS_THROUGH_BOMB:
+                    tex = TEX_PASS_THROUGH_BOMB;
+                    break;
+                case INVINCIBILITY:
+                    tex=TEX_INVINCIBILITY;
+                    break;
+                case HEART:
+                    tex=TEX_HEART;
+                    break;
+                case LIFE:
+                    tex=TEX_LIFE;
+                    break;
+            }
             rect.x = 0;
             rect.y = 0;
             rect.w = 288; //TODO: dynamic
@@ -269,6 +318,7 @@ void    drawMap() {
             drawTexture(tex, &rect, &rectdest);
         }
     }
+
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {

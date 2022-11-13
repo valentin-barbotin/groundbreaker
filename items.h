@@ -1,7 +1,8 @@
 #ifndef ITEMS_H
     #define ITEMS_H
 
-    #include <SDL.h>
+
+#include <SDL.h>
     #include <SDL_ttf.h>
     #include <stdio.h>
     #include "config.h"
@@ -19,19 +20,15 @@
     #define ITEM_LIFE 10
     #define NB_ITEMS 11
 
-    typedef struct s_item {
-        int     type;
-        char    *name;
-        int     x;
-        int     y;
-        bool    isRare;
-        int     quantity;
-        int     duration;
-        struct s_item *next;
-        bool    active;
-        bool    isUsed;
-        SDL_Texture *texture;
-    } t_item;
+typedef struct s_item {
+    int     type;
+    int     xCell;
+    int     yCell;
+    bool    isRare;
+    int     quantity;
+    int     duration;
+    bool    isActive;
+} t_item;
 
     t_item *getItem(int type);
 

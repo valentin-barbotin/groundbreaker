@@ -27,7 +27,19 @@
          UNBREAKABLE_WALL = 'U',
          EMPTY = ' ',
          ITEM = 'I',
-         PLAYER = 'P'
+         PLAYER = 'P',
+         BOMB_UP ='A',
+         BOMB_DOWN = 'D',
+         YELLOW = 'J',
+         RED ='R',
+         BLUE ='E',
+         BOMB_KICK = 'K',
+         PASS_THROUGH_BOMB = 'T',
+         INVINCIBILITY = 'Z',
+         HEART = 'H',
+         LIFE = 'L'
+
+
  }               t_type;
 
  t_map   *map_create(unsigned short width, unsigned short height);
