@@ -54,6 +54,7 @@ void drawInventory() {
 
 void drawSelectedItem() {
     SDL_Color   colorYellow = {255, 255, 0, 255};
+    SDL_Color   colorBlack = {0, 0, 0, 255};
     SDL_Rect    rect;
     t_player    *player;
     player = getPlayer();
@@ -73,4 +74,5 @@ void drawSelectedItem() {
         rect.h += 2;
         SDL_RenderDrawRect(g_renderer, &rect);
     }
+    pickColor(&colorBlack);
 }
