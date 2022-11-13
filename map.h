@@ -32,7 +32,7 @@
          EMPTY = ' ',
          ITEM = 'I',
          GRAVEL = 'G',
-         PLAYER = 'P'
+         PLAYER = 'P',
          LOOT = 'L'
  }               t_type;
 

@@ -438,20 +438,18 @@ void    posToGridN(int x, int y, int *cellX, int *cellY) {
 }
 
 void explodeBomb(int xCell, int yCell) {
-    t_player    *player;
-    t_map* map;
+    const t_map*      map;
+    t_player          *player;
 
     player = getPlayer();
     map = getGame()->map;
     GETCELL(yCell, xCell) = EMPTY;
 
-    // posToGrid but with 2 int pointers
-    posToGrid(player->x, player->y);
-
     // pour chaque direction (UP, DOWN, LEFT, RIGHT)
-    for (int k = 0; k < NB_DIRECTIONS; k++) {
-        searchDirectionMap(k, player->scope);
-    }
+    searchDirectionMap(DIR_UP, player->scope);
+    searchDirectionMap(DIR_DOWN, player->scope);
+    searchDirectionMap(DIR_LEFT, player->scope);
+    searchDirectionMap(DIR_RIGHT, player->scope);
 }
 
 void    handleMouseButtonUpPlaying(const SDL_Event *event) {
