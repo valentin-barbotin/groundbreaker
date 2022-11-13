@@ -173,6 +173,20 @@ void    movePlayer(t_player *player) {
         exit(1);
     }
 
+    if (!isAlive(player)) {
+        exit(1);
+    }
+
+    // TODO: if the timer is finished, the bomb explodes
+    // if(getTimeLeft(timerBomb) == 0) {
+    //     explodeBomb(player->xCell, player->yCell);
+    // }
+
+    // TODO: if the timer is finished, the item disappears
+    // if(getTimeLeft(timerInvincible) == 0) {
+    //     player->invincible = false;
+    // }
+
     checkBorders();
 
     stopped = false;
@@ -201,7 +215,7 @@ void    movePlayer(t_player *player) {
 
     //if the player is moving out of the map then we move him at the other side if possible
     if (player->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
-        if (map->map[player->yCell][0] == EMPTY) {
+        if(GETCELL(0, player->yCell) == EMPTY) {
             // move the player to the other side
             player->x = 0;
         }
@@ -209,14 +223,14 @@ void    movePlayer(t_player *player) {
         // if the player is on the left side of the map and he is moving left then we move him to the right side of the map
         
         // check if the player can be placed on the next cell
-        if (map->map[player->yCell][game->map->width - 1] == EMPTY) {
+        if (GETCELL(game->map->width-1, player->yCell) == EMPTY) {
             // move the player to the other side
             player->x = gameConfig->video.width - PLAYER_WIDTH/2;
         }
     }
 
     if (player->y >= (gameConfig->video.height - PLAYER_HEIGHT/2)) {
-        if (map->map[0][player->xCell] == EMPTY) {
+        if (GETCELL(player->xCell, 0) == EMPTY) {
             // move the player to the other side
             player->y = 0;
         }
@@ -224,42 +238,42 @@ void    movePlayer(t_player *player) {
         // if the player is on the top side of the map and he is moving up then we move him to the bottom side of the map
         
         // check if the player can be placed on the next cell
-        if (map->map[game->map->height - 1][player->xCell] == EMPTY) {
+        if (GETCELL(player->xCell, game->map->height-1) == EMPTY) {
             // move the player to the other side
             player->y = gameConfig->video.height - PLAYER_HEIGHT/2;
         }
     }
 
 
-    switch (map->map[player->yCell][player->xCell]) {
+    switch (GETCELL(player->xCell, player->yCell)) {
         case WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
             stopped = true;
-            
+
             if (Mix_PlayingMusic() == 1) {
-                if(!stopSound(wall)) {
+                if (!stopSound(wall)) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error: can't stop sound\n");
+                            fprintf(stderr, "Error: can't stop sound\n");
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
                 }
-            } else if(Mix_PlayingMusic() == 0) {
-                initMusic(wall); 
-                if(wall->music == NULL) {
+            } else if (Mix_PlayingMusic() == 0) {
+                initMusic(wall);
+                if (wall->music == NULL) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
+                            fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
                 }
                 playSound(wall);
-            } else if(Mix_PlayingMusic() == 1) {
-                if(!stopSound(wall)) {
+            } else if (Mix_PlayingMusic() == 1) {
+                if (!stopSound(wall)) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error: can't stop sound\n");
+                            fprintf(stderr, "Error: can't stop sound\n");
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
@@ -277,21 +291,21 @@ void    movePlayer(t_player *player) {
             player->x -= player->vx;
             player->y -= player->vy;
             stopped = true;
-            
-            if(Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
 
-            if(Mix_PlayingMusic() == 0) {
+            if (Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
+
+            if (Mix_PlayingMusic() == 0) {
                 if (walk == NULL) {
-                    #ifdef DEBUG
+                #ifdef DEBUG
                         fprintf(stderr, "Error: malloc failed in movePlayer()\n");
-                    #endif
+                #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
                 }
                 initMusic(unbreakableWall);
-                if(unbreakableWall->music == NULL) {
+                if (unbreakableWall->music == NULL) {
                     #ifdef DEBUG
-                        fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
+                                fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
                     #endif
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
                     exit(1);
@@ -300,7 +314,7 @@ void    movePlayer(t_player *player) {
                 // TODO: Timer to not play the sound every frame
                 playSound(unbreakableWall);
 
-            }else if(Mix_PlayingMusic() == 1) {
+            } else if (Mix_PlayingMusic() == 1) {
                 if (!stopSound(unbreakableWall)) {
                     #ifdef DEBUG
                         fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
@@ -310,14 +324,33 @@ void    movePlayer(t_player *player) {
                 }
             }
             break;
-        // case BOMB:
-        //     map->map[game->yCell][game->xCell] = PLAYER;
-        //     // TODO : player is on a bomb so the player must die
-        //     break;
-        // case ITEM:
-        //     map->map[game->yCell][game->xCell] = PLAYER;
-        //     // TODO : Remove the item from the map and add it to the inventory
-        //     break;
+        case BOMB:
+            // if the player is on a bomb kill him if he is not invicible
+            if (player->godMode == 1) {
+                break;
+            } else if (player->passThroughBomb) {
+                // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
+                searchDirectionMap(getDirection(player), 2);
+                break;
+            }else if(player->bombKick) {
+                // search in direction of the player and kick the bomb
+                searchDirectionMap(player->direction, 999);
+                break;
+            } else if (player->canSurviveExplosion) {
+                player->canSurviveExplosion = false;
+                player->inventory[ITEM_HEART]->quantity = -1;
+                break;
+            } else {
+                player->x -= player->vx;
+                player->y -= player->vy;
+                player->health -= 100;
+                break;
+            }
+
+        case ITEM:
+            player->inventory[GETCELL(player->xCell, player->yCell)]->quantity++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            break;
         default:
             if(isMoving(player)) {
                 if (Mix_PlayingMusic() == 0) {
@@ -376,6 +409,51 @@ void    movePlayer(t_player *player) {
     }
 }
 
+
+void    posToGridN(int x, int y, int *cellX, int *cellY) {
+    unsigned int   cellSizeX;
+    unsigned int   cellSizeY;
+    t_game         *game;
+
+    game = getGame();
+
+    // can't divide by 0
+    if (x) {
+        cellSizeX = gameConfig->video.width / game->map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+        // avoid xCell to be equal to map->width (segfault, col 6 doesn't exist for a map of 6 cols)
+        if (x != gameConfig->video.width) {
+            *cellX = (x / cellSizeX);
+        }
+    }
+
+    if (y) {
+        cellSizeY = gameConfig->video.height / game->map->height;
+        if (y != gameConfig->video.height) {
+            *cellY = (y / cellSizeY);
+        }
+    }
+
+    // find the nearest multiple of cellSize(s)
+    // ex: 768 / 166 = 4.6 => 4
+}
+
+void explodeBomb(int xCell, int yCell) {
+    t_player    *player;
+    t_map* map;
+
+    player = getPlayer();
+    map = getGame()->map;
+    GETCELL(yCell, xCell) = EMPTY;
+
+    // posToGrid but with 2 int pointers
+    posToGrid(player->x, player->y);
+
+    // pour chaque direction (UP, DOWN, LEFT, RIGHT)
+    for (int k = 0; k < NB_DIRECTIONS; k++) {
+        searchDirectionMap(k, player->scope);
+    }
+}
+
 void    handleMouseButtonUpPlaying(const SDL_Event *event) {
     for (unsigned short i = 0; i < g_currentMenu->nbButtons; ++i) {
         // get click position
@@ -388,6 +466,105 @@ void    handleMouseButtonUpPlaying(const SDL_Event *event) {
         if (SDL_PointInRect(&click, &button))
         {
             makeSelection(i);
+        }
+    }
+}
+
+void searchDirectionMap(t_direction direction, int scope) {
+    t_game   *game;
+    t_player *player;
+    const    t_map     *map;
+    game = getGame();
+    player = getPlayer();
+    map = game->map;
+    int cell, i, cellX, cellY;
+
+    if (map == NULL) {
+        #ifdef DEBUG
+                fprintf(stderr, "Error: map is NULL in searchDirectionMap()\n");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        exit(1);
+    }
+
+    switch(direction) {
+        case DIR_UP:
+            cellX = player->xCell;
+            cellY = player->yCell - i;
+            break;
+        case DIR_DOWN:
+            cellX = player->xCell;
+            cellY = player->yCell + i;
+            break;
+        case DIR_LEFT:
+            cellX = player->xCell - i;
+            cellY = player->yCell;
+            break;
+        case DIR_RIGHT:
+            cellX = player->xCell + i;
+            cellY = player->yCell;
+            break;
+        default:
+            break;
+    }
+
+    for (i = 1; i <= scope; i++) {
+        cell = GETCELL(cellY, cellX);
+        switch (cell) {
+            case WALL:
+                cell = GRAVEL;
+                if(player->bombKick) {
+                    // on met la bombe sur la case précédente
+                    GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
+                    return;
+                }
+                break;
+            case UNBREAKABLE_WALL:
+                // on arrête la bombe dans sa course
+                if(player->bombKick) {
+                    // on met la bombe sur la case précédente
+                    GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
+                    return;
+                }
+                i = scope;
+                break;
+            case PLAYER:
+                // if the player is on a bomb kill him if he is not invicible
+                if (player->godMode == 1) {
+                    break;
+                } else if (player->passThroughBomb) {
+                    // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
+                    break;
+                }else if(player->bombKick) {
+                    if (GETCELL(player->xCell + player->vx, player->yCell + player->vy) == EMPTY) {
+                        // move the bomb to the next cell
+                        GETCELL(player->xCell + player->vx, player->yCell + player->vy) = BOMB;
+                        GETCELL(player->xCell, player->yCell) = EMPTY;
+                        // move the player to the next cell
+                        player->x += player->vx;
+                        player->y += player->vy;
+                    }
+                    break;
+                } else if (player->canSurviveExplosion) {
+                    player->canSurviveExplosion = false;
+                    player->inventory[ITEM_HEART]->quantity = -1;
+                    break;
+                } else {
+                    player->x -= player->vx;
+                    player->y -= player->vy;
+                    player->health -= 100;
+                    break;
+                }
+            case BOMB:
+                if(player->passThroughBomb) {
+                    player->x += player->vx;
+                    break;
+                }
+
+                explodeBomb(cellX, cellY);
+                break;
+            default:
+                break;
         }
     }
 }

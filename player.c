@@ -42,8 +42,11 @@ t_player        *initPlayer() {
     player->vy = 0;
     player->xCell = 0;
     player->yCell = 0;
+    player->health = 100;
+    player->scope = 2;
     player->isBot = false;
 
+    initInventory(player);
     return player;
 }
 
@@ -105,4 +108,52 @@ void    doSendPos(const t_player *player) {
     // update the grid position for other players
     sprintf(buffer, "MOVE:%d %d %u %hu%c", player->x, player->y, player->direction, g_playersMultiIndex, '\0');
     sendToAllUDP(buffer, NULL);
+}
+
+void        printInventory() {
+    t_player    *player;
+    player = getPlayer();
+    /*
+    for(int k = 0; k < NB_ITEMS; k++) {
+        if (player->inventory[k] != NULL) {
+            printf("Item %d: %d", k, player->inventory[k]->quantity);
+        }
+    }
+     */
+}
+
+void       initInventory(t_player *player) {
+    // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
+   player->inventory[0] = getItem(ITEM_BOMB);
+
+        /*
+        for (int k = ITEM_BOMB; k < NB_ITEMS; k++) {
+            //malloc(sizeof(t_item));
+            printf("p");
+            //player->inventory[k] = malloc(sizeof(t_item));
+            //player->inventory[k] = getItem(k);
+        }
+         */
+
+}
+
+/**
+ * @brief      Player has the item in his inventory
+ * @param item
+ * @return
+ */
+bool        hasItemInInventory(t_player *player, t_item *item) {
+    if (player->inventory[item->type] != NULL && player->inventory[item->type]->quantity > 0) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief      Verify if the player is alive
+ * @param item
+ * @return
+ */
+bool        isAlive(t_player *player) {
+    return (player->health > 0);
 }

@@ -4,8 +4,9 @@
  #include <stdbool.h>
 
  #include <SDL.h>
+#include "items.h"
 
- extern SDL_Window*     g_window;
+extern SDL_Window*     g_window;
  extern SDL_Renderer*   g_renderer;
  extern bool            g_serverRunning;
 
@@ -21,7 +22,8 @@
             DIR_UP_LEFT,
             DIR_UP_RIGHT,
             DIR_DOWN_LEFT,
-            DIR_DOWN_RIGHT
+            DIR_DOWN_RIGHT,
+            NB_DIRECTIONS = 4
  }                  t_direction;
 
  typedef struct     s_player
@@ -36,6 +38,12 @@
      int             health;
      int             score;
      t_direction     direction;
+     int             scope;
+     bool            godMode;
+     bool            passThroughBomb;
+     bool            bombKick;
+     bool            canSurviveExplosion;
+     t_item          *inventory[NB_ITEMS];
      bool            isBot;
  }                  t_player;
 
@@ -47,5 +55,9 @@
  bool            isMoving(const t_player *player);
  void            sendPos();
  void            doSendPos(const t_player *player);
+ void            printInventory();
+ bool            hasItemInInventory(t_player *player, t_item *item);
+ void            initInventory(t_player *player);
+ bool            isAlive(t_player *player);
 
 #endif
