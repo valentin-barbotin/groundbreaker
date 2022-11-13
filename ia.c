@@ -7,33 +7,69 @@ t_player    *g_bots[MAX_BOTS];
 short        g_nbBots = 0;
 
 void    searchBotsPos(const t_map *map) {
+    bool    ok;
 
-    // find a line of empty cells
-    for (short i = 1; i < map->height - 2; i++) {
-        for (short j = 1; j < map->width - 2; j++) {
-            // minimum 3 empty cells
-            if (map->map[i][j] == EMPTY && map->map[i][j + 1] == EMPTY && map->map[i][j + 2] == EMPTY) {
-                printf("found empty line at %d, %d\n", i, j);
-                spawnBot(map, j, i, DIR_RIGHT);
+    for (short y = 1; y < map->height - 2; y++) {
+        for (short x = 1; x < map->width - 2; x++) {
+            // find a line of empty cells (min 3)
+            if (map->map[y][x] == EMPTY && map->map[y][x + 1] == EMPTY && map->map[y][x + 2] == EMPTY) {
+                #ifdef DEBUG
+                    printf("found empty line x:%d, y:%d\n", x, y);
+                #endif
+
+                // check proximity of bots
+                ok = true;
+                for (short i = 0; i < g_nbBots; i++)
+                {
+                    if (g_bots[i]->yCell == y && g_bots[i]->direction == DIR_RIGHT) {
+                        ok = false;
+                        break;
+                    }
+                }
+
+                if (ok) {
+                    spawnBot(map, x, y, DIR_RIGHT);
+                }
+                break;
+            // find a column of empty cells (min 3)
+            } else if (map->map[y][x] == EMPTY && map->map[y + 1][x] == EMPTY && map->map[y + 2][x] == EMPTY) {
+                #ifdef DEBUG
+                    printf("found empty column x:%d, y:%d\n", x, y);
+                #endif
+                // check proximity of bots
+                ok = true;
+                for (short i = 0; i < g_nbBots; i++)
+                {
+                    if (g_bots[i]->xCell == x && g_bots[i]->direction == DIR_DOWN) {
+                        ok = false;
+                        break;
+                    }
+                }
+
+                if (ok) {
+                    spawnBot(map, x, y, DIR_DOWN);
+                }
                 break;
             }
         }
     }
 
-    // find a column of empty cells
-    for (short i = 1; i < map->height - 2; i++) {
-        for (short j = 1; j < map->width - 2; j++) {
-            // minimum 3 empty cells
-            if (map->map[i][j] == EMPTY && map->map[i + 1][j] == EMPTY && map->map[i + 2][j] == EMPTY) {
-                printf("found empty column at %d, %d\n", i, j);
-                spawnBot(map, j, i, DIR_DOWN);
-                break;
-            }
-        }
-    }
 }
 
 void    spawnBot(const t_map *map, short x, short y, t_direction direction) {
+    if (x < 0 || y < 0 || x >= map->width || y >= map->height) {
+        #ifdef DEBUG
+            fprintf(stderr, "spawnBot: invalid position x:%d, y:%d\n", x, y);
+        #endif
+        return;
+    }
+
+    if (x == 1 && y == 1) {
+        #ifdef DEBUG
+            fprintf(stderr, "spawnBot: invalid position x:%d, y:%d\n", x, y);
+        #endif
+        return;
+    }
     unsigned int    cellSizeX;
     unsigned int    cellSizeY;
 
