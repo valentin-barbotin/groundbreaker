@@ -2,6 +2,7 @@
 #include "game.h"
 #include "moves.h"
 #include "player.h"
+#include "tchat.h"
 
 #define DEBUG true
 
@@ -54,6 +55,9 @@ void    handleKeyUpPlay(const SDL_Event *event) {
                     break;
                 case SDLK_RIGHT:
                     player->vx -= VELOCITY;
+                    break;
+                case SDLK_t:
+                    askTchatMessage();
                     break;
                 default:
                     break;

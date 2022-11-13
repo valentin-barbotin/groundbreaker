@@ -33,6 +33,7 @@
  void    pauseGame();
  void    setPath();
  void    game_quit();
+ void    launchGame();
  t_game  *getGame();
  void    movePlayer();
  void    posToGrid();

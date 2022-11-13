@@ -9,6 +9,7 @@
 #include "display.h"
 #include "player.h"
 #include "font.h"
+#include "tchat.h"
 
 #define DEBUG true
 
@@ -310,9 +311,13 @@ void    drawMap() {
             rectdest.y = i * cellSizeY;
             rectdest.w = cellSizeX;
             rectdest.h = cellSizeY;
+
             drawTexture(tex, &rect, &rectdest);
         }
     }
+
+    drawTchat();
+
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
