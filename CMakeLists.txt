@@ -22,8 +22,19 @@ find_package(Threads REQUIRED)
 add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c player.c sound.c inventory.c settings.c items.c ia.c discord.c)
 
 add_library(DISCORD SHARED IMPORTED)
-set_property(TARGET DISCORD PROPERTY IMPORTED_LOCATION ${DISCORD_LIB}/discord_game_sdk.so)
-target_link_libraries(groundbreaker DISCORD SDL2::SDL2 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} SDL2::GFX ${SDL2_SOUND_LIBRARIES} ${SDL2_MIXER_LIBRARIES} Threads::Threads)
+if (UNIX)
+    set_property(TARGET DISCORD PROPERTY IMPORTED_LOCATION ${DISCORD_LIB}/discord_game_sdk.so)
+endif(UNIX)
+
+if (APPLE)
+    set_property(TARGET DISCORD PROPERTY IMPORTED_LOCATION ${DISCORD_LIB}/discord_game_sdk.dylib)
+endif(APPLE)
+
+
+if(WIN32)
+    set_property(TARGET DISCORD PROPERTY IMPORTED_LOCATION ${DISCORD_LIB}/discord_game_sdk.dll)
+endif(WIN32)
+    target_link_libraries(groundbreaker DISCORD SDL2::SDL2 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} SDL2::GFX ${SDL2_SOUND_LIBRARIES} ${SDL2_MIXER_LIBRARIES} Threads::Threads)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
