@@ -24,6 +24,8 @@
 #define TICKS_PER_FRAME 1000 / FPS_MAX
 extern t_gameConfig    *gameConfig;
 extern void    assignMenuParents();
+extern t_player         *g_bots[MAX_BOTS];
+extern short            g_nbBots;
 
 #define DEBUG true
 
@@ -168,7 +170,13 @@ int main(int argc, char **argv)
                 setupMenu();
                 SDL_Delay(30);
             } else {
-                movePlayer();
+                // move bots
+                for (size_t i = 0; i < g_nbBots; i++)
+                {
+                    movePlayer(g_bots[i]);
+                }
+
+                movePlayer(getPlayer());
             }
         }
 

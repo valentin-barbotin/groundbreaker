@@ -325,6 +325,12 @@ void    drawMap() {
     {
         drawPlayer(game->players[i]);
     }
+
+    // bots
+    for (size_t i = 0; i < g_nbBots; i++)
+    {
+        drawPlayer(g_bots[i]);
+    }
 }
 
 void getPlayerDirection(SDL_Rect *rect, const t_direction *direction) {

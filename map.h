@@ -11,6 +11,9 @@
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
 
+ extern t_player         *g_bots[MAX_BOTS];
+ extern short            g_nbBots;
+
  typedef struct     s_map
  {
      unsigned short     width;

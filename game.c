@@ -8,6 +8,7 @@
 #include "player.h"
 #include "server.h"
 #include "assets.h"
+#include "ia.h"
 
 #define DEBUG
 
@@ -127,14 +128,12 @@ t_game* getGame() {
     return game;
 }
 
-void    posToGrid() {
-    unsigned int   cellSizeX;
-    unsigned int   cellSizeY;
-    t_game         *game;
-    t_player       *player;
+void    posToGrid(t_player *player) {
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+    const t_game    *game;
 
     game = getGame();
-    player = getPlayer();
 
     // can't divide by 0
     if (player->x) {
@@ -157,16 +156,14 @@ void    posToGrid() {
 }
 
 
-void    movePlayer() {
+void    movePlayer(t_player *player) {
     t_game          *game;
-    t_player        *player;
     const t_map     *map;
     char            buffer[100];
+    bool            stopped;
 
     game = getGame();
-    player = getPlayer();
     map = game->map;
-
 
     if (map == NULL) {
         #ifdef DEBUG
@@ -177,6 +174,8 @@ void    movePlayer() {
     }
 
     checkBorders();
+
+    stopped = false;
 
     // make the move
     player->x += player->vx;
@@ -198,7 +197,7 @@ void    movePlayer() {
     }
 
     // update the grid position
-    posToGrid();
+    posToGrid(player);
 
     //if the player is moving out of the map then we move him at the other side if possible
     if (player->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
@@ -237,6 +236,7 @@ void    movePlayer() {
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
+            stopped = true;
             
             if (Mix_PlayingMusic() == 1) {
                 if(!stopSound(wall)) {
@@ -247,7 +247,7 @@ void    movePlayer() {
                     exit(1);
                 }
             } else if(Mix_PlayingMusic() == 0) {
-                initMusic(wall);
+                initMusic(wall); 
                 if(wall->music == NULL) {
                     #ifdef DEBUG
                         fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
@@ -271,6 +271,7 @@ void    movePlayer() {
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
+            stopped = true;
             
             if(Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
 
@@ -338,10 +339,36 @@ void    movePlayer() {
             }
             break;
     }
-    posToGrid();
+    posToGrid(player);
+
+    if (player->isBot && stopped) {
+        // inverse the direction of the bot
+        switch (player->direction)
+        {
+            case DIR_LEFT:
+                player->vx = BOT_SPEED;
+                break;
+            case DIR_RIGHT:
+                player->vx = -BOT_SPEED;
+                break;
+
+            case DIR_UP:
+                player->vy = BOT_SPEED;
+                break;
+            case DIR_DOWN:
+                player->vy = -BOT_SPEED;
+                break;
+            
+            default:
+                break;
+        }
+    }
+
     player->direction = getDirection(player);
 
-    sendPos();
+    if (!player->isBot) {
+        sendPos();
+    }
 }
 
 void    handleMouseButtonUpPlaying(const SDL_Event *event) {
@@ -408,6 +435,8 @@ void    launchGame() {
 
         // send start game message
         multiplayerStart();
+    } else {
+        searchBotsPos(game->map);
     }
 
     g_currentState = GAME_PLAY_PLAYING;

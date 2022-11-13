@@ -42,6 +42,7 @@ t_player        *initPlayer() {
     player->vy = 0;
     player->xCell = 0;
     player->yCell = 0;
+    player->isBot = false;
 
     return player;
 }

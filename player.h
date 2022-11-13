@@ -36,6 +36,7 @@
      int             health;
      int             score;
      t_direction     direction;
+     bool            isBot;
  }                  t_player;
 
  char            *getUsername();

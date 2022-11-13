@@ -35,8 +35,8 @@
  void    setPath();
  void    game_quit();
  t_game  *getGame();
- void    movePlayer();
- void    posToGrid();
+ void    movePlayer(t_player *player);
+ void    posToGrid(t_player *player);
  void    handleMouseButtonUpPlaying(const SDL_Event *event);
 
 #endif
