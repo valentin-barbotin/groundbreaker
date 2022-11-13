@@ -16,12 +16,10 @@ size_t  g_messages_nb = 0;
  * @return {void}
 */
 void    drawTchat() {
-    t_game *game;
     SDL_Rect rect;
     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
     SDL_Color color = {0, 0, 0, 128};
 
-    game = getGame();
     pickColor(&color);
 
     rect.x = 0;
@@ -49,10 +47,7 @@ void    askTchatMessage() {
  * @return {void}
  */
 void    askTchatMessageCallback(const char *msg) {
-    t_game *game;
     t_player *player;
-
-    game = getGame();
     player = getPlayer();
 
     if (msg) {
