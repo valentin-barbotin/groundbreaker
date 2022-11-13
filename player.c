@@ -124,17 +124,17 @@ void        printInventory() {
 
 void       initInventory(t_player *player) {
     // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
-   player->inventory[0] = getItem(ITEM_BOMB);
-
-        /*
-        for (int k = ITEM_BOMB; k < NB_ITEMS; k++) {
-            //malloc(sizeof(t_item));
-            printf("p");
-            //player->inventory[k] = malloc(sizeof(t_item));
-            //player->inventory[k] = getItem(k);
-        }
-         */
-
+    player->inventory[ITEM_BOMB] = g_items + ITEM_BOMB;
+    player->inventory[ITEM_BOMB_UP] = g_items + ITEM_BOMB_UP;
+    player->inventory[ITEM_BOMB_DOWN] = g_items + ITEM_BOMB_DOWN;
+    player->inventory[ITEM_YELLOW_FLAME] = g_items + ITEM_YELLOW_FLAME;
+    player->inventory[ITEM_BLUE_FLAME] = g_items + ITEM_BLUE_FLAME;
+    player->inventory[ITEM_RED_FLAME] = g_items + ITEM_RED_FLAME;
+    player->inventory[ITEM_PASS_THROUGH_BOMB] = g_items + ITEM_PASS_THROUGH_BOMB;
+    player->inventory[ITEM_BOMB_KICK] = g_items + ITEM_BOMB_KICK;
+    player->inventory[ITEM_INVINCIBILITY] = g_items + ITEM_INVINCIBILITY;
+    player->inventory[ITEM_HEART] = g_items + ITEM_HEART;
+    player->inventory[ITEM_LIFE] = g_items + ITEM_LIFE;
 }
 
 /**

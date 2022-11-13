@@ -9,8 +9,9 @@
 extern SDL_Window*     g_window;
  extern SDL_Renderer*   g_renderer;
  extern bool            g_serverRunning;
+ extern t_item          g_items[NB_ITEMS];
 
- extern pthread_t       g_clientThread;
+         extern pthread_t       g_clientThread;
 
  typedef enum       e_direction
  {
@@ -43,6 +44,7 @@ extern SDL_Window*     g_window;
      bool            bombKick;
      bool            canSurviveExplosion;
      t_item          *inventory[NB_ITEMS];
+     int             selectedSlot;
      bool            isBot;
  }                  t_player;
 

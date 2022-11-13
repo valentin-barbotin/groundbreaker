@@ -29,6 +29,7 @@ typedef struct s_item {
     int     quantity;
     Uint32     duration;
     bool    isActive;
+    char    *tex;
 } t_item;
 
 t_item *getItem(t_item_type type);

@@ -2,30 +2,24 @@
 #include "player.h"
 #include "game.h"
 
-t_item items[NB_ITEMS] = {
-        {ITEM_BOMB, 0, 0, false, 1, 10000, false},
-        {ITEM_BOMB_UP, 0, 0, false, 1, 10000, false},
-        {ITEM_BOMB_DOWN, 0, 0, false, 1, 10000, false},
-        {ITEM_YELLOW_FLAME, 0, 0, false, 1, 10000, false},
-        {ITEM_BLUE_FLAME, 0, 0, false, 1, 10000, false},
-        {ITEM_RED_FLAME, 0, 0, false, 1, 10000, false},
-        {ITEM_PASS_THROUGH_BOMB, 0, 0, false, 1, 10000, false},
-        {ITEM_BOMB_KICK, 0, 0, false, 1, 10000, false},
-        {ITEM_INVINCIBILITY, 0, 0, false, 1, 10000, false},
-        {ITEM_HEART, 0, 0, false, 1, 10000, false},
-        {ITEM_LIFE, 0, 0, false, 1, 10000, false}
+t_item g_items[NB_ITEMS] = {
+        {ITEM_BOMB, 0, 0, false, 2, 10000, false, TEX_BOMB},
+        {ITEM_BOMB_UP, 0, 0, false, 0, NULL, false, TEX_BOMB_UP},
+        {ITEM_BOMB_DOWN, 0, 0, false, 0, NULL, false, TEX_BOMB_DOWN},
+        {ITEM_YELLOW_FLAME, 0, 0, false, 0, NULL, false, TEX_YELLOW_FLAME},
+        {ITEM_BLUE_FLAME, 0, 0, false, 0, NULL, false, TEX_BLUE_FLAME},
+        {ITEM_RED_FLAME, 0, 0, false, 0, NULL, false, TEX_RED_FLAME},
+        {ITEM_PASS_THROUGH_BOMB, 0, 0, false, 0, NULL, false, TEX_PASS_THROUGH},
+        {ITEM_BOMB_KICK, 0, 0, false, 0, NULL, false, TEX_BOMB_KICK},
+        {ITEM_INVINCIBILITY, 0, 0, false, 0, 10000, false, TEX_INVINCIBILITY},
+        {ITEM_HEART, 0, 0, false, 0, NULL, false, TEX_HEART},
+        {ITEM_LIFE, 0, 0, false, 0, NULL, false, TEX_LIFE}
 };
-
-
-t_item     *getItem(t_item_type type) {
-    return &items[type];
-}
 
 void   useItem(t_item *item) {
     t_player *player;
     player = getPlayer();
     SDL_TimerID timer_bomb_id, timer_invicibility_id;
-
 
     if (!hasItemInInventory(player, item)) return;
     if (item->isActive) return;
@@ -41,6 +35,9 @@ void   useItem(t_item *item) {
             // timer->duration = 10000;
             // timer->isPaused = false;
             // startTimer(timerBomb);
+            break;
+        case ITEM_BOMB_UP:
+            player->inventory[ITEM_BOMB]->quantity--;
             break;
         case ITEM_YELLOW_FLAME:
             player->scope++;
@@ -86,7 +83,7 @@ void   useItem(t_item *item) {
 }
 
 Uint32 bombTimer(Uint32 interval, void *param) {
-    explodeBomb(items[ITEM_BOMB].xCell, items[ITEM_BOMB].yCell);
+    explodeBomb(g_items[ITEM_BOMB].xCell, g_items[ITEM_BOMB].yCell);
     return 0;
 }
 

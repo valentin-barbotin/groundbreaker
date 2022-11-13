@@ -2,6 +2,7 @@
 #include "game.h"
 #include "moves.h"
 #include "player.h"
+#include "inventory.h"
 
 #define DEBUG true
 
@@ -54,38 +55,49 @@ void    handleKeyUpPlay(const SDL_Event *event) {
                     player->vx -= VELOCITY;
                     break;
                 case SDLK_1:
-                //   drawSelectedItem(ITEM_BOMB);
+                    player->selectedSlot = 0;
+                    drawSelectedItem();
                     break;
                 case SDLK_2:
-                  //   drawSelectedItem(ITEM_BOMB_UP);
+                    player->selectedSlot = 1;
+                    drawSelectedItem();
                     break;
                 case SDLK_3:
-                  //   drawSelectedItem(ITEM_BOMB_DOWN);
+                    player->selectedSlot = 2;
+                    drawSelectedItem();
                     break;
                 case SDLK_4:
-                  //   drawSelectedItem(ITEM_YELLOW_FLAME);
+                    player->selectedSlot = 3;
+                    drawSelectedItem();
                     break;
                 case SDLK_5:
-                  //   drawSelectedItem(ITEM_BLUE_FLAME);
+                    player->selectedSlot = 4;
+                    drawSelectedItem();
                     break;
                 case SDLK_6:
-                  //   drawSelectedItem(ITEM_RED_FLAME);
+                    player->selectedSlot = 5;
+                    drawSelectedItem();
                     break;
                 case SDLK_7:
-                  //   drawSelectedItem(ITEM_THROUGH_BOMB);
+                    player->selectedSlot = 6;
+                    drawSelectedItem();
                     break;
                 case SDLK_8:
-                  //   drawSelectedItem(ITEM_BOMB_KICK);
+                    player->selectedSlot = 7;
+                    drawSelectedItem();
                     break;
                 case SDLK_9:
-                  //   drawSelectedItem(ITEM_INVINCIBILITY);
+                    player->selectedSlot = 8;
+                    drawSelectedItem();
                     break;
                 case SDLK_0:
-                  //   drawSelectedItem(ITEM_HEART);
+                    player->selectedSlot = 9;
+                    drawSelectedItem();
                     break;
                 case SDLK_RIGHTPAREN:
-                  //  drawSelectedItem(ITEM_LIFE);
-                    break;
+                     player->selectedSlot = 10;
+                     drawSelectedItem();
+                     break;
                 default:
                     break;
             }
@@ -110,7 +122,6 @@ void    handleKeyUpPlay(const SDL_Event *event) {
         doSendPos(player);
     }
 }
-
 
 void    checkBorders() {
     t_player    *player;
