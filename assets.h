@@ -6,6 +6,7 @@
  #define TEX_PLAYER             "./assets/bomber.png"
  #define TEX_WALL               "./assets/wall.png"
  #define TEX_DIRT               "./assets/dirt.png"
+ #define TEX_LOOT               "./assets/loot.png"
 
  #define SOUND_UNBREAKABLE_WALL "./assets/sound/unbreakable_wall.ogg"
  #define SOUND_MUSIC_MAIN       "./assets/sound/main_music.ogg"

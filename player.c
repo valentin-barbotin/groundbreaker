@@ -44,6 +44,7 @@ t_player        *initPlayer() {
     player->yCell = 0;
     player->health = 100;
     player->scope = 2;
+    player->isBot = false;
 
     initInventory(player);
     return player;

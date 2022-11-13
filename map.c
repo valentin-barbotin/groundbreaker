@@ -8,6 +8,7 @@
 #include "game.h"
 #include "display.h"
 #include "player.h"
+#include "font.h"
 
 #define DEBUG true
 
@@ -168,12 +169,13 @@ t_map   *map_create(unsigned short width, unsigned short height) {
 };
 
 void    map_fill(const t_map *map) {
+    int    random;
     if (map == NULL) return;
 
+    // Fill the map with empty tiles
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             map->map[i][j] = EMPTY;
-
         }
     }
     for (int i = 0; i < map->height; i++) {
@@ -182,26 +184,32 @@ void    map_fill(const t_map *map) {
             map->map[i][0] = UNBREAKABLE_WALL;
             map->map[i][map->width - 1] = UNBREAKABLE_WALL;
             map->map[0][j] = UNBREAKABLE_WALL;
-
-
-        }
-}
-    for (int i = 2; i < map->height-2; i++) {
-        for (int j = 2; j < map->width-2; j++) {
-            map->map[i][(j % 2) * j] = WALL;
-            map->map[(i %2)*i][j] = EMPTY;
-            map->map[i][0] = UNBREAKABLE_WALL;
-            map->map[0][j] = UNBREAKABLE_WALL;
-            map->map[1][1] = PLAYER;
-            map->map[map->height - 2][map->width - 2] = PLAYER;
         }
     }
+
+    // Place the unbreakables walls
     for (int i = 2; i < map->height-2; i++) {
         for (int j = 2; j < map->width-2; j++) {
-            map->map[1][0] = EMPTY;
-            map->map[1][map->width - 1] = EMPTY;
-
+            if (i % 2 == 0 && j % 2 == 0) {
+                map->map[i][j] = UNBREAKABLE_WALL;
+            }
         }
+    }
+
+    // if 1, holes are placed at the top of the map and at the bottom
+    if (rand() % 2) {
+        random = rand() % ((map->width - 2) + 1);
+        if (random == 0) random++;
+        if (random == map->width - 1) random--;
+        map->map[0][random] = EMPTY;
+        map->map[map->height - 1][random] = EMPTY;
+    } else {
+        // if 0, holes are placed at the left of the map and at the right
+        random = rand() % ((map->height - 2) + 1);
+        if (random == 0) random++;
+        if (random == map->height- 1) random--;
+        map->map[random][0] = EMPTY;
+        map->map[random][map->width - 1] = EMPTY;
     }
 }
 
@@ -227,6 +235,46 @@ void    map_print(const t_map *map) {
     printf("\n");
 };
 
+void    drawMapInRect(const SDL_Rect *rectList, size_t index) {
+    SDL_Rect        rect;
+    SDL_Rect        rectdest;
+    const char      *tex;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+    const t_game    *game;
+    const t_map     *map;
+    
+    game = getGame();
+    map = &game->maps[index];
+    cellSizeX = rectList->w / map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    cellSizeY = rectList->h / map->height;
+
+    for (int i = 0; i < map->height; i++) {
+        for (int j = 0; j < map->width; j++) {
+            switch (map->map[i][j])
+            {
+                case UNBREAKABLE_WALL:
+                    tex = TEX_UNBREAKABLE_WALL;
+                    break;
+                default:
+                    tex = TEX_DIRT; //player & empty
+                    break;
+            }
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 288; //TODO: dynamic
+            rect.h = 288;
+
+            rectdest.x = j * cellSizeX + rectList->x;
+            rectdest.y = i * cellSizeY + rectList->y;
+            rectdest.w = cellSizeX;
+            rectdest.h = cellSizeY;
+            drawTexture(tex, &rect, &rectdest);
+        }
+    }
+}
+
 
 void    drawMap() {
     SDL_Rect        rect;
@@ -248,6 +296,9 @@ void    drawMap() {
             {
                 case WALL:
                     tex = TEX_WALL;
+                    break;
+                case LOOT:
+                    tex = TEX_LOOT;
                     break;
                 case UNBREAKABLE_WALL:
                     tex = TEX_UNBREAKABLE_WALL;
@@ -273,6 +324,12 @@ void    drawMap() {
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
         drawPlayer(game->players[i]);
+    }
+
+    // bots
+    for (size_t i = 0; i < g_nbBots; i++)
+    {
+        drawPlayer(g_bots[i]);
     }
 }
 
@@ -313,6 +370,7 @@ void    drawPlayer(const t_player *player) {
     short           spriteH;
     SDL_Rect        rect;
     SDL_Rect        rectdest;
+    SDL_Color       textColor = {255, 255, 255, 255};
 
     //draw player
     spriteW = 50;
@@ -332,4 +390,7 @@ void    drawPlayer(const t_player *player) {
     rect.h = spriteH;
 
     drawTexture(TEX_PLAYER, &rect, &rectdest);
+
+    // draw player name
+    drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, player->name, true, 0);
 }

@@ -8,11 +8,25 @@
 #include "player.h"
 #include "server.h"
 #include "assets.h"
+#include "ia.h"
 
 #define DEBUG
 
 t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
 
+
+void    injectItems(const t_map *map) {
+    for (size_t i = 1; i < map->height - 1; i++)
+    {
+        for (size_t j = 1; j < map->width - 1; j++)
+        {
+            if (map->map[i][j] == EMPTY && rand() % 100 < 30)
+            {
+                map->map[i][j] = (rand() % 100 < 50) ? LOOT : WALL;
+            }
+        }
+    }
+}
 
 /**
  * @brief Place the player in his cell instead of a wall..
@@ -36,6 +50,8 @@ void    spawnPlayer(int x, int y, t_player *player) {
 
     player->x = (player->xCell * cellSizeX) + (cellSizeX / 2);
     player->y = (player->yCell * cellSizeY) + (cellSizeY / 2);
+
+    map->map[player->yCell][player->xCell] = EMPTY;
 }
 
 bool    inGame() {
@@ -112,14 +128,12 @@ t_game* getGame() {
     return game;
 }
 
-void    posToGrid() {
-    unsigned int   cellSizeX;
-    unsigned int   cellSizeY;
-    t_game         *game;
-    t_player       *player;
+void    posToGrid(t_player *player) {
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+    const t_game    *game;
 
     game = getGame();
-    player = getPlayer();
 
     // can't divide by 0
     if (player->x) {
@@ -142,16 +156,14 @@ void    posToGrid() {
 }
 
 
-void    movePlayer() {
+void    movePlayer(t_player *player) {
     t_game          *game;
-    t_player        *player;
     const t_map     *map;
     char            buffer[100];
+    bool            stopped;
 
     game = getGame();
-    player = getPlayer();
     map = game->map;
-
 
     if (map == NULL) {
         #ifdef DEBUG
@@ -177,6 +189,8 @@ void    movePlayer() {
 
     checkBorders();
 
+    stopped = false;
+
     // make the move
     player->x += player->vx;
     player->y += player->vy;
@@ -197,7 +211,7 @@ void    movePlayer() {
     }
 
     // update the grid position
-    posToGrid();
+    posToGrid(player);
 
     //if the player is moving out of the map then we move him at the other side if possible
     if (player->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
@@ -236,6 +250,7 @@ void    movePlayer() {
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
+            stopped = true;
 
             if (Mix_PlayingMusic() == 1) {
                 if (!stopSound(wall)) {
@@ -266,10 +281,16 @@ void    movePlayer() {
             }
 
             break;
+        case LOOT:
+            player->x -= player->vx;
+            player->y -= player->vy;
+            stopped = true;
+            break;
         case UNBREAKABLE_WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
+            stopped = true;
 
             if (Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
 
@@ -356,11 +377,38 @@ void    movePlayer() {
             }
             break;
     }
-    posToGrid();
+    posToGrid(player);
+
+    if (player->isBot && stopped) {
+        // inverse the direction of the bot
+        switch (player->direction)
+        {
+            case DIR_LEFT:
+                player->vx = BOT_SPEED;
+                break;
+            case DIR_RIGHT:
+                player->vx = -BOT_SPEED;
+                break;
+
+            case DIR_UP:
+                player->vy = BOT_SPEED;
+                break;
+            case DIR_DOWN:
+                player->vy = -BOT_SPEED;
+                break;
+            
+            default:
+                break;
+        }
+    }
+
     player->direction = getDirection(player);
 
-    sendPos();
+    if (!player->isBot) {
+        sendPos();
+    }
 }
+
 
 void    posToGridN(int x, int y, int *cellX, int *cellY) {
     unsigned int   cellSizeX;
@@ -406,6 +454,21 @@ void explodeBomb(int xCell, int yCell) {
     }
 }
 
+void    handleMouseButtonUpPlaying(const SDL_Event *event) {
+    for (unsigned short i = 0; i < g_currentMenu->nbButtons; ++i) {
+        // get click position
+        int xStart = g_buttonsLocation[i].x;
+        int yStart = g_buttonsLocation[i].y;
+
+        SDL_Point click = { event->button.x, event->button.y };
+        SDL_Rect button = { xStart, yStart, g_buttonsLocation[i].w, g_buttonsLocation[i].h };
+
+        if (SDL_PointInRect(&click, &button))
+        {
+            makeSelection(i);
+        }
+    }
+}
 
 void searchDirectionMap(t_direction direction, int scope) {
     t_game   *game;
@@ -504,4 +567,59 @@ void searchDirectionMap(t_direction direction, int scope) {
                 break;
         }
     }
+}
+
+
+void    launchGame() {
+    t_game            *game;
+    short             index;
+    t_map             *tmp[10] = {0};
+
+    game = getGame();
+
+    if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
+        #ifdef DEBUG
+            puts("Not enough players");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+        return;
+    }
+
+    index = -1;
+    for (size_t i = 0; i < g_nbMap; i++)
+    {
+        if (game->maps[i].selected) {
+            if (index == -1) index = 0; //used to check if we have at least one map selected
+            tmp[index++] = &game->maps[i];
+        }
+    }
+    if (index == -1) {
+        printf("No map selected\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "You must select a map", g_window);
+        return;
+    }
+
+    index = rand() % index; //pick a random map between the selected ones
+    printf("index = %d\n", index);
+    game->map = tmp[index];
+
+    injectItems(game->map);
+
+    spawnPlayer(1, 1, getPlayer());
+
+    if (g_serverRunning) {
+
+        if (game->nbPlayers == game->map->players) {
+            // not enough players to start the game
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+            return;
+        }
+
+        // send start game message
+        multiplayerStart();
+    } else {
+        searchBotsPos(game->map);
+    }
+
+    g_currentState = GAME_PLAY_PLAYING;
 }

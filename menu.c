@@ -180,6 +180,7 @@ void    drawLobbyMaps() {
     SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
     SDL_Color   colorRed = {255, 0, 0, 255};
+    SDL_Color   colorGreen = {0, 255, 0, 255};
     int         gap;
     char        buff[7];
     short       j;
@@ -226,17 +227,25 @@ void    drawLobbyMaps() {
         rect.w = w;
         rect.h = h;
 
+        drawMapInRect(&rect, i);
+
         if (i == g_currentMap) {
             pickColor(&colorBlue);
         } else {
             if (game->maps[i].selected) {
-                pickColor(&colorRed);
+                pickColor(&colorGreen);
             } else {
                 pickColor(&colorBlack);
             }
         }
+
+        rect.x = x;
+        rect.y = y - h * 0.1;
+        rect.w = w;
+        rect.h = h * 0.1;
         
         SDL_RenderFillRect(g_renderer, &rect);
+
         sprintf(buff, "%lu", i + 1);
         drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true, 0);
     }
@@ -269,8 +278,8 @@ void    drawLobbyMenu() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
             exit(1);
         }
-        g_lobby->columns = 4;
-        g_lobby->rows = 4;
+        g_lobby->columns = 5;
+        g_lobby->rows = 5;
         g_lobby->players = 2;
     }
 
@@ -337,7 +346,6 @@ void    setupMenuButtons() {
     pickColor(&backgroundColor);
     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderFillRect(g_renderer, &rect);
-
     for (unsigned int i = 0; i < g_currentMenu->nbButtons; i++)
     {
         unsigned short  j;

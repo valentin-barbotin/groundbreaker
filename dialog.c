@@ -102,3 +102,36 @@ void        displayEditBox() {
     drawText(&dialog->color, x, y, dialog->edit, true, rect.w);
 
 }
+
+void    handleKeyUpDialog(const SDL_Event *event) {
+    t_dialog *dialog = getEditBox();
+
+    switch (event->key.keysym.sym) {
+        case SDLK_c:
+            if (event->key.keysym.mod & KMOD_CTRL) {
+                SDL_SetClipboardText(dialog->edit);
+            }
+            break;
+        case SDLK_v:
+            if (event->key.keysym.mod & KMOD_CTRL) {
+                char *clipboard = SDL_GetClipboardText();
+                if (clipboard != NULL) {
+                    strcpy(dialog->edit, clipboard);
+                    SDL_free(clipboard);
+                }
+            }
+            break;
+        case SDLK_RETURN:
+            if (dialog->callback != NULL) {
+                #ifdef DEBUG
+                    puts("CALLBACK");
+                #endif
+                dialog->callback(dialog->edit);
+            }
+
+            break;
+    
+        default:
+            break;
+    }
+}

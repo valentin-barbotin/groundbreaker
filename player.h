@@ -44,6 +44,7 @@ extern SDL_Window*     g_window;
      bool            bombKick;
      bool            canSurviveExplosion;
      t_item          *inventory[NB_ITEMS];
+     bool            isBot;
  }                  t_player;
 
  char            *getUsername();
