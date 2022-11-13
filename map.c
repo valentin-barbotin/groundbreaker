@@ -317,7 +317,7 @@ void    drawMap() {
     }
 
     drawTchat();
-
+    drawTchatMessages();
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
