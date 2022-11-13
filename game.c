@@ -267,6 +267,11 @@ void    movePlayer(t_player *player) {
             }
 
             break;
+        case LOOT:
+            player->x -= player->vx;
+            player->y -= player->vy;
+            stopped = true;
+            break;
         case UNBREAKABLE_WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
