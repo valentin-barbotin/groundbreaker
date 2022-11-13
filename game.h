@@ -41,5 +41,6 @@
  void    searchDirectionMap(t_direction directionMap, int scope);
  void    explodeBomb(int xCell, int yCell);
  void    handleMouseButtonUpPlaying(const SDL_Event *event);
+ void    launchGame();
 
 #endif
