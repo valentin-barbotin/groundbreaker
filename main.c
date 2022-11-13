@@ -7,6 +7,8 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
+#include <pthread.h>
+
 #include "config.h"
 #include "cache.h"
 #include "utils.h"
@@ -71,8 +73,6 @@ int main(int argc, char **argv)
     time_t t;
     srand((unsigned) time(&t));
 
-    setupDiscord();
-
     assignMenuParents();
 
     unsigned int    windowWidth;
@@ -101,8 +101,6 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-
-
     // window limits, i3
     SDL_Rect windowLimits = {0, 0, windowWidth, windowHeight};
 
@@ -114,6 +112,9 @@ int main(int argc, char **argv)
     SDL_Color blackColor = { 0, 0, 0, 255 };
 
     g_currentState = GAME_MAINMENU;
+
+    pthread_t       th;
+    pthread_create(&th, NULL, &setupDiscord, "");
 
     int running = 1;
     SDL_Event event;
@@ -173,8 +174,6 @@ int main(int argc, char **argv)
             if (isGamePaused()) {
                 setupMenu();
                 SDL_Delay(30);
-
-                DISCORD_REQUIRE(g_app_discord->core->run_callbacks(g_app_discord->core));
 
             } else {
                 // move bots

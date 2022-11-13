@@ -25,4 +25,5 @@
  }              t_discord_app;
 
  void   setupDiscord();
+ void   updateDiscordActivity();
 #endif
