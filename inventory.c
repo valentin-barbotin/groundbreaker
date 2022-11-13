@@ -50,6 +50,7 @@ void drawInventory() {
         drawTexture(player->inventory[separator]->tex, &rectItem, &rectDest);
 
     }
+    loadFont(FONT_PATH, 20);
 }
 
 void drawSelectedItem() {
