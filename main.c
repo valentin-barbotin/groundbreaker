@@ -20,12 +20,15 @@
 #include "moves.h"
 #include "dialog.h"
 
+#include "discord.h"
+
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
 extern t_gameConfig    *gameConfig;
 extern void    assignMenuParents();
 extern t_player         *g_bots[MAX_BOTS];
 extern short            g_nbBots;
+extern t_discord_app    *g_app_discord;
 
 #define DEBUG true
 
@@ -67,6 +70,8 @@ int main(int argc, char **argv)
     }
     time_t t;
     srand((unsigned) time(&t));
+
+    setupDiscord();
 
     assignMenuParents();
 
@@ -155,7 +160,6 @@ int main(int argc, char **argv)
         }
         SDL_RenderClear(g_renderer);
 
-       
         pickColor(&blackColor);
 
         if (inMainMenu()) {
@@ -169,6 +173,9 @@ int main(int argc, char **argv)
             if (isGamePaused()) {
                 setupMenu();
                 SDL_Delay(30);
+
+                DISCORD_REQUIRE(g_app_discord->core->run_callbacks(g_app_discord->core));
+
             } else {
                 // move bots
                 for (size_t i = 0; i < g_nbBots; i++)
