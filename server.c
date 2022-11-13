@@ -28,7 +28,7 @@ int         g_peersListUDPNb = 0;
 // TODO: use players list
 void    sendToAll(const char *msg, int except) {
     if (g_serverRunning) {
-        printf("g_peersListNb! %d\n", g_peersListNb);
+        // printf("g_peersListNb! %d\n", g_peersListNb);
         for (int i = 0; i < g_peersListNb; i++) {
             // avoid loopback
             if (g_peersList[i]->socket == except) continue;
@@ -151,9 +151,13 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
             printf("JOIN: %s\n", content);
             printf("game->nbPlayers: %d\n", game->nbPlayers);
             strcpy(game->players[game->nbPlayers++]->name, content);
-            printf("2 - game->nbPlayers: %d\n", game->nbPlayers);
+            // printf("2 - game->nbPlayers: %d\n", game->nbPlayers);
 
             addPeer(client, clientAddr, content);
+
+            // update players list for each pear
+            sendPlayerToAll();
+
             break;
         case PLAYERDAT:
             //TODO: avoid loopback
@@ -191,7 +195,7 @@ void   *handleClient(void *clientSocket) {
     {
         // receive message from client, wait if no message
         #ifdef DEBUG
-            puts("Waiting for message from server");
+            puts("Waiting for message from client");
         #endif
 
         total = receiveMsg(buffer, client);
@@ -458,8 +462,22 @@ void    multiplayerStart() {
     strcpy(game->players[0]->name, getUsername());
 
     // send player to all (except us)
+    sendPlayerToAll();
+}
+
+
+void    sendPlayerToAll() {
+    const t_game    *game;
+    char            buffer[1024];
+
+    game = getGame();
+
     for (short i = 0; i < game->nbPlayers; i++)
     {
+        if (*game->players[i]->name == 0) {
+            printf("Invalid name for user %hu\n", i);
+            exit(1);
+        }
         sprintf(buffer, "PLAYERDAT:%s %d %d %hu%c", game->players[i]->name, game->players[i]->xCell, game->players[i]->yCell, i, '\0');
         puts(buffer);
         sendToAll(buffer, -1);

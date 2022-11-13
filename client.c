@@ -141,7 +141,9 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
 
             game->nbPlayers = 0;
 
-            printf("(init) spawned player at %d, %d\n", 0, 0);
+            printf("(init) spawned player at %d, %d\n", game->players[g_playersMultiIndex]->xCell, game->players[g_playersMultiIndex]->yCell);
+            
+            g_currentState = GAME_PLAY_PLAYING;
         }
             break;
         
@@ -152,6 +154,13 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             int             yCell;
             char            name[256];
             sscanf(content, "%s %d %d %hu", name, &xCell, &yCell, &n);
+
+            if (*name == 0) {
+                puts("Name empty");
+                exit(1);
+            }
+
+            printf("Params received: %s %d %d %hu\n", name, xCell, yCell, n);
 
             player = game->players[n];
 
@@ -171,16 +180,7 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             printf("player[%hu] %s at %d, %d\n", n, player->name, player->xCell, player->yCell);
 
             // if the player is the current player, spawn it
-            printf("PLAYER name: %s, current player name: %s\n", player->name, getUsername());
-
-            spawnPlayer(player->xCell, player->yCell, game->players[n]);
-            printf("(playerdat) spawned player at %d, %d\n", player->xCell, player->yCell);
-
-            if (game->nbPlayers == game->map->players) {
-                puts("All players are in the game");
-                printf("game->nbPlayers: %d, game->map->players: %d\n", game->nbPlayers, game->map->players);
-                g_currentState = GAME_PLAY_PLAYING;
-            }
+            printf("PLAYER name: %s\n", player->name);
         }
             break;
         
@@ -201,6 +201,10 @@ void    askUsernameCallback() {
 
     printf("put username [%s] in g_username\n", getEditBox()->edit);
     strcpy(getUsername(), getEditBox()->edit);
+
+    strcpy(getGame()->players[0]->name, getUsername());
+    printf("SET PLAYER 0 NAME TO %s\n", g_username);
+
     printf("g_username: %s\n", getUsername());
     destroyEditBox();
 }
@@ -240,6 +244,9 @@ void    askServerPortCallback() {
 
     pthread_create(&g_clientThread, NULL, &connectToServer, "client");
     pthread_create(&g_clientThreadUDP, NULL, &connectToServerUDP, "client");
+
+    //Put client in the lobby
+    g_currentState = GAME_MAINMENU_PLAY;
 }
 
 
@@ -324,16 +331,6 @@ void    *connectToServer(void *arg) {
             ptr = buffer + len;
             len += (strlen(ptr) + 1);
 
-            // //dbg
-            // for (size_t i = len; i < total; i++)
-            // {
-            //     printf("%d ", buffer[i]);
-            // }
-            // printf("\n");
-
-
-            printf("len: %lu, total: %lu\n\n", len, total);
-            printf("ptr: %s\n", ptr);
             handleMessageClient(ptr, g_serverSocket, NULL);
 
         } while (len != total);

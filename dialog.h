@@ -17,11 +17,13 @@
      SDL_Color      color;
      SDL_Color      backgroundColor;
      void           (*callback)();
+     int            arg;
  }               t_dialog;
 
  t_dialog    *createEditBox(const char *text, const int fontSize, SDL_Color color, SDL_Color backgroundColor);
  t_dialog    *getEditBox();
- void        destroyEditBox() ;
+ void        destroyEditBox();
  void        displayEditBox();
+ void        handleKeyUpDialog(const SDL_Event *event);
 
 #endif

@@ -7,7 +7,6 @@
 #include "map.h"
 #include "game.h"
 #include "moves.h"
-
 #include "timer.h"
 #include "sound.h"
 #include "utils.h"
@@ -18,7 +17,6 @@
 
 #define DEBUG true
 
-extern SDL_Rect         g_buttonsLocation[4];
 extern int              g_currentState;
 extern int              g_serverSocket;
 
@@ -67,17 +65,14 @@ bool    inMainMenu() {
 
 void    makeSelection(unsigned short index) {
     if (g_currentMenu->next[index] != NULL) {
-        puts("SUBMENU");
         g_currentMenu = g_currentMenu->next[index];
 
         setupMenu();
 
-        // SDL_RenderPresent(g_renderer); //TODO: check
         return;
     }
 
     if (g_currentMenu->fct[index] != NULL) {
-        puts("FUNCTION");
         g_currentMenu->fct[index](index);
     }
 }
@@ -88,23 +83,16 @@ void    makeSelection(unsigned short index) {
  * @return void
  */
 void    handleMouseButtonUp(const SDL_Event *event) {
-    //loop through buttons
-    if (g_currentState == GAME_MAINMENU) { //TODO: check
-        for (unsigned short i = 0; i < g_currentMenu->nbButtons; ++i) {
-            // get click position
-            int xStart = g_buttonsLocation[i].x;
-            int yStart = g_buttonsLocation[i].y;
-
-            SDL_Point click = { event->button.x, event->button.y };
-            SDL_Rect button = { xStart, yStart, g_buttonsLocation[i].w, g_buttonsLocation[i].h };
-
-            if (SDL_PointInRect(&click, &button))
-            {
-                makeSelection(i);
-            }
-        }
-    } else if (inGame()) {
-        // TODO: handle game events
+    switch (g_currentState)
+    {
+        case GAME_MAINMENU:
+            break;
+        case GAME_PLAY_PLAYING:
+            handleMouseButtonUpPlaying(event);
+            break;
+        
+        default:
+            break;
     }
 }
 
@@ -123,6 +111,7 @@ void    handleKeyDown(const SDL_Event *event) {
             default:
                 break;
         }
+        return;
     }
 
     switch (g_currentState)
@@ -157,103 +146,38 @@ void    handleTextEditing(const SDL_Event *event) {
 
 //TODO: refacto
 void    handleKeyUp(const SDL_Event *event) {
-    t_dialog *dialog = getEditBox();
+    t_game          *game;
+    const t_dialog        *dialog;
 
-    // if in dialog
-    // bla bla
+    game = getGame();
+    dialog = getEditBox();
 
     if (dialog->active) {
-        switch (event->key.keysym.sym)
-        {
-            case SDLK_c:
-                if (event->key.keysym.mod & KMOD_CTRL) {
-                    SDL_SetClipboardText(dialog->edit);
-                }
-                break;
-            case SDLK_v:
-                if (event->key.keysym.mod & KMOD_CTRL) {
-                    char *clipboard = SDL_GetClipboardText();
-                    if (clipboard != NULL) {
-                        strcpy(dialog->edit, clipboard);
-                        SDL_free(clipboard);
-                    }
-                }
-                break;
-            case SDLK_RETURN:
-                if (dialog->callback != NULL) {
-                    #ifdef DEBUG
-                        puts("CALLBACK");
-                    #endif
-                    dialog->callback(dialog->edit);
-                }
-
-                break;
-        
-            default:
-                break;
-        }
+        handleKeyUpDialog(event);
         return;
     }
 
+    if (inGame()) {
+        handleKeyUpPlay(event);
+        t_player *player = getPlayer();
+    
+        player->vx = 0;
+        player->vy = 0;
+    }
 
-    if (inMainMenu()) {
+    if (inMainMenu() || isGamePaused()) {
         short index = -1;
         switch (event->key.keysym.sym) {
-            case SDLK_o:
-                joinServer();
-                break;
             case SDLK_ESCAPE:
-                if (g_currentState == GAME_MAINMENU_PLAY) {
-                    g_currentState = GAME_MAINMENU;
-                } else {
-                    g_currentState = GAME_EXIT;
-                }
+                g_currentState = (g_currentState == GAME_MAINMENU_PLAY) ? GAME_MAINMENU : GAME_EXIT;
                 break;
             case SDLK_RETURN:
                 switch (g_currentState)
                 {
                     case GAME_MAINMENU_PLAY:
                         //TODO: pick a random map from selected ones and launch the game (solo)
-                        printf("Launch game\n");
-                        t_game *game = getGame();
 
-                        if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
-                            #ifdef DEBUG
-                                puts("Not enough players");
-                            #endif
-                            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
-                            return;
-                        }
-
-                        t_map *tmp[10] = {0};
-                        index = -1;
-                        for (size_t i = 0; i < g_nbMap; i++)
-                        {
-                            // printf("i: %d, Map: %d\n", i, game->maps[i].selected);
-                            if (game->maps[i].selected) {
-                                if (index == -1) index = 0; //used to check if we have at least one map selected
-                                tmp[index++] = &game->maps[i];
-                            }
-                        }
-                        if (index == -1) {
-                            printf("No map selected\n");
-                            return;
-                        }
-
-                        index = rand() % index; //pick a random map between the selected ones
-                        printf("index = %d\n", index);
-                        game->map = tmp[index];
-
-                        spawnPlayer(1, 1, getPlayer());
-
-                        if (g_serverRunning) {
-                            // send start game message
-                            multiplayerStart();
-                        }
-
-                        spawnPlayer(1, 1, getPlayer());
-
-                        g_currentState = GAME_PLAY_PLAYING;
+                        launchGame();
 
                         break;
                     
@@ -285,7 +209,7 @@ void    handleKeyUp(const SDL_Event *event) {
                         map_fill(map);
                         saveMap(map);
                         map_print(map);
-                        getGame()->maps[g_nbMap++] = *map;
+                        game->maps[g_nbMap++] = *map;
                         break;
                     
                     default:
@@ -301,11 +225,11 @@ void    handleKeyUp(const SDL_Event *event) {
                     nb = 0;
                     for (size_t i = 0; i < g_nbMap; i++)
                     {
-                        if (getGame()->maps[i].selected) nb++;
+                        if (game->maps[i].selected) nb++;
                     }
                     if (nb > g_nbMap) return;
                     
-                    getGame()->maps[g_currentMap].selected = !getGame()->maps[g_currentMap].selected;
+                    game->maps[g_currentMap].selected = !game->maps[g_currentMap].selected;
                 }
                 break;
             case SDLK_LEFT:
@@ -315,15 +239,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows--;
-                                if (g_lobby->rows < 1) {
-                                    g_lobby->rows = 1;
+                                g_lobby->rows -= 2;
+                                if (g_lobby->rows < 3) {
+                                    g_lobby->rows = 3;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns--;
-                                if (g_lobby->columns < 1) {
-                                    g_lobby->columns = 1;
+                                g_lobby->columns -= 2;
+                                if (g_lobby->columns < 3) {
+                                    g_lobby->columns = 3;
                                 }
                                 break;
                             case 2:
@@ -350,15 +274,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows++;
-                                if (g_lobby->rows > 10) {
-                                    g_lobby->rows = 10;
+                                g_lobby->rows += 2;
+                                if (g_lobby->rows > 9) {
+                                    g_lobby->rows = 9;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns++;
-                                if (g_lobby->columns > 10) {
-                                    g_lobby->columns = 10;
+                                g_lobby->columns += 2;
+                                if (g_lobby->columns > 9) {
+                                    g_lobby->columns = 9;
                                 }
                                 break;
                             case 2:
@@ -424,22 +348,14 @@ void    handleKeyUp(const SDL_Event *event) {
                 if (g_currentState == GAME_MAINMENU_PLAY) {
                     selectMap(-1);
                 }
-                puts("A");
                 break;
             case SDLK_e:
                 if (g_currentState == GAME_MAINMENU_PLAY) {
                     selectMap(1);
                 }
-                puts("E");
                 break;
             default:
                 break;
         }
-    } else if (inGame()) {
-        handleKeyUpPlay(event);
-        t_player *player = getPlayer();
-    
-        player->vx = 0;
-        player->vy = 0;
     }
 }

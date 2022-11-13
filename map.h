@@ -7,9 +7,13 @@
  #include "config.h"
  #include "player.h"
  #include "assets.h"
+ #define GETCELL(x, y) (map->map[y][x])
 
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
+
+ extern t_player         *g_bots[MAX_BOTS];
+ extern short            g_nbBots;
 
  typedef struct     s_map
  {
@@ -27,7 +31,9 @@
          UNBREAKABLE_WALL = 'U',
          EMPTY = ' ',
          ITEM = 'I',
-         PLAYER = 'P'
+         GRAVEL = 'G',
+         PLAYER = 'P',
+         LOOT = 'L'
  }               t_type;
 
  t_map   *map_create(unsigned short width, unsigned short height);
@@ -36,6 +42,7 @@
  void    map_print(const t_map *map);
  void    saveMap(const t_map *map);
  void    getMaps();
+ void    drawMapInRect(const SDL_Rect *rectList, size_t index);
  void    drawMap();
  void    getPlayerDirection(SDL_Rect *rect, const t_direction *direction);
  void    drawPlayer(const t_player *player);

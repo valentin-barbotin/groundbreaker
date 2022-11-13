@@ -4,8 +4,9 @@
  #include <stdbool.h>
 
  #include <SDL.h>
+#include "items.h"
 
- extern SDL_Window*     g_window;
+extern SDL_Window*     g_window;
  extern SDL_Renderer*   g_renderer;
  extern bool            g_serverRunning;
 
@@ -36,16 +37,13 @@
      int             health;
      int             score;
      t_direction     direction;
-     // TODO: à supprrimer car c'est que pour le dev/debug (en attendant que la branche useItems soit mergée)
-     struct             s_inventory {
-         unsigned short x;
-         unsigned short y;
-         unsigned short w;
-         unsigned short h;
-         unsigned short oldX;
-         unsigned short oldY;
-
-     }                  inventory
+     int             scope;
+     bool            godMode;
+     bool            passThroughBomb;
+     bool            bombKick;
+     bool            canSurviveExplosion;
+     t_item          *inventory[NB_ITEMS];
+     bool            isBot;
  }                  t_player;
 
  char            *getUsername();
@@ -56,5 +54,9 @@
  bool            isMoving(const t_player *player);
  void            sendPos();
  void            doSendPos(const t_player *player);
+ void            printInventory();
+ bool            hasItemInInventory(t_player *player, t_item *item);
+ void            initInventory(t_player *player);
+ bool            isAlive(t_player *player);
 
 #endif
