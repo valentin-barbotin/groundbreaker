@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "font.h"
 #include "dialog.h"
+#include "settings.h"
 
 #define DEBUG true
 
@@ -85,21 +86,33 @@ void    putMessageInTchat(t_player *player, const char *msg) {
  */
 void    drawTchatMessages() {
     char *buffer;
-    int i, limit;
+    int i, limit, op, textWidth, textHeight;
     SDL_Rect rect;
     SDL_Color color = {255, 255, 255, 255};
+    SDL_Texture *tex;
 
     if(g_messages_nb == 0) return;
     rect.x = 0;
     rect.y = 0;
+    rect.w = (gameConfig->video.width) * 0.25;
     i = g_messages_nb;
     limit = g_messages_nb - 5;
 
     // we start at the end of the array to display the 5 last messages
     while((i &&  g_messages[i - 1] != NULL && i > limit)) {
         buffer = g_messages[i-1];
-        drawText(&color, rect.x + 10, rect.y + 10, buffer, false, 0);
-        rect.y += 20;
+        drawText(&color, rect.x + (gameConfig->video.width * 0.03), rect.y + (gameConfig->video.height * 0.03), buffer, false, rect.w);
+
+        //TODO : fix margin when the text is too long
+        tex = getTextureFromString(buffer, &color, &rect.w);
+        op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
+        if(textHeight > 25) {
+            rect.y += textHeight + 25;
+        }else {
+            rect.y += (gameConfig->video.height * 0.03) + 30;
+        }
+        SDL_DestroyTexture(tex);
+
         i--;
     }
 }
