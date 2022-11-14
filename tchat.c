@@ -4,6 +4,7 @@
 #include "font.h"
 #include "dialog.h"
 #include "settings.h"
+#include "server.h"
 
 #define DEBUG true
 
@@ -75,7 +76,11 @@ void    putMessageInTchat(t_player *player, const char *msg) {
     sprintf(buffer, "%s: %s", player->name, msg);
     g_messages[g_messages_nb - 1] = buffer;
     buffer = NULL;
-    free(buffer);
+
+    // TODO:send message to all
+/*    if (g_serverRunning) {
+        sendToAll(buffer, strlen(buffer));
+    }*/
 }
 
 
