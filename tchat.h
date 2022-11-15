@@ -2,6 +2,7 @@
  #define TCHAT_H
 
 #include "player.h"
+extern int              g_serverSocket;
 
  void       drawTchat();
  void       askTchatMessage();

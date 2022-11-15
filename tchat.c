@@ -5,6 +5,7 @@
 #include "dialog.h"
 #include "settings.h"
 #include "server.h"
+#include "client.h"
 
 #define DEBUG true
 
@@ -76,11 +77,6 @@ void    putMessageInTchat(t_player *player, const char *msg) {
     sprintf(buffer, "%s: %s", player->name, msg);
     g_messages[g_messages_nb - 1] = buffer;
 
-    // TODO:send message to all
-    if (inMultiplayer()) {
-        sendToAll(buffer, NULL);
-    }
-
     buffer = NULL;
 }
 
@@ -92,10 +88,16 @@ void    putMessageInTchat(t_player *player, const char *msg) {
  */
 void    drawTchatMessages() {
     char *buffer;
+    char *msg = NULL;
+
     int i, limit, op, textWidth, textHeight;
     SDL_Rect rect;
     SDL_Color color = {255, 255, 255, 255};
     SDL_Texture *tex;
+
+    if(inMultiplayer() && receiveMsg(msg, g_serverSocket)) {
+            putMessageInTchat(getPlayer(), msg);
+    }
 
     if(g_messages_nb == 0) return;
     rect.x = 0;
