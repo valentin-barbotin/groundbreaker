@@ -139,9 +139,14 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             // amount of players
             game->map->players = players; //TODO
 
-            game->nbPlayers = 0;
+            game->nbPlayers = players;
 
-            printf("(init) spawned player at %d, %d\n", game->players[g_playersMultiIndex]->xCell, game->players[g_playersMultiIndex]->yCell);
+            for (size_t i = 0; i < players; i++)
+            {
+                player = game->players[i];
+                printf("(init) spawned player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+                spawnPlayer(player->xCell, player->yCell, player);
+            }
             
             g_currentState = GAME_PLAY_PLAYING;
         }

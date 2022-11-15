@@ -156,7 +156,7 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
             addPeer(client, clientAddr, content);
 
             // update players list for each pear
-            sendPlayerToAll();
+            sendPlayersToAll();
 
             break;
         case PLAYERDAT:
@@ -444,6 +444,24 @@ void    multiplayerStart() {
 
     game = getGame();
 
+    game->players[1]->xCell = 3;
+    game->players[1]->yCell = 3;
+    //TODO: find a free cell
+    
+
+    strcpy(game->players[0]->name, getUsername());
+
+    // send player to all (except us)
+    sendPlayersToAll();
+
+    for (size_t i = 0; i < game->nbPlayers; i++)
+    {
+        t_player *player = game->players[i];
+        printf("(init) spawned player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+        spawnPlayer(player->xCell, player->yCell, player);
+    }
+
+    // send map to all (except us)
     sprintf(buffer, "START:%hu %hu %hu$", game->map->height, game->map->width, game->nbPlayers);
 
     char *ptr = buffer + strlen(buffer);
@@ -459,18 +477,10 @@ void    multiplayerStart() {
     
     // send map to clients
     sendToAll(buffer, -1);
-
-    game->players[1]->xCell = 3;
-    game->players[1]->yCell = 3;
-
-    strcpy(game->players[0]->name, getUsername());
-
-    // send player to all (except us)
-    sendPlayerToAll();
 }
 
 
-void    sendPlayerToAll() {
+void    sendPlayersToAll() {
     const t_game    *game;
     char            buffer[1024];
 

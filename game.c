@@ -50,8 +50,6 @@ void    spawnPlayer(int x, int y, t_player *player) {
 
     player->x = (player->xCell * cellSizeX) + (cellSizeX / 2);
     player->y = (player->yCell * cellSizeY) + (cellSizeY / 2);
-
-    map->map[player->yCell][player->xCell] = EMPTY;
 }
 
 bool    inGame() {
