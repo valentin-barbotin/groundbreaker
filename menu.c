@@ -151,7 +151,6 @@ void    setupMenu() {
 }
 
 void    drawPlayersList() {
-    SDL_Color       colorBlack = {0, 0, 0, 255};
     const t_game    *game;
     SDL_Rect        rect;
 
@@ -176,10 +175,6 @@ void    drawPlayersList() {
 
 void    drawLobbyMaps() {
     SDL_Rect        rect;
-    SDL_Color       colorBlack = {0, 0, 0, 255};
-    SDL_Color       colorYellow = {255, 255, 0, 255};
-    SDL_Color       colorBlue = {0, 0, 255, 255};
-    SDL_Color       colorGreen = {0, 255, 0, 255};
     int             gap;
     char            buff[7];
     short           j;
@@ -255,9 +250,6 @@ void    drawLobbyMaps() {
 }
 
 void    drawLobbyMenu() {
-    SDL_Color   colorWhite = {255, 255, 255, 255};
-    SDL_Color   colorBlack = {0, 0, 0, 255};
-    SDL_Color   colorBlue = {0, 0, 255, 255};
     char        buff[7];
 
     if (g_lobby == NULL) {

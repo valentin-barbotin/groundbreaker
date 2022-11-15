@@ -267,7 +267,7 @@ void    joinServer() {
     valid = checkUsername();
     if (!valid) return;
 
-    createEditBox("", 20, (SDL_Color) {0, 255, 0, 255}, (SDL_Color) {255, 255, 255, 255});
+    createEditBox("", 20, colorGreen, colorWhite);
     SDL_StartTextInput();
     askServerHost();
 }

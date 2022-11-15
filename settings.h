@@ -1,6 +1,8 @@
 #ifndef SETTINGS_H
  #define SETTINGS_H
  
+ #include "colors.h"
+
  extern t_menu                  *g_currentMenu;
  extern SDL_Window*             g_window;
  extern SDL_Renderer*           g_renderer;

@@ -10,8 +10,6 @@
 void drawInventory() {
     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
-    SDL_Color colorGrey = {128, 128, 128, 128};
-    SDL_Color colorWhite = {255, 255, 255, 255};
     const t_player      *player;
     SDL_Rect            rect;
     SDL_Rect            rectItem;
@@ -19,7 +17,7 @@ void drawInventory() {
 
     player = getPlayer();
 
-    pickColor(&colorGrey);
+    pickColor(&colorLightGray);
 
     rect.x = (gameConfig->video.width) * 0.175;
     rect.y = (gameConfig->video.height) * 0.92;

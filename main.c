@@ -34,6 +34,23 @@ extern t_discord_app    *g_app_discord;
 
 #define DEBUG true
 
+SDL_Color colorWhite = {255, 255, 255, 255};
+SDL_Color colorBlack = {0, 0, 0, 255};
+SDL_Color colorRed = {255, 0, 0, 255};
+SDL_Color colorGreen = {0, 255, 0, 255};
+SDL_Color colorBlue = {0, 0, 255, 255};
+SDL_Color colorYellow = {255, 255, 0, 255};
+SDL_Color colorCyan = {0, 255, 255, 255};
+SDL_Color colorMagenta = {255, 0, 255, 255};
+SDL_Color colorOrange = {255, 165, 0, 255};
+SDL_Color colorPurple = {128, 0, 128, 255};
+SDL_Color colorBrown = {165, 42, 42, 255};
+SDL_Color colorGray = {128, 128, 128, 255};
+SDL_Color colorLightGray = {128, 128, 128, 128};
+SDL_Color colorDarkGray = {169, 169, 169, 255};
+SDL_Color colorPink = {255, 192, 203, 255};
+SDL_Color colorTransparent = {0, 0, 0, 0};
+
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
 TTF_Font*       g_font = NULL;
@@ -108,8 +125,6 @@ int main(int argc, char **argv)
 
     SDL_RaiseWindow(g_window);
 
-    SDL_Color windowLimitsColor = { 255, 255, 0, 255 };
-    SDL_Color blackColor = { 0, 0, 0, 255 };
 
     g_currentState = GAME_MAINMENU;
 
@@ -161,7 +176,7 @@ int main(int argc, char **argv)
         }
         SDL_RenderClear(g_renderer);
 
-        pickColor(&blackColor);
+        pickColor(&colorBlack);
 
         if (inMainMenu()) {
             // No need to render at 1000 fps
@@ -190,9 +205,9 @@ int main(int argc, char **argv)
             displayEditBox();
         }
 
-        pickColor(&windowLimitsColor);
+        pickColor(&colorRed);
         SDL_RenderDrawRect(g_renderer, &windowLimits);
-        pickColor(&blackColor);
+        pickColor(&colorBlack);
 
         SDL_RenderPresent(g_renderer);
 

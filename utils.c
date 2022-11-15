@@ -376,7 +376,7 @@ bool    checkUsername() {
         puts("Creating dialog");
         dialog = getEditBox();
         if (dialog->text == NULL) {
-            createEditBox("Enter your name", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+            createEditBox("Enter your name", 20, colorWhite, colorBlack);
             dialog->callback = askUsernameCallback;
         }
         return false;

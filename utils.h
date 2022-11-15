@@ -10,6 +10,7 @@
  #include <SDL.h>
 
  #include "player.h"
+ #include "colors.h"
 
  extern SDL_Window*         g_window;
  extern SDL_Renderer*       g_renderer;

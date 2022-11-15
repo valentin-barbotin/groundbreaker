@@ -5,6 +5,7 @@
 
  #include "game.h"
  #include "player.h"
+ #include "colors.h"
  extern t_gameConfig    *gameConfig;
  extern short           g_playersMultiIndex;
 
