@@ -18,7 +18,7 @@
 
 bool        g_serverRunning = false;
 bool        g_serverRunningUDP = false;
-pthread_t   g_serverThread = NULL;
+pthread_t   g_serverThread = 0;
 t_peer      *g_peersList[3]; // 4 players max
 int         g_peersListNb = 0;
 t_peer      *g_peersListUDP[3]; // 4 players max
@@ -130,7 +130,6 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         #endif
     }
 
-    t_player    *player;
     game = getGame();
     switch (action)
     {
@@ -181,11 +180,12 @@ void   *handleClient(void *clientSocket) {
     // thread does not need to be joined
     pthread_detach(pthread_self());
     char                buffer[1024];
-    char                *ptr = NULL;
+    const char          *ptr;
     size_t              total;
     size_t              len;
 
     int     client = *(int *)clientSocket;
+    ptr = NULL;
 
     #ifdef DEBUG
         printf("Client socket: %d\n", client);
@@ -229,10 +229,11 @@ void   *handleClient(void *clientSocket) {
  */
 void   handleClientUDP(int socket) {
     char                buffer[1024];
-    char                *ptr = NULL;
+    const char          *ptr;
     size_t              total;
     size_t              len;
 
+    ptr = NULL;
     do
     {
         struct sockaddr_in  clientAddr;
@@ -292,7 +293,7 @@ void    launchServer() {
  * @param argv 
  * @return int 
  */
-void    *createServerUDP(void *arg) {
+void    *createServerUDP(const void *arg) {
     if (g_serverRunningUDP) {
         #ifdef DEBUG
             puts("Server already running");
@@ -350,7 +351,7 @@ void    *createServerUDP(void *arg) {
  * @param argv 
  * @return int 
  */
-void    *createServer(void *arg) {
+void    *createServer(const void *arg) {
     if (g_serverRunning) {
         #ifdef DEBUG
             puts("Server already running");

@@ -12,7 +12,11 @@
 
 #define DEBUG
 
-t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
+t_sound     *walk;
+t_sound     *wall;
+t_sound     *unbreakableWall;
+t_sound     *bomb;
+t_sound     *item;
 
 
 void    injectItems(const t_map *map) {
@@ -155,9 +159,8 @@ void    posToGrid(t_player *player) {
 
 
 void    movePlayer(t_player *player) {
-    t_game          *game;
+    const t_game    *game;
     const t_map     *map;
-    char            buffer[100];
     bool            stopped;
 
     game = getGame();
@@ -330,7 +333,7 @@ void    movePlayer(t_player *player) {
                 // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
                 searchDirectionMap(getDirection(player), 2);
                 break;
-            }else if(player->bombKick) {
+            }else if (player->bombKick) {
                 // search in direction of the player and kick the bomb
                 searchDirectionMap(player->direction, 999);
                 break;
@@ -353,7 +356,7 @@ void    movePlayer(t_player *player) {
             if(isMoving(player)) {
                 if (Mix_PlayingMusic() == 0) {
                     initMusic(walk);
-                    if(walk->music == NULL) {
+                    if (walk->music == NULL) {
                         #ifdef DEBUG
                             fprintf(stderr, "Error loading sound : %s\n", Mix_GetError());
                         #endif
@@ -364,7 +367,7 @@ void    movePlayer(t_player *player) {
                 }
             }else{
                 if(Mix_PlayingMusic() == 1) {
-                    if(!stopSound(walk)) {
+                    if (!stopSound(walk)) {
                         #ifdef DEBUG
                             fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
                         #endif
@@ -411,7 +414,7 @@ void    movePlayer(t_player *player) {
 void    posToGridN(int x, int y, int *cellX, int *cellY) {
     unsigned int   cellSizeX;
     unsigned int   cellSizeY;
-    t_game         *game;
+    const t_game   *game;
 
     game = getGame();
 
@@ -437,7 +440,7 @@ void    posToGridN(int x, int y, int *cellX, int *cellY) {
 
 void explodeBomb(int xCell, int yCell) {
     const t_map*      map;
-    t_player          *player;
+    const t_player    *player;
 
     player = getPlayer();
     map = getGame()->map;
@@ -467,13 +470,17 @@ void    handleMouseButtonUpPlaying(const SDL_Event *event) {
 }
 
 void searchDirectionMap(t_direction direction, int scope) {
-    t_game   *game;
-    t_player *player;
-    const    t_map     *map;
+    const t_game    *game;
+    t_player        *player;
+    const t_map     *map;
+    int             cell;
+    int             i;
+    int             cellX;
+    int             cellY;
+
     game = getGame();
     player = getPlayer();
     map = game->map;
-    int cell, i, cellX, cellY;
 
     if (map == NULL) {
         #ifdef DEBUG
@@ -483,7 +490,7 @@ void searchDirectionMap(t_direction direction, int scope) {
         exit(1);
     }
 
-    switch(direction) {
+    switch (direction) {
         case DIR_UP:
             cellX = player->xCell;
             cellY = player->yCell - i;

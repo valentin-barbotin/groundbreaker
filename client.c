@@ -20,8 +20,8 @@
 
 #define DEBUG true
 
-pthread_t           g_clientThread = NULL;
-pthread_t           g_clientThreadUDP = NULL;
+pthread_t           g_clientThread = 0;
+pthread_t           g_clientThreadUDP = 0;
 int                 g_serverSocket = 0;
 int                 g_serverSocketUDP = 0;
 struct sockaddr_in  *g_serverAddrUDP = NULL;
@@ -51,7 +51,7 @@ void    broadcastMsgUDP(const char *msg) {
  * @param server 
  * @param sockaddr 
  */
-void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in  *sockaddr) {
+void    handleMessageClient(const char  *buffer, int server, const struct sockaddr_in  *sockaddr) {
     char        *pos;
     char        type[128];
     char        *content;
@@ -64,7 +64,6 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             puts("Invalid message (: client)");
             exit(1);
         #endif
-        return;
     }
 
     *pos = '\0';
@@ -105,11 +104,11 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             break;
         case START: {
             //launch game
-            unsigned short h;
-            unsigned short w;
-            unsigned short players;
-            t_map          *map;
-            char           *ptr;
+            unsigned short  h;
+            unsigned short  w;
+            unsigned short  players;
+            t_map           *map;
+            const char      *ptr;
             sscanf(content, "%hu %hu %hu $", &h, &w, &players);
             printf("h: %hu, w: %hu, nb: %hu\n", h, w, players);
 
@@ -124,7 +123,6 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
                     puts("Invalid message ($ client)");
                     exit(1);
                 #endif
-                return;
             }
             ptr++;
 
@@ -259,7 +257,7 @@ void    askServerPortCallback() {
 
 void    joinServer() {
     bool    valid = false;
-    if (g_clientThread != NULL) {
+    if (g_clientThread != 0) {
         #ifdef DEBUG
             puts("Client already running");
         #endif
@@ -282,10 +280,11 @@ void    joinServer() {
 void    *connectToServer(void *arg) {
     struct sockaddr_in  cl;
     char                buffer[1024];
-    char                *ptr = NULL;
+    const char          *ptr;
     size_t              total;
     size_t              len;
 
+    ptr = NULL;
     // thread does not need to be joined
     pthread_detach(pthread_self());
 
@@ -306,7 +305,7 @@ void    *connectToServer(void *arg) {
             fprintf(stderr, "Error connecting to server: %s", strerror(res));
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
-        g_clientThread = NULL;
+        g_clientThread = 0;
         return NULL;
     }
 
@@ -370,17 +369,6 @@ void    *connectToServerUDP(void *arg) {
     cl.sin_port = htons(port);
 
     g_serverAddrUDP = &cl;
-
-    // int res = connect(g_serverSocketUDP, (struct sockaddr *)&cl, sizeof(cl));
-    // if (res < 0) {
-    //     #ifdef DEBUG
-    //         perror("(UDP) Error connecting to server");
-    //         fprintf(stderr, "(UDP) Error connecting to server: %s", strerror(res));
-    //     #endif
-    //     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
-    //     g_clientThreadUDP = NULL;
-    //     return NULL;
-    // }
 
     puts("(UDP) Connected to server");
 

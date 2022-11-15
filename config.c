@@ -278,6 +278,7 @@ bool    setupCommands(FILE* fd, char* data, t_commandsConfig *config) {
                 break;
             case c_use_item:
                 config->use_item = *value;
+                break;
             case c_item_1:
                 config->item_1 = *value;
                 break;

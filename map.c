@@ -34,6 +34,7 @@ void     getMaps() {
     if (dir == NULL) {
         #ifdef DEBUG
             fprintf(stderr, "Error: Can't open maps directory\n");
+            perror("opendir");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't open maps directory", g_window);
         exit(1);
@@ -118,7 +119,6 @@ void    saveMap(const t_map *map) {
     }
 
     sprintf(buff, "maps/%s.bin", name);
-    free(name);
 
     fd = fopen(buff, "wb");
     if (fd == NULL) {
@@ -128,6 +128,7 @@ void    saveMap(const t_map *map) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't write map", g_window);
         exit(1);
     }
+    free(name);
 
     fwrite(map, sizeof(t_map), 1, fd);
     for (int i = 0; i < map->height; i++) {

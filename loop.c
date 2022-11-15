@@ -96,11 +96,11 @@ void    handleMouseButtonUp(const SDL_Event *event) {
     }
 }
 
-void    handleKeyDown(const SDL_Event *event) {
+void    handleKeyDown(const SDL_KeyboardEvent *event) {
     t_dialog *dialog = getEditBox();
 
     if (dialog->active) {
-        switch (event->key.keysym.sym)
+        switch (event->keysym.sym)
         {
            case SDLK_BACKSPACE:
                 if (dialog->edit[0] != '\0') {

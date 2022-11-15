@@ -151,9 +151,9 @@ void    setupMenu() {
 }
 
 void    drawPlayersList() {
-    SDL_Color   colorBlack = {0, 0, 0, 255};
-    t_game      *game;
-    SDL_Rect    rect;
+    SDL_Color       colorBlack = {0, 0, 0, 255};
+    const t_game    *game;
+    SDL_Rect        rect;
 
     game = getGame();
 
@@ -166,7 +166,7 @@ void    drawPlayersList() {
     
     // drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
 
-    for (size_t i = 0; i < game->nbPlayers; i++)
+    for (int i = 0; i < game->nbPlayers; i++)
     {
         if (strlen(game->players[i]->name)) {
             drawText(&colorBlack, rect.x + 10, rect.y + 10 + (i * 20), game->players[i]->name, false, rect.w);
@@ -175,18 +175,17 @@ void    drawPlayersList() {
 }
 
 void    drawLobbyMaps() {
-    SDL_Rect    rect;
-    SDL_Color   colorBlack = {0, 0, 0, 255};
-    SDL_Color   colorYellow = {255, 255, 0, 255};
-    SDL_Color   colorBlue = {0, 0, 255, 255};
-    SDL_Color   colorRed = {255, 0, 0, 255};
-    SDL_Color   colorGreen = {0, 255, 0, 255};
-    int         gap;
-    char        buff[7];
-    short       j;
-    short       nbMaps;
-    short       fromGap;
-    t_game      *game;
+    SDL_Rect        rect;
+    SDL_Color       colorBlack = {0, 0, 0, 255};
+    SDL_Color       colorYellow = {255, 255, 0, 255};
+    SDL_Color       colorBlue = {0, 0, 255, 255};
+    SDL_Color       colorGreen = {0, 255, 0, 255};
+    int             gap;
+    char            buff[7];
+    short           j;
+    short           nbMaps;
+    short           fromGap;
+    const t_game    *game;
 
 
     game = getGame();
@@ -256,18 +255,10 @@ void    drawLobbyMaps() {
 }
 
 void    drawLobbyMenu() {
-    SDL_Rect    rect;
     SDL_Color   colorWhite = {255, 255, 255, 255};
-    SDL_Color   colorYellow = {255, 255, 0, 255};
     SDL_Color   colorBlack = {0, 0, 0, 255};
     SDL_Color   colorBlue = {0, 0, 255, 255};
-    SDL_Color   colorRed = {255, 0, 0, 255};
-    const t_map *map;
     char        buff[7];
-    int         gap;
-    short       j;
-    short       nbMaps;
-    short       fromGap;
 
     if (g_lobby == NULL) {
         g_lobby = malloc(sizeof(t_lobby));
@@ -317,17 +308,17 @@ void    drawLobbyMenu() {
 };
 
 void    setupMenuButtons() {
-    int             op;
-    SDL_Texture     *tex;
-    SDL_Color       notSelectedColor;
-    SDL_Color       selectedColor;
-    SDL_Color       backgroundColor = {0, 0, 0, 128};
-    SDL_Color       *color;
-    SDL_Rect        rect;
-    int             textWidth;
-    int             textHeight;
-    int             x;
-    int             y;
+    int                 op;
+    SDL_Texture         *tex;
+    SDL_Color           notSelectedColor;
+    SDL_Color           selectedColor;
+    SDL_Color           backgroundColor = {0, 0, 0, 128};
+    const SDL_Color     *color;
+    SDL_Rect            rect;
+    int                 textWidth;
+    int                 textHeight;
+    int                 x;
+    int                 y;
 
     selectedColor.r = 255;
     selectedColor.g = 0;

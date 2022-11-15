@@ -110,31 +110,19 @@ void    doSendPos(const t_player *player) {
     sendToAllUDP(buffer, NULL);
 }
 
-void        printInventory() {
-    t_player    *player;
-    player = getPlayer();
-    /*
-    for(int k = 0; k < NB_ITEMS; k++) {
-        if (player->inventory[k] != NULL) {
-            printf("Item %d: %d", k, player->inventory[k]->quantity);
-        }
-    }
-     */
-}
-
 void       initInventory(t_player *player) {
     // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
-    player->inventory[ITEM_BOMB] = g_items + ITEM_BOMB;
-    player->inventory[ITEM_BOMB_UP] = g_items + ITEM_BOMB_UP;
-    player->inventory[ITEM_BOMB_DOWN] = g_items + ITEM_BOMB_DOWN;
-    player->inventory[ITEM_YELLOW_FLAME] = g_items + ITEM_YELLOW_FLAME;
-    player->inventory[ITEM_BLUE_FLAME] = g_items + ITEM_BLUE_FLAME;
-    player->inventory[ITEM_RED_FLAME] = g_items + ITEM_RED_FLAME;
-    player->inventory[ITEM_PASS_THROUGH_BOMB] = g_items + ITEM_PASS_THROUGH_BOMB;
-    player->inventory[ITEM_BOMB_KICK] = g_items + ITEM_BOMB_KICK;
-    player->inventory[ITEM_INVINCIBILITY] = g_items + ITEM_INVINCIBILITY;
-    player->inventory[ITEM_HEART] = g_items + ITEM_HEART;
-    player->inventory[ITEM_LIFE] = g_items + ITEM_LIFE;
+    player->inventory[ITEM_BOMB]                = g_items + ITEM_BOMB;
+    player->inventory[ITEM_BOMB_UP]             = g_items + ITEM_BOMB_UP;
+    player->inventory[ITEM_BOMB_DOWN]           = g_items + ITEM_BOMB_DOWN;
+    player->inventory[ITEM_YELLOW_FLAME]        = g_items + ITEM_YELLOW_FLAME;
+    player->inventory[ITEM_BLUE_FLAME]          = g_items + ITEM_BLUE_FLAME;
+    player->inventory[ITEM_RED_FLAME]           = g_items + ITEM_RED_FLAME;
+    player->inventory[ITEM_PASS_THROUGH_BOMB]   = g_items + ITEM_PASS_THROUGH_BOMB;
+    player->inventory[ITEM_BOMB_KICK]           = g_items + ITEM_BOMB_KICK;
+    player->inventory[ITEM_INVINCIBILITY]       = g_items + ITEM_INVINCIBILITY;
+    player->inventory[ITEM_HEART]               = g_items + ITEM_HEART;
+    player->inventory[ITEM_LIFE]                = g_items + ITEM_LIFE;
 }
 
 /**
@@ -142,11 +130,8 @@ void       initInventory(t_player *player) {
  * @param item
  * @return
  */
-bool        hasItemInInventory(t_player *player, t_item *item) {
-    if (player->inventory[item->type] != NULL && player->inventory[item->type]->quantity > 0) {
-        return true;
-    }
-    return false;
+bool        hasItemInInventory(const t_player *player, const t_item *item) {
+    return (player->inventory[item->type] != NULL && player->inventory[item->type]->quantity > 0);
 }
 
 /**
@@ -154,6 +139,6 @@ bool        hasItemInInventory(t_player *player, t_item *item) {
  * @param item
  * @return
  */
-bool        isAlive(t_player *player) {
+bool        isAlive(const t_player *player) {
     return (player->health > 0);
 }

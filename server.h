@@ -33,8 +33,8 @@
  void    handleClientUDP(int socket);
  void    *handleClient(void *clientSocket);
  void    launchServer();
- void    *createServerUDP(void *arg);
- void    *createServer();
+ void    *createServerUDP(const void *arg);
+ void    *createServer(const void *arg);
  void    multiplayerStart();
  void    sendPlayersToAll();
 

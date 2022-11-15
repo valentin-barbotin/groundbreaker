@@ -12,9 +12,10 @@ void drawInventory() {
 
     SDL_Color colorGrey = {128, 128, 128, 128};
     SDL_Color colorWhite = {255, 255, 255, 255};
-    t_game      *game;
-    t_player      *player;
-    SDL_Rect    rect, rectItem, rectDest;
+    const t_player      *player;
+    SDL_Rect            rect;
+    SDL_Rect            rectItem;
+    SDL_Rect            rectDest;
 
     player = getPlayer();
 
@@ -54,10 +55,12 @@ void drawInventory() {
 }
 
 void drawSelectedItem() {
-    SDL_Color   colorYellow = {255, 255, 0, 255};
-    SDL_Color   colorBlack = {0, 0, 0, 255};
-    SDL_Rect    rect;
-    t_player    *player;
+    SDL_Color           colorYellow = {255, 255, 0, 255};
+    SDL_Color           colorBlack = {0, 0, 0, 255};
+    SDL_Rect            rect;
+    const t_player      *player;
+
+
     player = getPlayer();
 
     pickColor(&colorYellow);
@@ -75,5 +78,6 @@ void drawSelectedItem() {
         rect.h += 2;
         SDL_RenderDrawRect(g_renderer, &rect);
     }
+
     pickColor(&colorBlack);
 }

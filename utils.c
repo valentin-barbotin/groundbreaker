@@ -161,7 +161,7 @@ SDL_Texture* textureFromFile(const char* src) {
  * @param char* suffix to remove
  * @return char* suffix position in src
  */
-char* removeSuffix(const char* src, char* suffix) {
+char* removeSuffix(const char *src, const char *suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
         #ifdef DEBUG
