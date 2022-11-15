@@ -10,6 +10,8 @@
 #include "assets.h"
 #include "ia.h"
 
+#define GETCELL(x, y) (map->map[y][x])
+
 #define DEBUG
 
 t_sound *walk, *wall, *unbreakableWall, *bomb, *item;
@@ -20,9 +22,9 @@ void    injectItems(const t_map *map) {
     {
         for (size_t j = 1; j < map->width - 1; j++)
         {
-            if (map->map[i][j] == EMPTY && rand() % 100 < 30)
+            if (GETCELL(i, j) == EMPTY && rand() % 100 < 30)
             {
-                map->map[i][j] = (rand() % 100 < 50) ? LOOT : WALL;
+                GETCELL(i, j) = (rand() % 100 < 50) ? LOOT : WALL;
             }
         }
     }

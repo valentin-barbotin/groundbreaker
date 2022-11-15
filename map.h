@@ -7,7 +7,6 @@
  #include "config.h"
  #include "player.h"
  #include "assets.h"
- #define GETCELL(x, y) (map->map[y][x])
 
  extern int              g_currentState;
  extern t_gameConfig     *gameConfig;
