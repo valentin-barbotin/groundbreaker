@@ -35,7 +35,7 @@ bool    inMainMenu() {
                 #ifdef DEBUG
                     fprintf(stderr, "Error allocating memory for main_music");
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
                 exit(1);
             }
             main_music->file = SOUND_MUSIC_MAIN;
@@ -44,7 +44,7 @@ bool    inMainMenu() {
                 #ifdef DEBUG
                                 fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
                 exit(1);
             }
             Mix_VolumeMusic(25);
@@ -56,7 +56,7 @@ bool    inMainMenu() {
             #ifdef DEBUG
                 fprintf(stderr, "Error: Can't open stop the music\n");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop music", g_window);
             exit(1);
         }
     }

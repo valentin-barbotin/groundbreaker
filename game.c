@@ -89,7 +89,7 @@ t_game* getGame() {
             #ifdef DEBUG
                 fprintf(stderr, "Error allocating memory for game");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
             exit(1);
         }
 
@@ -112,7 +112,7 @@ t_game* getGame() {
             #ifdef DEBUG
                 fprintf(stderr, "Error allocating memory for game->players");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
             exit(1);
         }
 
@@ -169,7 +169,7 @@ void    movePlayer(t_player *player) {
         #ifdef DEBUG
             fprintf(stderr, "Error: map is NULL in movePlayer()\n");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Game error", g_window);
         exit(1);
     }
 
@@ -257,7 +257,7 @@ void    movePlayer(t_player *player) {
                     #ifdef DEBUG
                             fprintf(stderr, "Error: can't stop sound\n");
                     #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
                     exit(1);
                 }
             } else if (Mix_PlayingMusic() == 0) {
@@ -266,7 +266,7 @@ void    movePlayer(t_player *player) {
                     #ifdef DEBUG
                             fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
                     #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
                     exit(1);
                 }
                 playSound(wall);
@@ -275,7 +275,7 @@ void    movePlayer(t_player *player) {
                     #ifdef DEBUG
                             fprintf(stderr, "Error: can't stop sound\n");
                     #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
                     exit(1);
                 }
             }
@@ -299,7 +299,7 @@ void    movePlayer(t_player *player) {
                 #ifdef DEBUG
                         fprintf(stderr, "Error: malloc failed in movePlayer()\n");
                 #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
                     exit(1);
                 }
                 initMusic(unbreakableWall);
@@ -307,7 +307,7 @@ void    movePlayer(t_player *player) {
                     #ifdef DEBUG
                                 fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
                     #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
                     exit(1);
                 }
 
@@ -319,7 +319,7 @@ void    movePlayer(t_player *player) {
                     #ifdef DEBUG
                         fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
                     #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
                     exit(1);
                 }
             }
@@ -359,7 +359,7 @@ void    movePlayer(t_player *player) {
                         #ifdef DEBUG
                             fprintf(stderr, "Error loading sound : %s\n", Mix_GetError());
                         #endif
-                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
                         exit(1);
                     }
                     playSoundLoop(walk);
@@ -370,7 +370,7 @@ void    movePlayer(t_player *player) {
                         #ifdef DEBUG
                             fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
                         #endif
-                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
                         exit(1);
                     }
                 }
@@ -481,7 +481,7 @@ void searchDirectionMap(t_direction direction, int scope) {
         #ifdef DEBUG
                 fprintf(stderr, "Error: map is NULL in searchDirectionMap()\n");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Map error", g_window);
         exit(1);
     }
 

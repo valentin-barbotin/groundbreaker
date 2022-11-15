@@ -42,7 +42,7 @@ char   *randomString(unsigned short size) {
         #ifdef DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -109,7 +109,7 @@ char* readFile(const char* src) {
         #ifdef DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -167,7 +167,7 @@ char* removeSuffix(const char* src, char* suffix) {
         #ifdef DEBUG
             fprintf(stderr, "Error removing suffix from string");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "String error", g_window);
         exit(1);
     }
     *pos = '\0';

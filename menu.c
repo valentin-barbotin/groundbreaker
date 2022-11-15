@@ -275,7 +275,7 @@ void    drawLobbyMenu() {
             #ifdef DEBUG
                 fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
             exit(1);
         }
         g_lobby->columns = 5;

@@ -26,7 +26,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error reading config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't read config file", g_window);
         exit(1);
     }
 
@@ -36,7 +36,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error finding key in config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Config error", g_window);
         exit(1);
     }
 
@@ -46,7 +46,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error finding end of line in config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Config error", g_window);
         exit(1);
     }
     // cut the buffer in half from the start of the line
@@ -57,7 +57,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error opening config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't edit config file", g_window);
         exit(1);
     }
 
@@ -322,7 +322,7 @@ int     readConfig(t_gameConfig *config) {
         #ifdef DEBUG
                 fprintf(stderr, "Error: calloc failed\n");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
