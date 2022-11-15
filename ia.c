@@ -2,7 +2,6 @@
 #include "config.h"
 
 #define DEBUG true
-#define GETCELL(x, y) (map->map[y][x])
 
 t_player    *g_bots[MAX_BOTS];
 short        g_nbBots = 0;
@@ -13,7 +12,7 @@ void    searchBotsPos(const t_map *map) {
     for (short y = 1; y < map->height - 2; y++) {
         for (short x = 1; x < map->width - 2; x++) {
             // find a line of empty cells (min 3)
-            if (GETCELL(y, x) == EMPTY && GETCELL(y, x + 1) == EMPTY && GETCELL(y, x + 2) == EMPTY) {
+            if (map->map[y][x] == EMPTY && map->map[y][x + 1] == EMPTY && map->map[y][x + 2] == EMPTY) {
                 #ifdef DEBUG
                     printf("found empty line x:%d, y:%d\n", x, y);
                 #endif
@@ -33,7 +32,7 @@ void    searchBotsPos(const t_map *map) {
                 }
                 break;
             // find a column of empty cells (min 3)
-            } else if (GETCELL(y, x) == EMPTY && GETCELL(y + 1, x) == EMPTY && GETCELL(y + 2, x) == EMPTY) {
+            } else if (map->map[y][x] == EMPTY && map->map[y + 1][x] == EMPTY && map->map[y + 2][x] == EMPTY) {
                 #ifdef DEBUG
                     printf("found empty column x:%d, y:%d\n", x, y);
                 #endif

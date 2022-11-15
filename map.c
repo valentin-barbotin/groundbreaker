@@ -12,7 +12,6 @@
 #include "font.h"
 
 #define DEBUG true
-#define GETCELL(x, y) (map->map[y][x])
 
 short       g_nbMap = 0;
 
@@ -177,15 +176,15 @@ void    map_fill(const t_map *map) {
     // Fill the map with empty tiles
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            GETCELL(i, j) = EMPTY;
+            map->map[i][j] = EMPTY;
         }
     }
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            GETCELL(map->height - 1, j) = UNBREAKABLE_WALL;
-            GETCELL(i, 0) = UNBREAKABLE_WALL;
-            GETCELL(i, map->width - 1) = UNBREAKABLE_WALL;
-            GETCELL(0, j) = UNBREAKABLE_WALL;
+            map->map[map->height - 1][j] = UNBREAKABLE_WALL;
+            map->map[i][0] = UNBREAKABLE_WALL;
+            map->map[i][map->width - 1] = UNBREAKABLE_WALL;
+            map->map[0][j] = UNBREAKABLE_WALL;
         }
     }
 
@@ -193,7 +192,7 @@ void    map_fill(const t_map *map) {
     for (int i = 2; i < map->height-2; i++) {
         for (int j = 2; j < map->width-2; j++) {
             if (i % 2 == 0 && j % 2 == 0) {
-                GETCELL(i, j) = UNBREAKABLE_WALL;
+                map->map[i][j] = UNBREAKABLE_WALL;
             }
         }
     }
@@ -203,15 +202,15 @@ void    map_fill(const t_map *map) {
         random = rand() % ((map->width - 2) + 1);
         if (random == 0) random++;
         if (random == map->width - 1) random--;
-        GETCELL(0, random) = EMPTY;
-        GETCELL(map->height - 1, random) = EMPTY;
+        map->map[0][random] = EMPTY;
+        map->map[map->height - 1][random] = EMPTY;
     } else {
         // if 0, holes are placed at the left of the map and at the right
         random = rand() % ((map->height - 2) + 1);
         if (random == 0) random++;
         if (random == map->height- 1) random--;
-        GETCELL(random, 0) = EMPTY;
-        GETCELL(random, map->width - 1) = EMPTY;
+        map->map[random][0] = EMPTY;
+        map->map[random][map->width - 1] = EMPTY;
     }
 }
 
@@ -230,7 +229,7 @@ void    map_destroy(t_map *map) {
 void    map_print(const t_map *map) {
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            printf("%d ", GETCELL(i, j));
+            printf("%d ", map->map[i][j]);
         }
         printf("\n");
     }
@@ -253,7 +252,7 @@ void    drawMapInRect(const SDL_Rect *rectList, size_t index) {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            switch (GETCELL(i, j))
+            switch (map->map[i][j])
             {
                 case UNBREAKABLE_WALL:
                     tex = TEX_UNBREAKABLE_WALL;
@@ -294,7 +293,7 @@ void    drawMap() {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            switch (GETCELL(i, j))
+            switch (map->map[i][j])
             {
                 case WALL:
                     tex = TEX_WALL;
