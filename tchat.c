@@ -75,13 +75,13 @@ void    putMessageInTchat(t_player *player, const char *msg) {
     buffer = malloc(sizeof(char) * (strlen(msg) + 1 + strlen(player->name) + 1));
     sprintf(buffer, "%s: %s", player->name, msg);
     g_messages[g_messages_nb - 1] = buffer;
-    buffer = NULL;
 
     // TODO:send message to all
     if (inMultiplayer()) {
-        sendToAll(buffer, strlen(buffer));
+        sendToAll(buffer, NULL);
     }
 
+    buffer = NULL;
 }
 
 
