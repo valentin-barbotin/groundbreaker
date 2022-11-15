@@ -42,5 +42,6 @@
  void    explodeBomb(int xCell, int yCell);
  void    handleMouseButtonUpPlaying(const SDL_Event *event);
  void    launchGame();
+ void    putPlayerInFreeCell(t_player *player);
 
 #endif

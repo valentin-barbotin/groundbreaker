@@ -601,7 +601,7 @@ void    launchGame() {
 
     injectItems(game->map);
 
-    spawnPlayer(1, 1, getPlayer());
+    putPlayerInFreeCell(getPlayer());
 
     if (g_serverRunning) {
 
@@ -619,3 +619,20 @@ void    launchGame() {
 
     g_currentState = GAME_PLAY_PLAYING;
 }
+
+ void    putPlayerInFreeCell(t_player *player) {
+    const t_game    *game;
+    const t_map     *map;
+    int             x;
+    int             y;
+
+    game = getGame();
+    map = game->map;
+
+    do {
+        x = rand() % map->width;
+        y = rand() % map->height;
+    } while (GETCELL(x, y) != EMPTY);
+
+    spawnPlayer(x, y, player);
+ }
