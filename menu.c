@@ -309,6 +309,8 @@ void    drawLobbyMenu() {
         
         drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
         drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
+    } else {
+        drawText(&colorBlack, (gameConfig->video.width) * 0.5, (gameConfig->video.height) * 0.80, "Waiting..", true, 0);
     }
     
     drawPlayersList();
