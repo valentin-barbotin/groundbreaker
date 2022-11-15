@@ -364,6 +364,7 @@ void    *createServer(void *arg) {
     int                 clientSocket;
     socklen_t           clientAddressLength;
     unsigned short      port;
+    char                buffer[1024];
 
     port = atoi(gameConfig->server.port);
 
@@ -394,6 +395,9 @@ void    *createServer(void *arg) {
         g_serverThread = NULL;
         return NULL;
     }
+
+    sprintf(buffer, "Server started on port %d", port);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game", buffer, g_window);
 
     listen(serverSocket, 5);
     g_serverRunning = true;
