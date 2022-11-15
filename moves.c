@@ -40,8 +40,8 @@ void    handleKeyUpPlay(const SDL_Event *event) {
         if (event->key.repeat == 0) {
             switch (event->key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    puts("pause");
                     pauseGame();
+                    break;
                 case SDLK_UP:
                     player->vy += VELOCITY;
                     break;
