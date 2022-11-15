@@ -16,6 +16,7 @@
     QUIT,
     PLAYERDAT,
     MYNAME,
+    TCHAT,
  }             t_message;
 
  typedef struct     s_peer

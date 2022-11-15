@@ -7,6 +7,8 @@
  #include "player.h"
  extern t_gameConfig    *gameConfig;
  extern short           g_playersMultiIndex;
+ extern char            **g_messages;
+ extern size_t          g_messages_nb;
 
  void    broadcastMsg(const char *msg);
  void    broadcastMsgUDP(const char *msg);

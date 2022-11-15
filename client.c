@@ -90,6 +90,8 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
         action = QUIT;
     } else if (stringIsEqual(type, "PLAYERDAT")) {
         action = PLAYERDAT;
+    } else if (stringIsEqual(type, "TCHAT")) {
+        action = TCHAT;
     } else {
         #ifdef DEBUG
             puts("Invalid message type");
@@ -183,7 +185,17 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             printf("PLAYER name: %s\n", player->name);
         }
             break;
-        
+
+        case TCHAT: {
+            if(g_messages == NULL) {
+                g_messages = malloc(sizeof(char *) * ++g_messages_nb);
+            } else {
+                g_messages = realloc(g_messages , sizeof(char *) * ++g_messages_nb);
+            }
+
+            g_messages[g_messages_nb - 1] = strdup(content);
+        }
+            break;
         default:
             break;
     }
