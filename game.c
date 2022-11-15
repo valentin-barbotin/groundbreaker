@@ -446,7 +446,7 @@ void explodeBomb(int xCell, int yCell) {
     GETCELL(yCell, xCell) = EMPTY;
 
     // posToGrid but with 2 int pointers
-    posToGrid(player->x, player->y);
+    posToGrid(player);
 
     // pour chaque direction (UP, DOWN, LEFT, RIGHT)
     for (int k = 0; k < NB_DIRECTIONS; k++) {
@@ -487,6 +487,7 @@ void searchDirectionMap(t_direction direction, int scope) {
         exit(1);
     }
 
+    i = 1;
     switch(direction) {
         case DIR_UP:
             cellX = player->xCell;
