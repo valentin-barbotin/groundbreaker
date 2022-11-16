@@ -17,6 +17,7 @@
 #include "dialog.h"
 #include "player.h"
 #include "game.h"
+#include "tchat.h"
 
 #define DEBUG true
 
@@ -187,13 +188,8 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             break;
 
         case TCHAT: {
-            if(g_messages == NULL) {
-                g_messages = malloc(sizeof(char *) * ++g_messages_nb);
-            } else {
-                g_messages = realloc(g_messages , sizeof(char *) * ++g_messages_nb);
-            }
-
-            g_messages[g_messages_nb - 1] = strdup(content);
+            // we update the tchat to display the message for all players
+            updateTchatMessages(content);
         }
             break;
         default:
