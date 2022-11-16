@@ -185,6 +185,7 @@ int main(int argc, char **argv)
         } else if (inGame())
         {
             drawMap();
+            drawEffects();
 
             if (isGamePaused()) {
                 setupMenu();
@@ -194,7 +195,9 @@ int main(int argc, char **argv)
                 // move bots
                 for (size_t i = 0; i < g_nbBots; i++)
                 {
-                    movePlayer(g_bots[i]);
+                    if (g_bots[i]->health) {
+                        movePlayer(g_bots[i]);
+                    }
                 }
 
                 movePlayer(getPlayer());

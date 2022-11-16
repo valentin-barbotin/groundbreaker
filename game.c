@@ -9,6 +9,8 @@
 #include "server.h"
 #include "assets.h"
 #include "ia.h"
+#include "effects.h"
+#include "client.h"
 
 #define DEBUG
 
@@ -468,13 +470,23 @@ void    posToGridN(int x, int y, int *cellX, int *cellY) {
 }
 
 void explodeBomb(int xCell, int yCell) {
-    const t_map*      map;
+    const t_map      *map;
+    const t_game     *game;
     const t_player    *player;
+    unsigned int      cellSizeX;
+    unsigned int      cellSizeY;
 
     player = getPlayer();
-    map = getGame()->map;
+    game = getGame();
+    map = game->map;
     GETCELL(xCell, yCell) = GRAVEL;
     updateCell(xCell, yCell, GRAVEL);
+
+    cellSizeX = gameConfig->video.width / game->map->width;
+    cellSizeY = gameConfig->video.height / game->map->height;
+
+    addEffect(xCell * cellSizeX, yCell * cellSizeY, BOMB_EXPLOSION);
+
     printf("cell destroyed at x:%d y:%d\n", xCell, yCell);
 
 
@@ -508,6 +520,8 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
     int             i;
     int             cellX;
     int             cellY;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
 
     game = getGame();
     player = getPlayer();
@@ -520,6 +534,10 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Map error", g_window);
         exit(1);
     }
+
+    
+    cellSizeX = gameConfig->video.width / game->map->width;
+    cellSizeY = gameConfig->video.height / game->map->height;
 
     // no bots in multiplayer
     // in case of a bot on the map itself
@@ -622,6 +640,8 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
             default:
                 break;
         }
+
+        addEffect(cellX * cellSizeX, cellY * cellSizeY, BOMB_EXPLOSION);
     }
 }
 

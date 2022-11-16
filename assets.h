@@ -22,6 +22,8 @@
  #define TEX_LIFE                    "./assets/items/life.png"
  #define TEX_LOOT                    "./assets/loot.png"
 
+ #define TEX_BOMB_EXPLOSION          "./assets/bomb_sprite.png"
+
  #define SOUND_UNBREAKABLE_WALL      "./assets/sound/unbreakable_wall.ogg"
  #define SOUND_MUSIC_MAIN            "./assets/sound/main_music.ogg"
  #define SOUND_WALK                  "./assets/sound/walk.ogg"

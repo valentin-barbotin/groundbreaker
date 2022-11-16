@@ -39,7 +39,7 @@ if (WIN32)
     find_package(SDL2-mixer REQUIRED)
 endif(WIN32)
 
-add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c player.c sound.c inventory.c settings.c items.c ia.c discord.c)
+add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c player.c sound.c inventory.c settings.c items.c ia.c discord.c effects.c)
 
 add_library(DISCORD SHARED IMPORTED)
 if (UNIX)
