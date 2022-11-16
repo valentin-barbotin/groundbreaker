@@ -305,6 +305,9 @@ void    drawMap() {
                 case UNBREAKABLE_WALL:
                     tex = TEX_UNBREAKABLE_WALL;
                     break;
+                case GRAVEL:
+                    tex = TEX_GRAVEL;
+                    break;
                 default:
                     tex = TEX_DIRT; //player & empty
                     break;
@@ -398,4 +401,8 @@ void    drawPlayer(const t_player *player) {
 
     // draw player name
     drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, player->name, true, 0);
+}
+
+void    spawnRandomItem(int xCell, int yCell) {
+    
 }

@@ -38,7 +38,7 @@
  void    movePlayer(t_player *player);
  void    posToGrid(t_player *player);
  void    posToGridN(int x, int y, int *xCell, int *yCell);
- void    searchDirectionMap(t_direction directionMap, int scope);
+ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction directionMap, int scope);
  void    explodeBomb(int xCell, int yCell);
  void    handleMouseButtonUpPlaying(const SDL_Event *event);
  void    launchGame();

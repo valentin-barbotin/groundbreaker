@@ -2,8 +2,10 @@
 #include "player.h"
 #include "game.h"
 
+#define DEBUG true
+
 t_item g_items[NB_ITEMS] = {
-        {ITEM_BOMB, 0, 0, false, 2, 10000, false, TEX_BOMB},
+        {ITEM_BOMB, 0, 0, false, 2, 2000, false, TEX_BOMB},
         {ITEM_BOMB_UP, 0, 0, false, 0, 0, false, TEX_BOMB_UP},
         {ITEM_BOMB_DOWN, 0, 0, false, 0, 0, false, TEX_BOMB_DOWN},
         {ITEM_YELLOW_FLAME, 0, 0, false, 0, 0, false, TEX_YELLOW_FLAME},
@@ -27,16 +29,31 @@ void   useItem(t_item *item) {
 
     item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB]->quantity++ : player->inventory[item->type]->quantity--;
     switch (item->type) {
-        case ITEM_BOMB:
+        case ITEM_BOMB: {
             // TODO : START A TIMER OF 10 SECONDS
             // SDL TIMER
-            timer_bomb_id = SDL_AddTimer(item[ITEM_BOMB].duration, bombTimer, NULL);
+            SDL_Point   *pos = malloc(sizeof(SDL_Point));
+            if (!pos) {
+                #ifdef DEBUG
+                    fprintf(stderr, "Malloc error in useItem()");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
+                exit(1);
+            };
+
+            pos->x = player->xCell;
+            pos->y = player->yCell;
+            
+            printf("POS TIMER x:%d y:%d\n", pos->x, pos->y);
+
+            timer_bomb_id = SDL_AddTimer(item[ITEM_BOMB].duration, bombTimer, pos);
             // t_timer *timerBomb = malloc(sizeof(t_timer));
             // timer->startTicks = SDL_GetTicks();
             // timer->duration = 10000;
             // timer->isPaused = false;
             // startTimer(timerBomb);
             break;
+        }
         case ITEM_BOMB_UP:
             player->inventory[ITEM_BOMB]->quantity--;
             break;
@@ -85,8 +102,10 @@ void   useItem(t_item *item) {
     }
 }
 
-Uint32 bombTimer(Uint32 interval, void *param) {
-    explodeBomb(g_items[ITEM_BOMB].xCell, g_items[ITEM_BOMB].yCell);
+Uint32 bombTimer(Uint32 interval, SDL_Point *param) {
+    printf("BOMB TIMER x:%d y:%d\n", param->x, param->y);
+    explodeBomb(param->x, param->y);
+    free(param);
     return 0;
 }
 

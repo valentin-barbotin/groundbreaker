@@ -6,6 +6,7 @@
  #define TEX_PLAYER                 "./assets/bomber.png"
  #define TEX_WALL                   "./assets/wall.png"
  #define TEX_DIRT                   "./assets/dirt.png"
+ #define TEX_GRAVEL                 "./assets/gravel.png"
 
  // Items
  #define TEX_BOMB                    "./assets/items/bomb.png"

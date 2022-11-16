@@ -19,17 +19,17 @@ typedef enum e_item_type {
     ITEM_HEART,
     ITEM_LIFE,
     NB_ITEMS
-} t_item_type;
+}           t_item_type;
 
 typedef struct s_item {
-    int     type;
-    int     xCell;
-    int     yCell;
-    bool    isRare;
-    int     quantity;
-    Uint32     duration;
-    bool    isActive;
-    char    *tex;
+    t_item_type     type;
+    int             xCell;
+    int             yCell;
+    bool            isRare;
+    int             quantity;
+    Uint32          duration;
+    bool            isActive;
+    char            *tex;
 }              t_item;
 
 t_item  *getItem(t_item_type type);
@@ -39,7 +39,7 @@ void    destroyItem(t_item *item);
 void    activateItem(t_item *item);
 void    deactivateItem(t_item *item);
 void    useItem(t_item *item);
-Uint32  bombTimer(Uint32 interval, void *param);
+Uint32  bombTimer(Uint32 interval, SDL_Point *param);
 Uint32  invincibilityTimer(Uint32 interval, void *param);
 
 
