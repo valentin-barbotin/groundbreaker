@@ -416,10 +416,10 @@ void    *connectToServerUDP(void *arg) {
 }
 
 
-void    updateCell(int xCell, int yCell, t_type type) {
+void    updateCell(unsigned short xCell, unsigned short yCell, t_type type) {
     if (!inMultiplayer()) return;
     char    buffer[1024];
 
-    sprintf("CELL:%hu %hu %hu", xCell, yCell, type);
+    sprintf(buffer, "CELL:%hu %hu %hu", xCell, yCell, type);
     sendToAll(buffer, -1); //TODO: check except
 }

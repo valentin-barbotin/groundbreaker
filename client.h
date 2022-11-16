@@ -20,6 +20,6 @@
  void    joinServer();
  void    *connectToServer();
  void    *connectToServerUDP(void *arg);
- void    updateCell(int xCell, int yCell, t_type type);
+ void    updateCell(unsigned short xCell, unsigned short yCell, t_type type);
 
 #endif
