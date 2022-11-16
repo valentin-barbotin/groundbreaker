@@ -515,7 +515,7 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
 
         //TODO: explosion over border
         if (cellX < 0 || cellX >= map->width || cellY < 0 || cellY >= map->height) {
-            break;
+            return;
         }
 
 

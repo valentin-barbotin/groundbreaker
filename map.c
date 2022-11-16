@@ -294,7 +294,7 @@ void    drawMap() {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            switch (map->map[i][j])
+            switch (GETCELL(j, i))
             {
                 case WALL:
                     tex = TEX_WALL;
@@ -323,6 +323,20 @@ void    drawMap() {
             rectdest.w = cellSizeX;
             rectdest.h = cellSizeY;
             drawTexture(tex, &rect, &rectdest);
+
+            // Draw items
+            switch (GETCELL(j, i))
+            {
+                case BOMB:
+                    rect.w = 758; //TODO: dynamic
+                    rect.h = 980;
+
+                    drawTexture(TEX_BOMB, &rect, &rectdest);
+                    break;
+                
+                default:
+                    break;
+            }
         }
     }
 

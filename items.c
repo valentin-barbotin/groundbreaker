@@ -45,13 +45,13 @@ void   useItem(t_item *item) {
             pos->y = player->yCell;
             
             printf("POS TIMER x:%d y:%d\n", pos->x, pos->y);
-
+            
+            //place the bomb
             timer_bomb_id = SDL_AddTimer(item[ITEM_BOMB].duration, bombTimer, pos);
-            // t_timer *timerBomb = malloc(sizeof(t_timer));
-            // timer->startTicks = SDL_GetTicks();
-            // timer->duration = 10000;
-            // timer->isPaused = false;
-            // startTimer(timerBomb);
+
+            t_map *map = getGame()->map;
+
+            GETCELL(player->xCell, player->yCell) = BOMB;
             break;
         }
         case ITEM_BOMB_UP:
