@@ -14,6 +14,7 @@ void drawInventory() {
     SDL_Rect            rect;
     SDL_Rect            rectItem;
     SDL_Rect            rectDest;
+    char                buff[8];
 
     player = getPlayer();
 
@@ -37,7 +38,8 @@ void drawInventory() {
     for (int separator = ITEM_BOMB; separator < 11; separator++) {
         SDL_RenderDrawLine(g_renderer, rect.x + (rect.w / 11) * separator, rect.y, rect.x + (rect.w / 11) * separator, rect.y + rect.h);
         // TODO : replace 0 by player->inventory[ITEM_NAME]->quantity
-        drawText(&colorWhite, rect.x + (rect.w / 11) * separator + 5, rect.y + 6, "0", false, rect.w);
+        sprintf(buff, "%d", player->inventory[separator]->quantity);
+        drawText(&colorWhite, rect.x + (rect.w / 11) * separator + 5, rect.y + 6, buff, false, rect.w);
 
         SDL_RenderDrawRect(g_renderer, &rect);
 
