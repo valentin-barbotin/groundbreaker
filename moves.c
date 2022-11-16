@@ -39,6 +39,9 @@ void    handleKeyUpPlay(const SDL_Event *event) {
         printf("11 %d\n", (event->key.keysym.sym));
         if (event->key.repeat == 0) {
             switch (event->key.keysym.sym) {
+                case SDLK_e:
+                    useItem(player->inventory[player->selectedSlot]);
+                    break;
                 case SDLK_ESCAPE:
                     pauseGame();
                     break;

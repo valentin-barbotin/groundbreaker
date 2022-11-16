@@ -16,7 +16,7 @@ t_item g_items[NB_ITEMS] = {
         {ITEM_LIFE, 0, 0, false, 0, 0, false, TEX_LIFE}
 };
 
-void   useItem(const t_item *item) {
+void   useItem(t_item *item) {
     t_player        *player;
     SDL_TimerID     timer_bomb_id;
     SDL_TimerID     timer_invicibility_id;

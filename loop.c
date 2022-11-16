@@ -176,9 +176,6 @@ void    handleKeyUp(const SDL_Event *event) {
                 break;
             case SDLK_RETURN:
 
-                useItem(player->inventory[player->selectedSlot]->type);
-
-
                 switch (g_currentState)
                 {
                     case GAME_MAINMENU_PLAY:
