@@ -25,6 +25,7 @@
      unsigned short      nbPlayers;
  }                  t_game;
 
+ void    killBots(int xCell, int yCell);
  void    injectItems(const t_map *map);
  void    spawnPlayer(int x, int y, t_player *player);
  bool    inGame();

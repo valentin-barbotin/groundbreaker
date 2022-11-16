@@ -18,6 +18,30 @@ t_sound     *unbreakableWall;
 t_sound     *bomb;
 t_sound     *item;
 
+/**
+ * @brief Kills the bots if they are on the given cell
+ * 
+ * @param xCell 
+ * @param yCell 
+ */
+void    killBots(int xCell, int yCell) {
+    t_game      *game;
+    t_map       *map;
+    t_player    *bot;
+
+    game = getGame();
+    map = game->map;
+
+    for (short i = 0; i < g_nbBots; i++) {
+        bot = g_bots[i];
+        if (bot->health && bot->xCell == xCell && bot->yCell == yCell) {
+            bot->health = 0; // kill bot
+            bot->vx = 0;
+            bot->vy = 0;
+            printf("bot killed\n");
+        }
+    }
+}
 
 void    injectItems(const t_map *map) {
     for (size_t i = 1; i < map->height - 1; i++)
@@ -175,7 +199,7 @@ void    movePlayer(t_player *player) {
     }
 
     if (!isAlive(player)) {
-        exit(1);
+        return; // don't move dead players/bots
     }
 
     // TODO: if the timer is finished, the bomb explodes
@@ -327,26 +351,31 @@ void    movePlayer(t_player *player) {
             break;
         case BOMB:
             // if the player is on a bomb kill him if he is not invicible
-            if (player->godMode == 1) {
-                break;
-            } else if (player->passThroughBomb) {
-                // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
-                searchDirectionMap(player->xCell, player->yCell, getDirection(player), 2);
-                break;
-            }else if (player->bombKick) {
-                // search in direction of the player and kick the bomb
-                searchDirectionMap(player->xCell, player->yCell, player->direction, 999);
-                break;
-            } else if (player->canSurviveExplosion) {
-                player->canSurviveExplosion = false;
-                player->inventory[ITEM_HEART]->quantity = -1;
-                break;
-            } else {
-                player->x -= player->vx;
-                player->y -= player->vy;
-                player->health -= 100;
-                break;
-            }
+            //TODO: trigger the bomb if it's a mine
+
+
+            //TODO: old
+            // if (player->godMode == 1) {
+            //     break;
+            // } else if (player->passThroughBomb) {
+            //     // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
+            //     searchDirectionMap(player->xCell, player->yCell, getDirection(player), 2);
+            //     break;
+            // }else if (player->bombKick) {
+            //     // search in direction of the player and kick the bomb
+            //     searchDirectionMap(player->xCell, player->yCell, player->direction, 999);
+            //     break;
+            // } else if (player->canSurviveExplosion) {
+            //     player->canSurviveExplosion = false;
+            //     player->inventory[ITEM_HEART]->quantity = -1;
+            //     break;
+            // } else {
+            //     player->x -= player->vx;
+            //     player->y -= player->vy;
+            //     player->health -= 100;
+            //     break;
+            // }
+            break;
 
         case ITEM:
             player->inventory[GETCELL(player->xCell, player->yCell)]->quantity++;
@@ -491,6 +520,12 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
         exit(1);
     }
 
+    // no bots in multiplayer
+    // in case of a bot on the map itself
+    if (!inMultiplayer()) {
+        killBots(xCellBase, yCellBase);
+    }
+
     for (i = 1; i <= scope; i++) {
         switch (direction) {
             case DIR_UP:
@@ -518,6 +553,10 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
             return;
         }
 
+        // no bots in multiplayer
+        if (!inMultiplayer()) {
+            killBots(cellX, cellY);
+        }
 
         switch (GETCELL(cellX, cellY)) {
             case WALL:
