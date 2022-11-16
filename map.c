@@ -15,6 +15,24 @@
 
 short       g_nbMap = 0;
 
+/**
+ * @brief Update a cell for others players
+ * 
+ * @param content 
+ */
+void     cellUpdate(const char* content) {
+    t_map              *map;
+    t_type             type;
+    unsigned short     x;
+    unsigned short     y;
+
+    map = getGame()->map;
+
+    sscanf(content, "%hu %hu %hu", &x, &y, &type);
+    GETCELL(x, y) = type;
+    printf("Cell %hu %hu is now %hu\n", x, y, type);
+}
+
 void     getMaps() {
     struct dirent   *files;
     DIR             *dir;

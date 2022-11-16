@@ -474,6 +474,7 @@ void explodeBomb(int xCell, int yCell) {
     player = getPlayer();
     map = getGame()->map;
     GETCELL(xCell, yCell) = GRAVEL;
+    updateCell(xCell, yCell, GRAVEL);
     printf("cell destroyed at x:%d y:%d\n", xCell, yCell);
 
 
@@ -561,6 +562,7 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
         switch (GETCELL(cellX, cellY)) {
             case WALL:
                 GETCELL(cellX, cellY) = GRAVEL;
+                updateCell(cellX, cellY, GRAVEL);
                 printf("Wall destroyed at x:%d y:%d\n", cellX, cellY);
                 // if (player->bombKick) {
                 //     // on met la bombe sur la case précédente
@@ -570,6 +572,7 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
                 break;
             case LOOT:
                 GETCELL(cellX, cellY) = GRAVEL;
+                updateCell(cellX, cellY, GRAVEL);
                 printf("Loot destroyed at x:%d y:%d\n", cellX, cellY);
                 //TODO: spawn random item
                 // if (player->bombKick) {

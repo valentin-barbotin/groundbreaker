@@ -123,6 +123,8 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         action = MYNAME;
     } else if (stringIsEqual(type, "BROADCAST")) {
         action = BROADCAST;
+    } else if (stringIsEqual(type, "CELL")) {
+        action = CELL;
     } else {
         #ifdef DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -133,6 +135,9 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     game = getGame();
     switch (action)
     {
+        case CELL:
+            cellUpdate(content);
+            break;
         case MOVE:
             receiveMove(content);
             break;

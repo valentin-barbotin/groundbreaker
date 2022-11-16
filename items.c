@@ -52,6 +52,7 @@ void   useItem(t_item *item) {
             t_map *map = getGame()->map;
 
             GETCELL(player->xCell, player->yCell) = BOMB;
+            updateCell(player->xCell, player->yCell, BOMB);
             break;
         }
         case ITEM_BOMB_UP:

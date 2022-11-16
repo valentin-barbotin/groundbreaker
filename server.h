@@ -16,6 +16,7 @@
     QUIT,
     PLAYERDAT,
     MYNAME,
+    CELL,
  }             t_message;
 
  typedef struct     s_peer

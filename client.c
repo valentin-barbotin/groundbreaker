@@ -89,6 +89,8 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         action = QUIT;
     } else if (stringIsEqual(type, "PLAYERDAT")) {
         action = PLAYERDAT;
+    } else if (stringIsEqual(type, "CELL")) {
+        action = CELL;
     } else {
         #ifdef DEBUG
             puts("Invalid message type");
@@ -99,6 +101,9 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     game = getGame();
     switch (action)
     {
+        case CELL:
+            cellUpdate(content);
+            break;
         case MOVE:
             receiveMove(content);
             break;
@@ -408,4 +413,13 @@ void    *connectToServerUDP(void *arg) {
 
         memset(buffer, 0, 1024);
     } while (true);
+}
+
+
+void    updateCell(int xCell, int yCell, t_type type) {
+    if (!inMultiplayer()) return;
+    char    buffer[1024];
+
+    sprintf("CELL:%hu %hu %hu", xCell, yCell, type);
+    sendToAll(buffer, -1); //TODO: check except
 }

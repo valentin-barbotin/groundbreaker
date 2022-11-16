@@ -36,6 +36,7 @@
          LOOT = 'L'
  }               t_type;
 
+ void    cellUpdate(const char *content);
  t_map   *map_create(unsigned short width, unsigned short height);
  void    map_fill(const t_map *map);
  void    map_destroy(t_map *map);
