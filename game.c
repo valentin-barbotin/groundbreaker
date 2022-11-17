@@ -40,7 +40,6 @@ void    killBots(int xCell, int yCell) {
             bot->health = 0; // kill bot
             bot->vx = 0;
             bot->vy = 0;
-            printf("bot killed\n");
         }
     }
 }

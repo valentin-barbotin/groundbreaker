@@ -428,7 +428,15 @@ void    drawPlayer(const t_player *player) {
     rect.w = spriteW;
     rect.h = spriteH;
 
-    drawTexture(TEX_PLAYER, &rect, &rectdest);
+    drawTexture(player->health ? TEX_PLAYER : TEX_TOMBSTONE, &rect, &rectdest);
+
+    if (!player->health) {
+        rect.w = 900;
+        rect.h = 600;
+        drawTexture(TEX_TOMBSTONE, &rect, &rectdest);
+    } else {
+        drawTexture(TEX_PLAYER, &rect, &rectdest);
+    }
 
     // draw player name
     drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, player->name, true, 0);

@@ -21,6 +21,7 @@
  #define TEX_HEART                   "./assets/items/heart.png"
  #define TEX_LIFE                    "./assets/items/life.png"
  #define TEX_LOOT                    "./assets/loot.png"
+ #define TEX_TOMBSTONE               "./assets/tombstone.png"
 
  #define TEX_BOMB_EXPLOSION          "./assets/bomb_sprite.png"
 

@@ -21,6 +21,7 @@
 #include "game.h"
 #include "moves.h"
 #include "dialog.h"
+#include "effects.h"
 
 #include "discord.h"
 
