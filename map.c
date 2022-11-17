@@ -519,5 +519,8 @@ void    spawnRandomItem(int xCell, int yCell) {
     if (random < 50) {
         GETCELL(xCell, yCell) = item->type;
         updateCell(xCell, yCell, (t_type) item->type);
+    } else {
+        GETCELL(xCell, yCell) = EMPTY;
+        updateCell(xCell, yCell, EMPTY);
     }
 }
