@@ -354,35 +354,20 @@ void    movePlayer(t_player *player) {
             break;
         case BOMB:
             // trigger the bomb if the player is on it
-            if (!player->passThroughBomb) {
-                explodeBomb(player->xCell, player->yCell);
+            if (player->passThroughBomb) break;
+            if (player->bombKick) {
+                //TODO: kick the bomb
             }
 
-            // if the player is on a bomb kill him if he is not invicible
-            //TODO: trigger the bomb if it's a mine
+            explodeBomb(player->xCell, player->yCell);
 
+            if (!player->godMode) {
+                player->health = 0;
+                //TODO: respawn using lives
+            }
+            break;
 
             //TODO: old
-            // if (player->godMode == 1) {
-            //     break;
-            // } else if (player->passThroughBomb) {
-            //     // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
-            //     searchDirectionMap(player->xCell, player->yCell, getDirection(player), 2);
-            //     break;
-            // }else if (player->bombKick) {
-            //     // search in direction of the player and kick the bomb
-            //     searchDirectionMap(player->xCell, player->yCell, player->direction, 999);
-            //     break;
-            // } else if (player->canSurviveExplosion) {
-            //     player->canSurviveExplosion = false;
-            //     player->inventory[ITEM_HEART]->quantity = -1;
-            //     break;
-            // } else {
-            //     player->x -= player->vx;
-            //     player->y -= player->vy;
-            //     player->health -= 100;
-            //     break;
-            // }
             break;
         case ITEM_BOMB:
             if (player->inventory[ITEM_BOMB]->quantity == player->maxBombs) {
@@ -432,24 +417,40 @@ void    movePlayer(t_player *player) {
             updateCell(player->xCell, player->yCell, EMPTY);
             break;
         case ITEM_PASS_THROUGH_BOMB:
-            player->inventory[currentCell]->quantity++;
+            player->passThroughBomb = true;
+            player->bombKick = false;
+
             GETCELL(player->xCell, player->yCell) = EMPTY;
             updateCell(player->xCell, player->yCell, EMPTY);
             break;
-        // case ITEM_BOMB_KICK:
-        //     GETCELL(player->xCell, player->yCell) = EMPTY;
-        //     updateCell(player->xCell, player->yCell, EMPTY);
-        //     break;
-        // case ITEM_INVINCIBILITY:
-        //     GETCELL(player->xCell, player->yCell) = EMPTY;
-        //     updateCell(player->xCell, player->yCell, EMPTY);
-        //     break;
-        // case ITEM_HEART:
-        //     GETCELL(player->xCell, player->yCell) = EMPTY;
-        //     updateCell(player->xCell, player->yCell, EMPTY);
-        //     break;
-        // case ITEM_LIFE:
-        //     break;
+        case ITEM_BOMB_KICK:
+            player->passThroughBomb = false;
+            player->bombKick = true;
+
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_INVINCIBILITY:
+            // only one godmode
+            if (player->godMode) break;
+
+            player->godMode = true;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_HEART:
+            // only one heart
+            if (player->canSurviveExplosion) break;
+
+            player->canSurviveExplosion = true;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_LIFE:
+            player->lives++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
         default:
             if(isMoving(player)) {
                 if (Mix_PlayingMusic() == 0) {

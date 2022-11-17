@@ -46,6 +46,7 @@ extern SDL_Window*     g_window;
      t_item          *inventory[NB_ITEMS];
      int             selectedSlot;
      bool            isBot;
+     unsigned short  lives;
      unsigned short  maxBombs;
  }                  t_player;
 
