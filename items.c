@@ -105,7 +105,13 @@ void   useItem(t_item *item) {
 
 Uint32 bombTimer(Uint32 interval, SDL_Point *param) {
     printf("BOMB TIMER x:%d y:%d\n", param->x, param->y);
-    explodeBomb(param->x, param->y);
+    t_map *map = getGame()->map;
+
+    // if someone already triggered the bomb
+    if (GETCELL(param->x, param->y) == BOMB) {
+        explodeBomb(param->x, param->y);
+    };
+
     free(param);
     return 0;
 }

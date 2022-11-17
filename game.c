@@ -353,6 +353,11 @@ void    movePlayer(t_player *player) {
             }
             break;
         case BOMB:
+            // trigger the bomb if the player is on it
+            if (!player->passThroughBomb) {
+                explodeBomb(player->xCell, player->yCell);
+            }
+
             // if the player is on a bomb kill him if he is not invicible
             //TODO: trigger the bomb if it's a mine
 
@@ -419,10 +424,11 @@ void    movePlayer(t_player *player) {
         //     GETCELL(player->xCell, player->yCell) = EMPTY;
         //     updateCell(player->xCell, player->yCell, EMPTY);
         //     break;
-        // case ITEM_PASS_THROUGH_BOMB:
-        //     GETCELL(player->xCell, player->yCell) = EMPTY;
-        //     updateCell(player->xCell, player->yCell, EMPTY);
-        //     break;
+        case ITEM_PASS_THROUGH_BOMB:
+            player->inventory[currentCell]->quantity++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
         // case ITEM_BOMB_KICK:
         //     GETCELL(player->xCell, player->yCell) = EMPTY;
         //     updateCell(player->xCell, player->yCell, EMPTY);
