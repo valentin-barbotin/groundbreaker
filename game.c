@@ -412,18 +412,25 @@ void    movePlayer(t_player *player) {
             GETCELL(player->xCell, player->yCell) = EMPTY;
             updateCell(player->xCell, player->yCell, EMPTY);
             break;
-        // case ITEM_YELLOW_FLAME:
-        //     GETCELL(player->xCell, player->yCell) = EMPTY;
-        //     updateCell(player->xCell, player->yCell, EMPTY);
-        //     break;
-        // case ITEM_BLUE_FLAME:
-        //     GETCELL(player->xCell, player->yCell) = EMPTY;
-        //     updateCell(player->xCell, player->yCell, EMPTY);
-        //     break;
-        // case ITEM_RED_FLAME:
-        //     GETCELL(player->xCell, player->yCell) = EMPTY;
-        //     updateCell(player->xCell, player->yCell, EMPTY);
-        //     break;
+        case ITEM_YELLOW_FLAME:
+            player->scope++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_BLUE_FLAME:
+            player->scope--;
+
+            if (player->scope < 1) {
+                player->scope = 1;
+            }
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_RED_FLAME:
+            player->scope = 999;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
         case ITEM_PASS_THROUGH_BOMB:
             player->inventory[currentCell]->quantity++;
             GETCELL(player->xCell, player->yCell) = EMPTY;
