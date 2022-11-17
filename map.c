@@ -10,6 +10,7 @@
 #include "player.h"
 #include "inventory.h"
 #include "font.h"
+#include "client.h"
 
 #define DEBUG true
 
@@ -311,6 +312,12 @@ void    drawMap() {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 288; //TODO: dynamic
+            rect.h = 288;
+
             switch (GETCELL(j, i))
             {
                 case WALL:
@@ -330,16 +337,13 @@ void    drawMap() {
                     break;
             }
 
-            rect.x = 0;
-            rect.y = 0;
-            rect.w = 288; //TODO: dynamic
-            rect.h = 288;
-
             rectdest.x = j * cellSizeX;
             rectdest.y = i * cellSizeY;
             rectdest.w = cellSizeX;
             rectdest.h = cellSizeY;
             drawTexture(tex, &rect, &rectdest);
+
+            tex = NULL;
 
             // Draw items
             switch (GETCELL(j, i))
@@ -347,12 +351,72 @@ void    drawMap() {
                 case BOMB:
                     rect.w = 758; //TODO: dynamic
                     rect.h = 980;
-
-                    drawTexture(TEX_BOMB, &rect, &rectdest);
+                    tex = TEX_BOMB;
+                    break;
+                
+                //items
+                case ITEM_BOMB:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB;
+                    break;
+                case ITEM_BOMB_UP:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_UP;
+                    break;
+                case ITEM_BOMB_DOWN:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_DOWN;
+                    break;
+                case ITEM_YELLOW_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_YELLOW_FLAME;
+                    break;
+                case ITEM_BLUE_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BLUE_FLAME;
+                    break;
+                case ITEM_RED_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_RED_FLAME;
+                    break;
+                case ITEM_PASS_THROUGH_BOMB:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_PASS_THROUGH;
+                    break;
+                case ITEM_BOMB_KICK:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_KICK;
+                    break;
+                case ITEM_INVINCIBILITY:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_INVINCIBILITY;
+                    break;
+                case ITEM_HEART:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_HEART;
+                    break;
+                case ITEM_LIFE:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_LIFE;
                     break;
                 
                 default:
                     break;
+            }
+
+            if (tex) {
+                drawTexture(tex, &rect, &rectdest);
             }
         }
     }
@@ -443,5 +507,17 @@ void    drawPlayer(const t_player *player) {
 }
 
 void    spawnRandomItem(int xCell, int yCell) {
+    t_item  *item;
+    int     random;
+    t_map   *map;
+
+    map = getGame()->map;
+
+    item = &g_items[rand() % NB_ITEMS];
+    random = rand() % 100;
     
+    if (random < 50) {
+        GETCELL(xCell, yCell) = item->type;
+        updateCell(xCell, yCell, (t_type) item->type);
+    }
 }

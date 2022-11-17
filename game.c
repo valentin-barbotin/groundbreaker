@@ -581,10 +581,9 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
                 // }
                 break;
             case LOOT:
-                GETCELL(cellX, cellY) = GRAVEL;
-                updateCell(cellX, cellY, GRAVEL);
                 printf("Loot destroyed at x:%d y:%d\n", cellX, cellY);
-                //TODO: spawn random item
+
+                spawnRandomItem(cellX, cellY);
                 // if (player->bombKick) {
                 //     // on met la bombe sur la case précédente
                 //     GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;

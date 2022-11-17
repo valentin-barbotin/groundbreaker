@@ -47,5 +47,6 @@
  void    drawMap();
  void    getPlayerDirection(SDL_Rect *rect, const t_direction *direction);
  void    drawPlayer(const t_player *player);
+ void    spawnRandomItem(int cellX, int cellY);
 
 #endif
