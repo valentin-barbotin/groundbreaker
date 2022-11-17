@@ -48,6 +48,8 @@ extern SDL_Window*     g_window;
      bool            isBot;
      unsigned short  lives;
      unsigned short  maxBombs;
+     int             lastBombX;
+     int             lastBombY;
  }                  t_player;
 
  char            *getUsername();

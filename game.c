@@ -353,6 +353,9 @@ void    movePlayer(t_player *player) {
             }
             break;
         case BOMB:
+            // if the bomb is placed by the player then we don't explode it
+            if (player->lastBombX == player->xCell && player->lastBombY == player->yCell) break;
+
             // trigger the bomb if the player is on it
             if (player->passThroughBomb) break;
             if (player->bombKick) {

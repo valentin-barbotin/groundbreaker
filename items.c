@@ -53,6 +53,9 @@ void   useItem(t_item *item) {
 
             GETCELL(player->xCell, player->yCell) = BOMB;
             updateCell(player->xCell, player->yCell, BOMB);
+
+            player->lastBombX = player->xCell;
+            player->lastBombY = player->yCell;
             break;
         }
         case ITEM_BOMB_UP:

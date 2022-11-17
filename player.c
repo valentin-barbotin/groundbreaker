@@ -48,6 +48,8 @@ t_player        *initPlayer() {
     player->selectedSlot = 0;
     player->maxBombs = 2;
     player->lives = 3;
+    player->lastBombX = 0;
+    player->lastBombY = 0;
 
     initInventory(player);
     return player;
