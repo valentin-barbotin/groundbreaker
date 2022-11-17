@@ -361,13 +361,23 @@ void    movePlayer(t_player *player) {
 
             explodeBomb(player->xCell, player->yCell);
 
-            if (!player->godMode) {
+            if (!player->godMode && !player->canSurviveExplosion) {
                 player->health = 0;
+                //TODO: spawn tombstone
+
+                player->lives--;
+                if (player->lives == 0) {
+                    //TODO: game over
+                    printf("Game over\n");
+                    return;
+                }
                 //TODO: respawn using lives
             }
-            break;
 
-            //TODO: old
+            if (player->canSurviveExplosion) {
+                player->canSurviveExplosion = false;
+            }
+
             break;
         case ITEM_BOMB:
             if (player->inventory[ITEM_BOMB]->quantity == player->maxBombs) {
