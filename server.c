@@ -18,7 +18,7 @@
 
 bool        g_serverRunning = false;
 bool        g_serverRunningUDP = false;
-pthread_t   g_serverThread = NULL;
+pthread_t   g_serverThread = 0;
 t_peer      *g_peersList[3]; // 4 players max
 int         g_peersListNb = 0;
 t_peer      *g_peersListUDP[3]; // 4 players max
@@ -123,6 +123,10 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         action = MYNAME;
     } else if (stringIsEqual(type, "BROADCAST")) {
         action = BROADCAST;
+    } else if (stringIsEqual(type, "CELL")) {
+        action = CELL;
+    } else if (stringIsEqual(type, "EFFECT")) {
+        action = EFFECT;
     } else {
         #ifdef DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -130,10 +134,15 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         #endif
     }
 
-    t_player    *player;
     game = getGame();
     switch (action)
     {
+        case CELL:
+            cellUpdate(content);
+            break;
+        case EFFECT:
+            receiveEffect(content);
+            break;
         case MOVE:
             receiveMove(content);
             break;
@@ -156,7 +165,7 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
             addPeer(client, clientAddr, content);
 
             // update players list for each pear
-            sendPlayerToAll();
+            sendPlayersToAll();
 
             break;
         case PLAYERDAT:
@@ -181,11 +190,12 @@ void   *handleClient(void *clientSocket) {
     // thread does not need to be joined
     pthread_detach(pthread_self());
     char                buffer[1024];
-    char                *ptr = NULL;
+    const char          *ptr;
     size_t              total;
     size_t              len;
 
     int     client = *(int *)clientSocket;
+    ptr = NULL;
 
     #ifdef DEBUG
         printf("Client socket: %d\n", client);
@@ -229,10 +239,11 @@ void   *handleClient(void *clientSocket) {
  */
 void   handleClientUDP(int socket) {
     char                buffer[1024];
-    char                *ptr = NULL;
+    const char          *ptr;
     size_t              total;
     size_t              len;
 
+    ptr = NULL;
     do
     {
         struct sockaddr_in  clientAddr;
@@ -292,7 +303,7 @@ void    launchServer() {
  * @param argv 
  * @return int 
  */
-void    *createServerUDP(void *arg) {
+void    *createServerUDP(const void *arg) {
     if (g_serverRunningUDP) {
         #ifdef DEBUG
             puts("Server already running");
@@ -350,7 +361,7 @@ void    *createServerUDP(void *arg) {
  * @param argv 
  * @return int 
  */
-void    *createServer(void *arg) {
+void    *createServer(const void *arg) {
     if (g_serverRunning) {
         #ifdef DEBUG
             puts("Server already running");
@@ -364,6 +375,7 @@ void    *createServer(void *arg) {
     int                 clientSocket;
     socklen_t           clientAddressLength;
     unsigned short      port;
+    char                buffer[1024];
 
     port = atoi(gameConfig->server.port);
 
@@ -394,6 +406,9 @@ void    *createServer(void *arg) {
         g_serverThread = NULL;
         return NULL;
     }
+
+    sprintf(buffer, "Server started on port %d", port);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game", buffer, g_window);
 
     listen(serverSocket, 5);
     g_serverRunning = true;
@@ -440,6 +455,19 @@ void    multiplayerStart() {
 
     game = getGame();
 
+    strcpy(game->players[0]->name, getUsername());
+
+    for (size_t i = 0; i < game->nbPlayers; i++)
+    {
+        t_player *player = game->players[i];
+        putPlayerInFreeCell(player);
+        printf("(init) spawned player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+    }
+
+    // send player to all (except us)
+    sendPlayersToAll();
+
+    // send map to all (except us)
     sprintf(buffer, "START:%hu %hu %hu$", game->map->height, game->map->width, game->nbPlayers);
 
     char *ptr = buffer + strlen(buffer);
@@ -455,18 +483,10 @@ void    multiplayerStart() {
     
     // send map to clients
     sendToAll(buffer, -1);
-
-    game->players[1]->xCell = 3;
-    game->players[1]->yCell = 3;
-
-    strcpy(game->players[0]->name, getUsername());
-
-    // send player to all (except us)
-    sendPlayerToAll();
 }
 
 
-void    sendPlayerToAll() {
+void    sendPlayersToAll() {
     const t_game    *game;
     char            buffer[1024];
 

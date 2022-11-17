@@ -25,6 +25,8 @@
      unsigned short      nbPlayers;
  }                  t_game;
 
+ void    killBots(int xCell, int yCell);
+ void    injectItems(const t_map *map);
  void    spawnPlayer(int x, int y, t_player *player);
  bool    inGame();
  bool    isMoving();
@@ -34,8 +36,13 @@
  void    setPath();
  void    game_quit();
  t_game  *getGame();
- void    movePlayer();
- void    posToGrid();
+ void    movePlayer(t_player *player);
+ void    posToGrid(t_player *player);
+ void    posToGridN(int x, int y, int *xCell, int *yCell);
+ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction directionMap, int scope);
+ void    explodeBomb(int xCell, int yCell);
  void    handleMouseButtonUpPlaying(const SDL_Event *event);
+ void    launchGame();
+ void    putPlayerInFreeCell(t_player *player);
 
 #endif

@@ -42,7 +42,7 @@ char   *randomString(unsigned short size) {
         #ifdef DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -109,7 +109,7 @@ char* readFile(const char* src) {
         #ifdef DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -161,13 +161,13 @@ SDL_Texture* textureFromFile(const char* src) {
  * @param char* suffix to remove
  * @return char* suffix position in src
  */
-char* removeSuffix(const char* src, char* suffix) {
+char* removeSuffix(const char *src, const char *suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
         #ifdef DEBUG
             fprintf(stderr, "Error removing suffix from string");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "String error", g_window);
         exit(1);
     }
     *pos = '\0';
@@ -376,7 +376,7 @@ bool    checkUsername() {
         puts("Creating dialog");
         dialog = getEditBox();
         if (dialog->text == NULL) {
-            createEditBox("Enter your name", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+            createEditBox("Enter your name", 20, colorWhite, colorBlack);
             dialog->callback = askUsernameCallback;
         }
         return false;

@@ -327,7 +327,7 @@ void    editSettingCallback() {
 void    editFullscreen() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Fullscreen (0: windowed, 1 fullscreen desktop, 2 fullscreen)", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Fullscreen (0: windowed, 1 fullscreen desktop, 2 fullscreen)", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -336,7 +336,7 @@ void    editFullscreen() {
 void    editWidth() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter width:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter width:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -345,7 +345,7 @@ void    editWidth() {
 void    editHeight() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter height:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter height:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -354,7 +354,7 @@ void    editHeight() {
 void    editVSync() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Choose VSync (0: off, 1: on):", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Choose VSync (0: off, 1: on):", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -365,7 +365,7 @@ void    editVSync() {
 void    editGlobalVol() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter global volume:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter global volume:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -374,7 +374,7 @@ void    editGlobalVol() {
 void    editMusicsVol() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter musics volume:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter musics volume:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -383,7 +383,7 @@ void    editMusicsVol() {
 void    editSoundsVol() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter sounds volume:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter sounds volume:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -393,7 +393,7 @@ void    editSoundsVol() {
 void    editUp() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter UP key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter UP key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -402,7 +402,7 @@ void    editUp() {
 void    editDown() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter DOWN key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter DOWN key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -411,7 +411,7 @@ void    editDown() {
 void    editLeft() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter LEFT key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter LEFT key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -420,7 +420,7 @@ void    editLeft() {
 void    editRight() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter RIGHT key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter RIGHT key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -430,7 +430,7 @@ void    editRight() {
 void    editUseItem() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter USE ITEM key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter USE ITEM key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -440,7 +440,7 @@ void    editUseItem() {
 void    editItem1() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 1 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 1 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -449,7 +449,7 @@ void    editItem1() {
 void    editItem2() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 2 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 2 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -458,7 +458,7 @@ void    editItem2() {
 void    editItem3() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 3 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 3 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -467,7 +467,7 @@ void    editItem3() {
 void    editItem4() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 4 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 4 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -476,7 +476,7 @@ void    editItem4() {
 void    editItem5() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 5 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 5 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -485,7 +485,7 @@ void    editItem5() {
 void    editItem6() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 6 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 6 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -494,7 +494,7 @@ void    editItem6() {
 void    editItem7() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 7 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 7 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -503,7 +503,7 @@ void    editItem7() {
 void    editItem8() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 8 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 8 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
@@ -512,7 +512,7 @@ void    editItem8() {
 void    editItem9() {
     t_dialog  *dialog;
 
-    dialog = createEditBox("Enter item 9 key:", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+    dialog = createEditBox("Enter item 9 key:", 20, colorWhite, colorBlack);
 
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;

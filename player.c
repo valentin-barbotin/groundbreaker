@@ -42,7 +42,12 @@ t_player        *initPlayer() {
     player->vy = 0;
     player->xCell = 0;
     player->yCell = 0;
+    player->health = 100;
+    player->scope = 2;
+    player->isBot = false;
+    player->selectedSlot = 0;
 
+    initInventory(player);
     return player;
 }
 
@@ -104,4 +109,37 @@ void    doSendPos(const t_player *player) {
     // update the grid position for other players
     sprintf(buffer, "MOVE:%d %d %u %hu%c", player->x, player->y, player->direction, g_playersMultiIndex, '\0');
     sendToAllUDP(buffer, NULL);
+}
+
+void       initInventory(t_player *player) {
+    // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
+    player->inventory[ITEM_BOMB]                = g_items + ITEM_BOMB;
+    player->inventory[ITEM_BOMB_UP]             = g_items + ITEM_BOMB_UP;
+    player->inventory[ITEM_BOMB_DOWN]           = g_items + ITEM_BOMB_DOWN;
+    player->inventory[ITEM_YELLOW_FLAME]        = g_items + ITEM_YELLOW_FLAME;
+    player->inventory[ITEM_BLUE_FLAME]          = g_items + ITEM_BLUE_FLAME;
+    player->inventory[ITEM_RED_FLAME]           = g_items + ITEM_RED_FLAME;
+    player->inventory[ITEM_PASS_THROUGH_BOMB]   = g_items + ITEM_PASS_THROUGH_BOMB;
+    player->inventory[ITEM_BOMB_KICK]           = g_items + ITEM_BOMB_KICK;
+    player->inventory[ITEM_INVINCIBILITY]       = g_items + ITEM_INVINCIBILITY;
+    player->inventory[ITEM_HEART]               = g_items + ITEM_HEART;
+    player->inventory[ITEM_LIFE]                = g_items + ITEM_LIFE;
+}
+
+/**
+ * @brief      Player has the item in his inventory
+ * @param item
+ * @return
+ */
+bool        hasItemInInventory(const t_player *player, const t_item *item) {
+    return (player->inventory[item->type] != NULL && player->inventory[item->type]->quantity > 0);
+}
+
+/**
+ * @brief      Verify if the player is alive
+ * @param item
+ * @return
+ */
+bool        isAlive(const t_player *player) {
+    return (player->health > 0);
 }

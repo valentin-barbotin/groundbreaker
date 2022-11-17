@@ -5,12 +5,15 @@
 
  #include "game.h"
  #include "player.h"
+ #include "colors.h"
+ #include "effects.h"
+
  extern t_gameConfig    *gameConfig;
  extern short           g_playersMultiIndex;
 
  void    broadcastMsg(const char *msg);
  void    broadcastMsgUDP(const char *msg);
- void    handleMessageClient(char  *buffer, int client, const struct sockaddr_in  *sockaddr);
+ void    handleMessageClient(const char  *buffer, int client, const struct sockaddr_in  *sockaddr);
  void    askUsernameCallback();
  void    askServerHost();
  void    askServerHostCallback();
@@ -19,5 +22,7 @@
  void    joinServer();
  void    *connectToServer();
  void    *connectToServerUDP(void *arg);
+ void    updateCell(unsigned short xCell, unsigned short yCell, t_type type);
+ void    sendEffect(const t_effect *effect);
 
 #endif

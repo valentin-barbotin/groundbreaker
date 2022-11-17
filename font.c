@@ -20,7 +20,7 @@ void    loadFont(const char* fontPath, const int size) {
     }
     g_font = TTF_OpenFont(fontPath, size);
     if (g_font == NULL) {
-        fprintf(stderr, "Error TTF_OpenFont : %s", TTF_GetError());
+        fprintf(stderr, "Error TTF_OpenFont : %s\n", TTF_GetError());
         return;
     }
 }

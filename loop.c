@@ -35,7 +35,7 @@ bool    inMainMenu() {
                 #ifdef DEBUG
                     fprintf(stderr, "Error allocating memory for main_music");
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
                 exit(1);
             }
             main_music->file = SOUND_MUSIC_MAIN;
@@ -44,7 +44,7 @@ bool    inMainMenu() {
                 #ifdef DEBUG
                                 fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
                 exit(1);
             }
             Mix_VolumeMusic(25);
@@ -56,7 +56,7 @@ bool    inMainMenu() {
             #ifdef DEBUG
                 fprintf(stderr, "Error: Can't open stop the music\n");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop music", g_window);
             exit(1);
         }
     }
@@ -96,11 +96,11 @@ void    handleMouseButtonUp(const SDL_Event *event) {
     }
 }
 
-void    handleKeyDown(const SDL_Event *event) {
+void    handleKeyDown(const SDL_KeyboardEvent *event) {
     t_dialog *dialog = getEditBox();
 
     if (dialog->active) {
-        switch (event->key.keysym.sym)
+        switch (event->keysym.sym)
         {
            case SDLK_BACKSPACE:
                 if (dialog->edit[0] != '\0') {
@@ -166,12 +166,16 @@ void    handleKeyUp(const SDL_Event *event) {
     }
 
     if (inMainMenu() || isGamePaused()) {
+        const t_player      *player;
+        player = getPlayer();
+
         short index = -1;
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
                 g_currentState = (g_currentState == GAME_MAINMENU_PLAY) ? GAME_MAINMENU : GAME_EXIT;
                 break;
             case SDLK_RETURN:
+
                 switch (g_currentState)
                 {
                     case GAME_MAINMENU_PLAY:
@@ -239,15 +243,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows--;
-                                if (g_lobby->rows < 1) {
-                                    g_lobby->rows = 1;
+                                g_lobby->rows -= 2;
+                                if (g_lobby->rows < 3) {
+                                    g_lobby->rows = 3;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns--;
-                                if (g_lobby->columns < 1) {
-                                    g_lobby->columns = 1;
+                                g_lobby->columns -= 2;
+                                if (g_lobby->columns < 3) {
+                                    g_lobby->columns = 3;
                                 }
                                 break;
                             case 2:
@@ -274,15 +278,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows++;
-                                if (g_lobby->rows > 10) {
-                                    g_lobby->rows = 10;
+                                g_lobby->rows += 2;
+                                if (g_lobby->rows > 9) {
+                                    g_lobby->rows = 9;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns++;
-                                if (g_lobby->columns > 10) {
-                                    g_lobby->columns = 10;
+                                g_lobby->columns += 2;
+                                if (g_lobby->columns > 9) {
+                                    g_lobby->columns = 9;
                                 }
                                 break;
                             case 2:

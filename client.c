@@ -17,11 +17,12 @@
 #include "dialog.h"
 #include "player.h"
 #include "game.h"
+#include "effects.h"
 
 #define DEBUG true
 
-pthread_t           g_clientThread = NULL;
-pthread_t           g_clientThreadUDP = NULL;
+pthread_t           g_clientThread = 0;
+pthread_t           g_clientThreadUDP = 0;
 int                 g_serverSocket = 0;
 int                 g_serverSocketUDP = 0;
 struct sockaddr_in  *g_serverAddrUDP = NULL;
@@ -51,7 +52,7 @@ void    broadcastMsgUDP(const char *msg) {
  * @param server 
  * @param sockaddr 
  */
-void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in  *sockaddr) {
+void    handleMessageClient(const char  *buffer, int server, const struct sockaddr_in  *sockaddr) {
     char        *pos;
     char        type[128];
     char        *content;
@@ -64,7 +65,6 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             puts("Invalid message (: client)");
             exit(1);
         #endif
-        return;
     }
 
     *pos = '\0';
@@ -90,6 +90,10 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
         action = QUIT;
     } else if (stringIsEqual(type, "PLAYERDAT")) {
         action = PLAYERDAT;
+    } else if (stringIsEqual(type, "CELL")) {
+        action = CELL;
+    } else if (stringIsEqual(type, "EFFECT")) {
+        action = EFFECT;
     } else {
         #ifdef DEBUG
             puts("Invalid message type");
@@ -100,16 +104,22 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
     game = getGame();
     switch (action)
     {
+        case CELL:
+            cellUpdate(content);
+            break;
+        case EFFECT:
+            receiveEffect(content);
+            break;
         case MOVE:
             receiveMove(content);
             break;
         case START: {
             //launch game
-            unsigned short h;
-            unsigned short w;
-            unsigned short players;
-            t_map          *map;
-            char           *ptr;
+            unsigned short  h;
+            unsigned short  w;
+            unsigned short  players;
+            t_map           *map;
+            const char      *ptr;
             sscanf(content, "%hu %hu %hu $", &h, &w, &players);
             printf("h: %hu, w: %hu, nb: %hu\n", h, w, players);
 
@@ -124,7 +134,6 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
                     puts("Invalid message ($ client)");
                     exit(1);
                 #endif
-                return;
             }
             ptr++;
 
@@ -139,9 +148,14 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             // amount of players
             game->map->players = players; //TODO
 
-            game->nbPlayers = 0;
+            game->nbPlayers = players;
 
-            printf("(init) spawned player at %d, %d\n", game->players[g_playersMultiIndex]->xCell, game->players[g_playersMultiIndex]->yCell);
+            for (size_t i = 0; i < players; i++)
+            {
+                player = game->players[i];
+                printf("(init) spawned player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+                spawnPlayer(player->xCell, player->yCell, player);
+            }
             
             g_currentState = GAME_PLAY_PLAYING;
         }
@@ -254,7 +268,7 @@ void    askServerPortCallback() {
 
 void    joinServer() {
     bool    valid = false;
-    if (g_clientThread != NULL) {
+    if (g_clientThread != 0) {
         #ifdef DEBUG
             puts("Client already running");
         #endif
@@ -264,7 +278,7 @@ void    joinServer() {
     valid = checkUsername();
     if (!valid) return;
 
-    createEditBox("", 20, (SDL_Color) {0, 255, 0, 255}, (SDL_Color) {255, 255, 255, 255});
+    createEditBox("", 20, colorGreen, colorWhite);
     SDL_StartTextInput();
     askServerHost();
 }
@@ -277,10 +291,11 @@ void    joinServer() {
 void    *connectToServer(void *arg) {
     struct sockaddr_in  cl;
     char                buffer[1024];
-    char                *ptr = NULL;
+    const char          *ptr;
     size_t              total;
     size_t              len;
 
+    ptr = NULL;
     // thread does not need to be joined
     pthread_detach(pthread_self());
 
@@ -301,7 +316,7 @@ void    *connectToServer(void *arg) {
             fprintf(stderr, "Error connecting to server: %s", strerror(res));
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
-        g_clientThread = NULL;
+        g_clientThread = 0;
         return NULL;
     }
 
@@ -366,17 +381,6 @@ void    *connectToServerUDP(void *arg) {
 
     g_serverAddrUDP = &cl;
 
-    // int res = connect(g_serverSocketUDP, (struct sockaddr *)&cl, sizeof(cl));
-    // if (res < 0) {
-    //     #ifdef DEBUG
-    //         perror("(UDP) Error connecting to server");
-    //         fprintf(stderr, "(UDP) Error connecting to server: %s", strerror(res));
-    //     #endif
-    //     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
-    //     g_clientThreadUDP = NULL;
-    //     return NULL;
-    // }
-
     puts("(UDP) Connected to server");
 
     sprintf(buffer, "MYNAME:%s%c", g_username, '\0');
@@ -415,4 +419,21 @@ void    *connectToServerUDP(void *arg) {
 
         memset(buffer, 0, 1024);
     } while (true);
+}
+
+
+void    updateCell(unsigned short xCell, unsigned short yCell, t_type type) {
+    if (!inMultiplayer()) return;
+    char    buffer[1024];
+
+    sprintf(buffer, "CELL:%hu %hu %u", xCell, yCell, type);
+    sendToAll(buffer, -1); //TODO: check except
+}
+
+void    sendEffect(const t_effect *effect) {
+    if (!inMultiplayer()) return;
+    char    buffer[1024];
+    
+    sprintf(buffer, "EFFECT:%d %d %d", effect->xCell, effect->yCell, effect->type);
+    sendToAll(buffer, -1);
 }

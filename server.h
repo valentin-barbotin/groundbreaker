@@ -16,6 +16,8 @@
     QUIT,
     PLAYERDAT,
     MYNAME,
+    CELL,
+    EFFECT,
  }             t_message;
 
  typedef struct     s_peer
@@ -33,9 +35,9 @@
  void    handleClientUDP(int socket);
  void    *handleClient(void *clientSocket);
  void    launchServer();
- void    *createServerUDP(void *arg);
- void    *createServer();
+ void    *createServerUDP(const void *arg);
+ void    *createServer(const void *arg);
  void    multiplayerStart();
- void    sendPlayerToAll();
+ void    sendPlayersToAll();
 
 #endif

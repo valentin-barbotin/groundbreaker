@@ -151,9 +151,8 @@ void    setupMenu() {
 }
 
 void    drawPlayersList() {
-    SDL_Color   colorBlack = {0, 0, 0, 255};
-    t_game      *game;
-    SDL_Rect    rect;
+    const t_game    *game;
+    SDL_Rect        rect;
 
     game = getGame();
 
@@ -166,7 +165,7 @@ void    drawPlayersList() {
     
     // drawText(&colorBlack, rect.x + 10, rect.y + 10, getUsername(), false, rect.w);
 
-    for (size_t i = 0; i < game->nbPlayers; i++)
+    for (int i = 0; i < game->nbPlayers; i++)
     {
         if (strlen(game->players[i]->name)) {
             drawText(&colorBlack, rect.x + 10, rect.y + 10 + (i * 20), game->players[i]->name, false, rect.w);
@@ -175,17 +174,13 @@ void    drawPlayersList() {
 }
 
 void    drawLobbyMaps() {
-    SDL_Rect    rect;
-    SDL_Color   colorBlack = {0, 0, 0, 255};
-    SDL_Color   colorYellow = {255, 255, 0, 255};
-    SDL_Color   colorBlue = {0, 0, 255, 255};
-    SDL_Color   colorRed = {255, 0, 0, 255};
-    int         gap;
-    char        buff[7];
-    short       j;
-    short       nbMaps;
-    short       fromGap;
-    t_game      *game;
+    SDL_Rect        rect;
+    int             gap;
+    char            buff[7];
+    short           j;
+    short           nbMaps;
+    short           fromGap;
+    const t_game    *game;
 
 
     game = getGame();
@@ -232,13 +227,18 @@ void    drawLobbyMaps() {
             pickColor(&colorBlue);
         } else {
             if (game->maps[i].selected) {
-                pickColor(&colorRed);
+                pickColor(&colorGreen);
             } else {
                 pickColor(&colorBlack);
             }
         }
+
+        rect.x = x;
+        rect.y = y - h * 0.1;
+        rect.w = w;
+        rect.h = h * 0.1;
         
-        SDL_RenderDrawRect(g_renderer, &rect);
+        SDL_RenderFillRect(g_renderer, &rect);
 
         sprintf(buff, "%lu", i + 1);
         drawText(&colorBlack, x + (w/2), y + h + (h * 0.13), buff, true, 0);
@@ -250,18 +250,7 @@ void    drawLobbyMaps() {
 }
 
 void    drawLobbyMenu() {
-    SDL_Rect    rect;
-    SDL_Color   colorWhite = {255, 255, 255, 255};
-    SDL_Color   colorYellow = {255, 255, 0, 255};
-    SDL_Color   colorBlack = {0, 0, 0, 255};
-    SDL_Color   colorBlue = {0, 0, 255, 255};
-    SDL_Color   colorRed = {255, 0, 0, 255};
-    const t_map *map;
     char        buff[7];
-    int         gap;
-    short       j;
-    short       nbMaps;
-    short       fromGap;
 
     if (g_lobby == NULL) {
         g_lobby = malloc(sizeof(t_lobby));
@@ -269,11 +258,11 @@ void    drawLobbyMenu() {
             #ifdef DEBUG
                 fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
             exit(1);
         }
-        g_lobby->columns = 4;
-        g_lobby->rows = 4;
+        g_lobby->columns = 5;
+        g_lobby->rows = 5;
         g_lobby->players = 2;
     }
 
@@ -303,23 +292,25 @@ void    drawLobbyMenu() {
         
         drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.60, "(A) Previous (E) Next (space) Select", false, 0);
         drawText(&colorBlack, (gameConfig->video.width) * 0.06, (gameConfig->video.height) * 0.66, "(Enter) play (N) New (H) Host", false, 0);
+    } else {
+        drawText(&colorBlack, (gameConfig->video.width) * 0.5, (gameConfig->video.height) * 0.80, "Waiting..", true, 0);
     }
     
     drawPlayersList();
 };
 
 void    setupMenuButtons() {
-    int             op;
-    SDL_Texture     *tex;
-    SDL_Color       notSelectedColor;
-    SDL_Color       selectedColor;
-    SDL_Color       backgroundColor = {0, 0, 0, 128};
-    SDL_Color       *color;
-    SDL_Rect        rect;
-    int             textWidth;
-    int             textHeight;
-    int             x;
-    int             y;
+    int                 op;
+    SDL_Texture         *tex;
+    SDL_Color           notSelectedColor;
+    SDL_Color           selectedColor;
+    SDL_Color           backgroundColor = {0, 0, 0, 128};
+    const SDL_Color     *color;
+    SDL_Rect            rect;
+    int                 textWidth;
+    int                 textHeight;
+    int                 x;
+    int                 y;
 
     selectedColor.r = 255;
     selectedColor.g = 0;
@@ -340,7 +331,6 @@ void    setupMenuButtons() {
     pickColor(&backgroundColor);
     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderFillRect(g_renderer, &rect);
-
     for (unsigned int i = 0; i < g_currentMenu->nbButtons; i++)
     {
         unsigned short  j;

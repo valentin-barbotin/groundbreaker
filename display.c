@@ -18,6 +18,13 @@ int     setBackgroundColor(const SDL_Color* color) {
         success = SDL_RenderClear(g_renderer);
     }
 
+    #if DEBUG
+        if (success != 0) {
+            printf("Error: %s\n", SDL_GetError());
+            perror("Error");
+        }
+    #endif
+
     return success;
 }
 

@@ -26,7 +26,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error reading config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't read config file", g_window);
         exit(1);
     }
 
@@ -36,7 +36,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error finding key in config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Config error", g_window);
         exit(1);
     }
 
@@ -46,7 +46,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error finding end of line in config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Config error", g_window);
         exit(1);
     }
     // cut the buffer in half from the start of the line
@@ -57,7 +57,7 @@ void    saveSetting(const char *key, const char *value) {
         #ifdef DEBUG
             fprintf(stderr, "Error opening config.ini");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't edit config file", g_window);
         exit(1);
     }
 
@@ -278,24 +278,34 @@ bool    setupCommands(FILE* fd, char* data, t_commandsConfig *config) {
                 break;
             case c_use_item:
                 config->use_item = *value;
+                break;
             case c_item_1:
                 config->item_1 = *value;
+                break;
             case c_item_2:
                 config->item_2 = *value;
+                break;
             case c_item_3:
                 config->item_3 = *value;
+                break;
             case c_item_4:
                 config->item_4 = *value;
+                break;
             case c_item_5:
                 config->item_5 = *value;
+                break;
             case c_item_6:
                 config->item_6 = *value;
+                break;
             case c_item_7:
                 config->item_7 = *value;
+                break;
             case c_item_8:
                 config->item_8 = *value;
+                break;
             case c_item_9:
                 config->item_9 = *value;
+                break;
             
             default:
                 break;
@@ -322,7 +332,7 @@ int     readConfig(t_gameConfig *config) {
         #ifdef DEBUG
                 fprintf(stderr, "Error: calloc failed\n");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
