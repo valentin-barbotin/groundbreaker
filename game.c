@@ -380,20 +380,63 @@ void    movePlayer(t_player *player) {
             // }
             break;
         case ITEM_BOMB:
-        case ITEM_BOMB_UP:
-        case ITEM_BOMB_DOWN:
-        case ITEM_YELLOW_FLAME:
-        case ITEM_BLUE_FLAME:
-        case ITEM_RED_FLAME:
-        case ITEM_PASS_THROUGH_BOMB:
-        case ITEM_BOMB_KICK:
-        case ITEM_INVINCIBILITY:
-        case ITEM_HEART:
-        case ITEM_LIFE:
+            if (player->inventory[ITEM_BOMB]->quantity == player->maxBombs) {
+                break;
+            }
+
             player->inventory[currentCell]->quantity++;
             GETCELL(player->xCell, player->yCell) = EMPTY;
             updateCell(player->xCell, player->yCell, EMPTY);
             break;
+        case ITEM_BOMB_UP:
+            player->maxBombs++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_BOMB_DOWN:
+            player->maxBombs--;
+
+            if (player->maxBombs < 1) {
+                player->maxBombs = 1;
+            }
+
+            if (player->inventory[ITEM_BOMB]->quantity > player->maxBombs) {
+                player->inventory[ITEM_BOMB]->quantity = player->maxBombs;
+            }
+
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        // case ITEM_YELLOW_FLAME:
+        //     GETCELL(player->xCell, player->yCell) = EMPTY;
+        //     updateCell(player->xCell, player->yCell, EMPTY);
+        //     break;
+        // case ITEM_BLUE_FLAME:
+        //     GETCELL(player->xCell, player->yCell) = EMPTY;
+        //     updateCell(player->xCell, player->yCell, EMPTY);
+        //     break;
+        // case ITEM_RED_FLAME:
+        //     GETCELL(player->xCell, player->yCell) = EMPTY;
+        //     updateCell(player->xCell, player->yCell, EMPTY);
+        //     break;
+        // case ITEM_PASS_THROUGH_BOMB:
+        //     GETCELL(player->xCell, player->yCell) = EMPTY;
+        //     updateCell(player->xCell, player->yCell, EMPTY);
+        //     break;
+        // case ITEM_BOMB_KICK:
+        //     GETCELL(player->xCell, player->yCell) = EMPTY;
+        //     updateCell(player->xCell, player->yCell, EMPTY);
+        //     break;
+        // case ITEM_INVINCIBILITY:
+        //     GETCELL(player->xCell, player->yCell) = EMPTY;
+        //     updateCell(player->xCell, player->yCell, EMPTY);
+        //     break;
+        // case ITEM_HEART:
+        //     GETCELL(player->xCell, player->yCell) = EMPTY;
+        //     updateCell(player->xCell, player->yCell, EMPTY);
+        //     break;
+        // case ITEM_LIFE:
+        //     break;
         default:
             if(isMoving(player)) {
                 if (Mix_PlayingMusic() == 0) {

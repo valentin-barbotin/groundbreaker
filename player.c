@@ -46,6 +46,7 @@ t_player        *initPlayer() {
     player->scope = 2;
     player->isBot = false;
     player->selectedSlot = 0;
+    player->maxBombs = 2;
 
     initInventory(player);
     return player;
