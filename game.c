@@ -187,6 +187,7 @@ void    movePlayer(t_player *player) {
     const t_game    *game;
     const t_map     *map;
     bool            stopped;
+    char            currentCell;
 
     game = getGame();
     map = game->map;
@@ -271,7 +272,8 @@ void    movePlayer(t_player *player) {
     }
 
 
-    switch (GETCELL(player->xCell, player->yCell)) {
+    currentCell = GETCELL(player->xCell, player->yCell);
+    switch (currentCell) {
         case WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
@@ -377,10 +379,20 @@ void    movePlayer(t_player *player) {
             //     break;
             // }
             break;
-
-        case ITEM:
-            player->inventory[GETCELL(player->xCell, player->yCell)]->quantity++;
+        case ITEM_BOMB:
+        case ITEM_BOMB_UP:
+        case ITEM_BOMB_DOWN:
+        case ITEM_YELLOW_FLAME:
+        case ITEM_BLUE_FLAME:
+        case ITEM_RED_FLAME:
+        case ITEM_PASS_THROUGH_BOMB:
+        case ITEM_BOMB_KICK:
+        case ITEM_INVINCIBILITY:
+        case ITEM_HEART:
+        case ITEM_LIFE:
+            player->inventory[currentCell]->quantity++;
             GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
             break;
         default:
             if(isMoving(player)) {

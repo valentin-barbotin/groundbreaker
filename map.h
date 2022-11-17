@@ -30,7 +30,6 @@
          WALL= 'W',
          UNBREAKABLE_WALL = 'U',
          EMPTY = ' ',
-         ITEM = 'I',
          GRAVEL = 'G',
          PLAYER = 'P',
          LOOT = 'L'
