@@ -17,6 +17,7 @@
 #include "dialog.h"
 #include "player.h"
 #include "game.h"
+#include "effects.h"
 
 #define DEBUG true
 
@@ -91,6 +92,8 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         action = PLAYERDAT;
     } else if (stringIsEqual(type, "CELL")) {
         action = CELL;
+    } else if (stringIsEqual(type, "EFFECT")) {
+        action = EFFECT;
     } else {
         #ifdef DEBUG
             puts("Invalid message type");
@@ -103,6 +106,9 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     {
         case CELL:
             cellUpdate(content);
+            break;
+        case EFFECT:
+            receiveEffect(content);
             break;
         case MOVE:
             receiveMove(content);
@@ -420,6 +426,14 @@ void    updateCell(unsigned short xCell, unsigned short yCell, t_type type) {
     if (!inMultiplayer()) return;
     char    buffer[1024];
 
-    sprintf(buffer, "CELL:%hu %hu %hu", xCell, yCell, type);
+    sprintf(buffer, "CELL:%hu %hu %u", xCell, yCell, type);
     sendToAll(buffer, -1); //TODO: check except
+}
+
+void    sendEffect(const t_effect *effect) {
+    if (!inMultiplayer()) return;
+    char    buffer[1024];
+    
+    sprintf(buffer, "EFFECT:%d %d %d", effect->xCell, effect->yCell, effect->type);
+    sendToAll(buffer, -1);
 }

@@ -125,6 +125,8 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         action = BROADCAST;
     } else if (stringIsEqual(type, "CELL")) {
         action = CELL;
+    } else if (stringIsEqual(type, "EFFECT")) {
+        action = EFFECT;
     } else {
         #ifdef DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -137,6 +139,9 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     {
         case CELL:
             cellUpdate(content);
+            break;
+        case EFFECT:
+            receiveEffect(content);
             break;
         case MOVE:
             receiveMove(content);

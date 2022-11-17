@@ -21,16 +21,15 @@ short       g_nbMap = 0;
  * @param content 
  */
 void     cellUpdate(const char* content) {
-    t_map              *map;
+    const t_map        *map;
     t_type             type;
     unsigned short     x;
     unsigned short     y;
 
     map = getGame()->map;
 
-    sscanf(content, "%hu %hu %hu", &x, &y, &type);
+    sscanf(content, "%hu %hu %u", &x, &y, &type);
     GETCELL(x, y) = type;
-    printf("Cell %hu %hu is now %hu\n", x, y, type);
 }
 
 void     getMaps() {

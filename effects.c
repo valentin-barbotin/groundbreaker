@@ -5,11 +5,12 @@
 #include "effects.h"
 #include "game.h"
 #include "map.h"
+#include "client.h"
 
 t_effect    **g_effects = NULL;
 int         g_nbEffects = 0;
 
-void    initEffects() {
+void        initEffects() {
     g_effects = malloc(sizeof(t_effect*) * MAX_EFFECTS);
     if (g_effects == NULL) {
         printf("Error: malloc failed in initEffects");
@@ -25,7 +26,7 @@ void    initEffects() {
     }
 }
 
-void    findAvailableEffect(t_effect **effect) {
+void        findAvailableEffect(t_effect **effect) {
     for (int i = 0; i < MAX_EFFECTS; i++) {
         if (g_effects[i]->active == false) {
             *effect = g_effects[i];
@@ -34,19 +35,30 @@ void    findAvailableEffect(t_effect **effect) {
     }
 }
 
-void    addEffect(int x, int y, t_effects type) {
-    if (g_nbEffects >= MAX_EFFECTS) return;
+t_effect    *addEffect(int xCell, int yCell, t_effects type) {
+    unsigned int      cellSizeX;
+    unsigned int      cellSizeY;
+    const t_game     *game;
+    
+    game = getGame();
+
+    if (g_nbEffects >= MAX_EFFECTS) return NULL;
 
     if (g_effects == NULL) initEffects();
 
     t_effect *effect = NULL;
     findAvailableEffect(&effect);
-    if (effect == NULL) return;
+    if (effect == NULL) return NULL;
+
+    cellSizeX = gameConfig->video.width / game->map->width;
+    cellSizeY = gameConfig->video.height / game->map->height;
 
     g_nbEffects++;
 
-    effect->x = x;
-    effect->y = y;
+    effect->x = xCell * cellSizeX;
+    effect->y = yCell * cellSizeY;
+    effect->xCell = xCell;
+    effect->yCell = yCell;
     effect->type = type;
 
     switch (type)
@@ -63,9 +75,10 @@ void    addEffect(int x, int y, t_effects type) {
             break;
     }
 
+    return effect;
 }
 
-void    drawEffects() {
+void        drawEffects() {
     if (g_effects == NULL) return;
 
     Uint64  ticks;
@@ -82,7 +95,6 @@ void    drawEffects() {
             {
                 case BOMB_EXPLOSION:
                     sprite = ((ticks - effect->startTicks) / 50) % (effect->rows * effect->cols);
-                    printf("sprite: %d\n", sprite);
                     if (sprite == effect->rows * effect->cols - 1) {
                         effect->active = false;
                         g_nbEffects--;
@@ -102,7 +114,7 @@ void    drawEffects() {
     }
 }
 
-void    drawSprite(const char *tex, int x, int y, int row, int col) {
+void        drawSprite(const char *tex, int x, int y, int row, int col) {
     unsigned int    cellSizeX;
     unsigned int    cellSizeY;
     const t_game    *game;
@@ -120,4 +132,13 @@ void    drawSprite(const char *tex, int x, int y, int row, int col) {
     // printf("row: %d col: %d,  coords: x: %d y: %d w: %d h: %d\n", row, col, col * 71, row * 67, 71, 67);
 
     drawTexture(tex, &srcRect, &dstRect);
+}
+
+void        receiveEffect(const char *content) {
+    int             xCell;
+    int             yCell;
+    int             type;
+
+    sscanf(content, "%d %d %d", &xCell, &yCell, &type);
+    addEffect(xCell, yCell, type);
 }

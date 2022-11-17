@@ -17,6 +17,7 @@
     PLAYERDAT,
     MYNAME,
     CELL,
+    EFFECT,
  }             t_message;
 
  typedef struct     s_peer

@@ -6,6 +6,8 @@
  #include "game.h"
  #include "player.h"
  #include "colors.h"
+ #include "effects.h"
+
  extern t_gameConfig    *gameConfig;
  extern short           g_playersMultiIndex;
 
@@ -21,5 +23,6 @@
  void    *connectToServer();
  void    *connectToServerUDP(void *arg);
  void    updateCell(unsigned short xCell, unsigned short yCell, t_type type);
+ void    sendEffect(const t_effect *effect);
 
 #endif

@@ -473,8 +473,7 @@ void explodeBomb(int xCell, int yCell) {
     const t_map      *map;
     const t_game     *game;
     const t_player    *player;
-    unsigned int      cellSizeX;
-    unsigned int      cellSizeY;
+    t_effect          *effect;
 
     player = getPlayer();
     game = getGame();
@@ -482,10 +481,10 @@ void explodeBomb(int xCell, int yCell) {
     GETCELL(xCell, yCell) = GRAVEL;
     updateCell(xCell, yCell, GRAVEL);
 
-    cellSizeX = gameConfig->video.width / game->map->width;
-    cellSizeY = gameConfig->video.height / game->map->height;
-
-    addEffect(xCell * cellSizeX, yCell * cellSizeY, BOMB_EXPLOSION);
+    effect = addEffect(xCell, yCell, BOMB_EXPLOSION);
+    if (effect) {
+        sendEffect(effect);
+    }
 
     printf("cell destroyed at x:%d y:%d\n", xCell, yCell);
 
@@ -514,14 +513,12 @@ void    handleMouseButtonUpPlaying(const SDL_Event *event) {
 }
 
 void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int scope) {
-    const t_game    *game;
-    t_player        *player;
-    const t_map     *map;
-    int             i;
-    int             cellX;
-    int             cellY;
-    unsigned int    cellSizeX;
-    unsigned int    cellSizeY;
+    const t_game        *game;
+    const t_player      *player;
+    const t_map         *map;
+    int                 cellX;
+    int                 cellY;
+    const t_effect      *effect;
 
     game = getGame();
     player = getPlayer();
@@ -535,17 +532,13 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
         exit(1);
     }
 
-    
-    cellSizeX = gameConfig->video.width / game->map->width;
-    cellSizeY = gameConfig->video.height / game->map->height;
-
     // no bots in multiplayer
     // in case of a bot on the map itself
     if (!inMultiplayer()) {
         killBots(xCellBase, yCellBase);
     }
 
-    for (i = 1; i <= scope; i++) {
+    for (int i = 1; i <= scope; i++) {
         switch (direction) {
             case DIR_UP:
                 cellX = xCellBase;
@@ -641,7 +634,10 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
                 break;
         }
 
-        addEffect(cellX * cellSizeX, cellY * cellSizeY, BOMB_EXPLOSION);
+        effect = addEffect(cellX, cellY, BOMB_EXPLOSION);
+        if (effect) {
+            sendEffect(effect);
+        }
     }
 }
 
