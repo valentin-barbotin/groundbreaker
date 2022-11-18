@@ -134,6 +134,8 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         action = RESPAWN;
     } else if (stringIsEqual(type, "LIFE")) {
         action = LIFE;
+    } else if (stringIsEqual(type, "END")) {
+        action = END;
     } else {
         #if DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -144,6 +146,9 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     game = getGame();
     switch (action)
     {
+        case END:
+            receiveEndGame(content);
+            break;
         case CELL:
             cellUpdate(content);
             break;
@@ -511,6 +516,13 @@ void    multiplayerStart() {
     sendToAll(buffer, -1);
 }
 
+
+void    multiplayerEnd(short winner) {
+    char buffer[256];
+
+    sprintf(buffer, "END:%hd", winner);
+    sendToAll(buffer, -1);
+}
 
 void    sendPlayersToAll() {
     const t_game    *game;

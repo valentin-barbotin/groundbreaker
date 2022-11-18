@@ -793,6 +793,7 @@ Uint32   timedRespawn(Uint32 interval, char *param) {
 
 void    receiveDamage(const char *content) {
     short       id;
+    short       winner;
     int         xCell;
     int         yCell;
     char        *buff;
@@ -807,7 +808,14 @@ void    receiveDamage(const char *content) {
     player->vx = 0;
     player->vy = 0;
 
-    if (--player->lives == 0) return;
+    if (--player->lives == 0) {
+        // check if everyone is dead
+        if (inMultiplayer() && checkIfEveryoneIsDead(&winner)) {
+            // send end game message
+            multiplayerEnd(winner);
+        }
+        return;
+    }
 
     //TODO: static tombstone
 
@@ -837,4 +845,48 @@ void    receiveLife(const char *content) {
     player = getGame()->players[id];
 
     player->lives = lifes;
+}
+
+bool    checkIfEveryoneIsDead(short *winner) {
+    const t_game      *game;
+    const t_player    *player;
+    
+    *winner = 0;
+
+    game = getGame();
+
+    for (int i = 0; i < game->nbPlayers; i++) {
+        player = game->players[i];
+        if (player->lives) {
+            // if there is at least two players alive, the game is not over
+            if (*winner) return false;
+            
+            // if we have a winner, we store it
+            *winner = player->id;
+        }
+    }
+
+    // everyone is dead
+    return true;
+}
+
+
+bool    receiveEndGame(const char* content) {
+    short           winner;
+    const t_game    *game;
+    const t_player  *player;
+    char            buff[256];
+
+    sscanf(content, "%hd", &winner);
+
+    game = getGame();
+    player = game->players[winner];
+
+    sprintf(buff, "%s won the game", player->name);
+
+    // the winner can still move until he click on the button
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", buff, g_window);
+
+    // puts the player back in the lobby
+    g_currentState = GAME_MAINMENU_PLAY;
 }

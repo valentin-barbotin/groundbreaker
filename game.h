@@ -48,5 +48,7 @@
  Uint32  timedRespawn(Uint32 interval, char *param);
  void    receiveDamage(const char *content);
  void    receiveLife(const char *content);
+ bool    checkIfEveryoneIsDead();
+ bool    receiveEndGame(const char* content);
 
 #endif

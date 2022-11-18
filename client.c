@@ -100,6 +100,8 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         action = RESPAWN;
     } else if (stringIsEqual(type, "LIFE")) {
         action = LIFE;
+    } else if (stringIsEqual(type, "END")) {
+        action = END;
     } else {
         #if DEBUG
             puts("Invalid message type");
@@ -110,6 +112,9 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     game = getGame();
     switch (action)
     {
+        case END:
+            receiveEndGame(content);
+            break;
         case CELL:
             cellUpdate(content);
             break;

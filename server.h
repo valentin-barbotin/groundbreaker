@@ -20,7 +20,8 @@
     EFFECT,
     DAMAGE,
     RESPAWN,
-    LIFE
+    LIFE,
+    END
  }             t_message;
 
  typedef struct     s_peer
@@ -41,6 +42,7 @@
  void    *createServerUDP(const void *arg);
  void    *createServer(const void *arg);
  void    multiplayerStart();
+ void    multiplayerEnd(short winner);
  void    sendPlayersToAll();
 
 #endif
