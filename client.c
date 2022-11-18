@@ -63,6 +63,7 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
             puts("Invalid message (: client)");
             exit(1);
         #endif
+        return;
     }
 
     *pos = '\0';
