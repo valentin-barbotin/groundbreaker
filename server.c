@@ -561,6 +561,9 @@ void    multiplayerEnd(short winner) {
 
     sprintf(buffer, "END:%hd", winner);
     sendToAll(buffer, getPlayer()->id);
+
+    // avoid loopback
+    receiveEndGame(buffer + 4); // +4 to skip "END:"
 }
 
 void    sendPlayersToAll() {

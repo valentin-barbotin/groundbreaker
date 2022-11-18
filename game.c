@@ -689,7 +689,7 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
         }
 
         // search for players on the cell
-         if (inMultiplayer()) {
+        if (inMultiplayer()) {
             for (int j = 0; j < game->nbPlayers; j++) {
                 // disable this only if the player can receive damage of its own bomb
                 if (j == g_playersMultiIndex) continue;
@@ -875,7 +875,7 @@ bool    checkIfEveryoneIsDead(short *winner) {
 }
 
 
-bool    receiveEndGame(const char* content) {
+void    receiveEndGame(const char* content) {
     short           winner;
     const t_game    *game;
     const t_player  *player;

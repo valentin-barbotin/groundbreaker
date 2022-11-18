@@ -49,6 +49,6 @@
  void    receiveDamage(const char *content);
  void    receiveLife(const char *content);
  bool    checkIfEveryoneIsDead();
- bool    receiveEndGame(const char* content);
+ void    receiveEndGame(const char* content);
 
 #endif
