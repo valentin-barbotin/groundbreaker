@@ -94,6 +94,8 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         action = CELL;
     } else if (stringIsEqual(type, "EFFECT")) {
         action = EFFECT;
+    } else if (stringIsEqual(type, "DAMAGE")) {
+        action = DAMAGE;
     } else {
         #ifdef DEBUG
             puts("Invalid message type");
@@ -112,6 +114,26 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
             break;
         case MOVE:
             receiveMove(content);
+            break;
+        case DAMAGE: {
+            short       id;
+            int         xCell;
+            int         yCell;
+
+            player = getPlayer();
+
+            sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
+            if (id != player->id) return;
+
+            if (--player->lives == 0) {
+                puts("not enough lives");
+                //TODO: spec mode
+            }
+
+            puts("You died");
+            putPlayerInFreeCell(player);
+            doSendPos(player);
+        }
             break;
         case START: {
             //launch game
@@ -190,6 +212,7 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
             player->xCell = xCell;
             player->yCell = yCell;
             player->direction = DIR_IDLE;
+            player->id = n;
 
             printf("player[%hu] %s at %d, %d\n", n, player->name, player->xCell, player->yCell);
 

@@ -18,6 +18,7 @@
     MYNAME,
     CELL,
     EFFECT,
+    DAMAGE,
  }             t_message;
 
  typedef struct     s_peer

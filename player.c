@@ -50,6 +50,7 @@ t_player        *initPlayer() {
     player->lives = 3;
     player->lastBombX = 0;
     player->lastBombY = 0;
+    player->id = -1;
 
     initInventory(player);
     return player;
@@ -111,6 +112,8 @@ void    sendPos() {
 void    doSendPos(const t_player *player) {
     char    buffer[256] = {0};
     // update the grid position for other players
+
+    posToGrid(player);
     sprintf(buffer, "MOVE:%d %d %u %hu%c", player->x, player->y, player->direction, g_playersMultiIndex, '\0');
     sendToAllUDP(buffer, NULL);
 }

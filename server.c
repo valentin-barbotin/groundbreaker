@@ -456,11 +456,13 @@ void    multiplayerStart() {
     game = getGame();
 
     strcpy(game->players[0]->name, getUsername());
+    game->players[0]->id = 0;
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
         t_player *player = game->players[i];
         putPlayerInFreeCell(player);
+        player->id = i;
         printf("(init) spawned player %s at %d, %d\n", player->name, player->xCell, player->yCell);
     }
 

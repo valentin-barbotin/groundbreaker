@@ -28,6 +28,7 @@ extern SDL_Window*     g_window;
 
  typedef struct     s_player
  {
+     short           id;
      char            name[256];
      int             x;
      int             y;

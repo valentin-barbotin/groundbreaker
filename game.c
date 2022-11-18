@@ -27,12 +27,7 @@ t_sound     *item;
  * @param yCell 
  */
 void    killBots(int xCell, int yCell) {
-    t_game      *game;
-    t_map       *map;
-    t_player    *bot;
-
-    game = getGame();
-    map = game->map;
+    t_player        *bot;
 
     for (short i = 0; i < g_nbBots; i++) {
         bot = g_bots[i];
@@ -364,23 +359,6 @@ void    movePlayer(t_player *player) {
 
             explodeBomb(player->xCell, player->yCell);
 
-            if (!player->godMode && !player->canSurviveExplosion) {
-                player->health = 0;
-                //TODO: spawn tombstone
-
-                player->lives--;
-                if (player->lives == 0) {
-                    //TODO: game over
-                    printf("Game over\n");
-                    return;
-                }
-                //TODO: respawn using lives
-            }
-
-            if (player->canSurviveExplosion) {
-                player->canSurviveExplosion = false;
-            }
-
             break;
         case ITEM_BOMB:
             if (player->inventory[ITEM_BOMB]->quantity == player->maxBombs) {
@@ -593,9 +571,25 @@ void    handleMouseButtonUpPlaying(const SDL_Event *event) {
     }
 }
 
-void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int scope) {
+void    handleDamage(t_player *player) {
+    char    buffer[256];
+    if (!player->godMode && !player->canSurviveExplosion) {
+        player->health = 0;
+        //TODO: spawn tombstone and send it to all
+
+        sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
+        sendToAll(buffer, -1);
+        //TODO: respawn using lives
+    }
+
+    if (player->canSurviveExplosion) {
+        player->canSurviveExplosion = false;
+    }
+}
+
+void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int scope) {
     const t_game        *game;
-    const t_player      *player;
+    t_player            *player;
     const t_map         *map;
     int                 cellX;
     int                 cellY;
@@ -618,6 +612,12 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
     if (!inMultiplayer()) {
         killBots(xCellBase, yCellBase);
     }
+
+    // check if the player is on the base cell
+    //TODO: enable this only if the player can receive damage of its own bomb
+    // if (player->xCell == xCellBase && player->yCell == yCellBase) {
+    //     handleDamage(player);
+    // }
 
     for (int i = 1; i <= scope; i++) {
         switch (direction) {
@@ -712,6 +712,19 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
                 break;
             default:
                 break;
+        }
+
+        // search for players on the cell
+         if (inMultiplayer()) {
+            for (int j = 0; j < game->nbPlayers; j++) {
+                // disable this only if the player can receive damage of its own bomb
+                if (j == g_playersMultiIndex) continue;
+
+                player = game->players[j];
+                if (player->xCell == cellX && player->yCell == cellY) {
+                    handleDamage(player);
+                }
+            }
         }
 
         effect = addEffect(cellX, cellY, BOMB_EXPLOSION);
