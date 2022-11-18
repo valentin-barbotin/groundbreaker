@@ -438,10 +438,15 @@ void    movePlayer(t_player *player) {
             GETCELL(player->xCell, player->yCell) = EMPTY;
             updateCell(player->xCell, player->yCell, EMPTY);
             break;
-        case ITEM_LIFE:
+        case ITEM_LIFE: {
+            char    buffer[128];
             player->lives++;
             GETCELL(player->xCell, player->yCell) = EMPTY;
             updateCell(player->xCell, player->yCell, EMPTY);
+
+            sprintf(buffer, "LIFE: %hd %d", player->id, player->lives);
+            sendToAll(buffer, -1);
+        } 
             break;
         default:
             if(isMoving(player)) {
@@ -819,4 +824,17 @@ void    receiveDamage(const char *content) {
     sprintf(buff, "RESPAWN:%hd %d %d", id, player->xCell, player->yCell);
     //TODO: respawn time in config
     SDL_AddTimer(3000, timedRespawn, buff);
+}
+
+
+void    receiveLife(const char *content) {
+    short           id;
+    unsigned short  lifes;
+    t_player    *player;
+
+    sscanf(content, "%hd %hu", &id, &lifes);
+
+    player = getGame()->players[id];
+
+    player->lives = lifes;
 }

@@ -132,6 +132,8 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         action = DAMAGE;
     } else if (stringIsEqual(type, "RESPAWN")) {
         action = RESPAWN;
+    } else if (stringIsEqual(type, "LIFE")) {
+        action = LIFE;
     } else {
         #if DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -144,6 +146,9 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     {
         case CELL:
             cellUpdate(content);
+            break;
+        case LIFE:
+            receiveLife(content);
             break;
         case EFFECT:
             receiveEffect(content);

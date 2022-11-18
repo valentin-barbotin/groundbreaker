@@ -98,6 +98,8 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         action = DAMAGE;
     } else if (stringIsEqual(type, "RESPAWN")) {
         action = RESPAWN;
+    } else if (stringIsEqual(type, "LIFE")) {
+        action = LIFE;
     } else {
         #if DEBUG
             puts("Invalid message type");
@@ -110,6 +112,9 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     {
         case CELL:
             cellUpdate(content);
+            break;
+        case LIFE:
+            receiveLife(content);
             break;
         case EFFECT:
             receiveEffect(content);

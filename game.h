@@ -47,5 +47,6 @@
  void    putPlayerInFreeCell(t_player *player);
  Uint32  timedRespawn(Uint32 interval, char *param);
  void    receiveDamage(const char *content);
+ void    receiveLife(const char *content);
 
 #endif

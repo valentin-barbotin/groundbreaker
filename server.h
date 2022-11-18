@@ -19,7 +19,8 @@
     CELL,
     EFFECT,
     DAMAGE,
-    RESPAWN
+    RESPAWN,
+    LIFE
  }             t_message;
 
  typedef struct     s_peer
