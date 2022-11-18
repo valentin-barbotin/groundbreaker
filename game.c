@@ -622,13 +622,17 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
     // in case of a bot on the map itself
     if (!inMultiplayer()) {
         killBots(xCellBase, yCellBase);
-    }
+    } else {
+        for (int j = 0; j < game->nbPlayers; j++) {
+            // disable this only if the player can receive damage of its own bomb
+            if (j == g_playersMultiIndex) continue;
 
-    // check if the player is on the base cell
-    //TODO: enable this only if the player can receive damage of its own bomb
-    // if (player->xCell == xCellBase && player->yCell == yCellBase) {
-    //     handleDamage(player);
-    // }
+            player = game->players[j];
+            if (player->xCell == xCellBase && player->yCell == yCellBase) {
+                handleDamage(player);
+            }
+        }
+    }
 
     for (int i = 1; i <= scope; i++) {
         switch (direction) {
