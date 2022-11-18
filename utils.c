@@ -42,7 +42,7 @@ char   *randomString(unsigned short size) {
         #ifdef DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -109,7 +109,7 @@ char* readFile(const char* src) {
         #ifdef DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -161,13 +161,13 @@ SDL_Texture* textureFromFile(const char* src) {
  * @param char* suffix to remove
  * @return char* suffix position in src
  */
-char* removeSuffix(const char* src, char* suffix) {
+char* removeSuffix(const char *src, const char *suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
         #ifdef DEBUG
             fprintf(stderr, "Error removing suffix from string");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "String error", g_window);
         exit(1);
     }
     *pos = '\0';
@@ -188,7 +188,7 @@ void   sendMsg(const char *msg, int socket) {
     size_t     max;
 
     msgLen = strlen(msg) + 1; // +1 for the null terminator
-    printf("msgLen: %zu\n", msgLen);
+    // printf("msgLen: %zu\n", msgLen);
 
     total = 0;
     while (total != msgLen)
@@ -197,14 +197,14 @@ void   sendMsg(const char *msg, int socket) {
 
         // in case of error, we need to know how many bytes have been sent
         nb = send(socket, msg + total, max, 0);
-        printf("send: %s\n", msg + total);
+        // printf("send: %s\n", msg + total);
         if (nb == -1)
         {
             fprintf(stderr, "Error sending message to server: %s\n", strerror(errno));
             exit(1);
         }
         total += nb;
-        printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
+        // printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
     }
 
     printf("Sent: (%ld bytes) [%s]\n", total, msg);
@@ -292,14 +292,14 @@ void   sendMsgUDP(const char *msg, int socket, struct sockaddr_in  *sockaddr) {
 
         // in case of error, we need to know how many bytes have been sent
         nb = sendto(socket, msg + total, max, 0, (struct sockaddr*)sockaddr, sizeof(struct sockaddr));
-        printf("(UDP) send: %s\n", msg + total);
+        // printf("(UDP) send: %s\n", msg + total);
         if (nb == -1)
         {
             fprintf(stderr, "Error sending message to server: %s\n", strerror(errno));
             exit(1);
         }
         total += nb;
-        printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
+        // printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
     }
 
     printf("(UDP) Sent: (%ld bytes) [%s]\n", total, msg);
@@ -376,7 +376,7 @@ bool    checkUsername() {
         puts("Creating dialog");
         dialog = getEditBox();
         if (dialog->text == NULL) {
-            createEditBox("Enter your name", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+            createEditBox("Enter your name", 20, colorWhite, colorBlack);
             dialog->callback = askUsernameCallback;
         }
         return false;

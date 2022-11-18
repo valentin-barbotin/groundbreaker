@@ -8,10 +8,30 @@
 #include "game.h"
 #include "display.h"
 #include "player.h"
+#include "inventory.h"
+#include "font.h"
+#include "client.h"
 
 #define DEBUG true
 
 short       g_nbMap = 0;
+
+/**
+ * @brief Update a cell for others players
+ * 
+ * @param content 
+ */
+void     cellUpdate(const char* content) {
+    const t_map        *map;
+    t_type             type;
+    unsigned short     x;
+    unsigned short     y;
+
+    map = getGame()->map;
+
+    sscanf(content, "%hu %hu %u", &x, &y, &type);
+    GETCELL(x, y) = type;
+}
 
 void     getMaps() {
     struct dirent   *files;
@@ -32,8 +52,9 @@ void     getMaps() {
     if (dir == NULL) {
         #ifdef DEBUG
             fprintf(stderr, "Error: Can't open maps directory\n");
+            perror("opendir");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't open maps directory", g_window);
         exit(1);
     }
 
@@ -49,7 +70,7 @@ void     getMaps() {
                 #ifdef DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for buff in getMaps()\n");
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
                 exit(1);
             }
             sprintf(buff, "maps/%s", files->d_name);
@@ -59,7 +80,7 @@ void     getMaps() {
                 #ifdef DEBUG
                     fprintf(stderr, "Error: Can't open map file %s\n", files->d_name);
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't open map file", g_window);
                 exit(1);
             }
             free(buff);
@@ -69,7 +90,7 @@ void     getMaps() {
                 #ifdef DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for mapfd in getMaps()\n");
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
                 exit(1);
             }
             fread(mapfd, sizeof(t_map), 1, fd);
@@ -82,7 +103,7 @@ void     getMaps() {
                 #ifdef DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for map in getMaps()\n");
                 #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
                 exit(1);
             }
             grid = map->map;
@@ -111,21 +132,21 @@ void    saveMap(const t_map *map) {
         #ifdef DEBUG
             fprintf(stderr, "Error: Could not allocate memory for name in saveMap()\n");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
     sprintf(buff, "maps/%s.bin", name);
-    free(name);
 
     fd = fopen(buff, "wb");
     if (fd == NULL) {
         #ifdef DEBUG
             fprintf(stderr, "Error: Can't open map file %s\n", name);
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't write map", g_window);
         exit(1);
     }
+    free(name);
 
     fwrite(map, sizeof(t_map), 1, fd);
     for (int i = 0; i < map->height; i++) {
@@ -149,7 +170,7 @@ t_map   *map_create(unsigned short width, unsigned short height) {
         #ifdef DEBUG
             fprintf(stderr, "Error: Could not allocate memory for map->map in map_create()\n");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -159,7 +180,7 @@ t_map   *map_create(unsigned short width, unsigned short height) {
             #ifdef DEBUG
                 fprintf(stderr, "Error: Could not allocate memory for map->map[i] in map_create()\n");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
             exit(1);
         }
     }
@@ -168,12 +189,13 @@ t_map   *map_create(unsigned short width, unsigned short height) {
 };
 
 void    map_fill(const t_map *map) {
+    int    random;
     if (map == NULL) return;
 
+    // Fill the map with empty tiles
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             map->map[i][j] = EMPTY;
-
         }
     }
     for (int i = 0; i < map->height; i++) {
@@ -182,26 +204,32 @@ void    map_fill(const t_map *map) {
             map->map[i][0] = UNBREAKABLE_WALL;
             map->map[i][map->width - 1] = UNBREAKABLE_WALL;
             map->map[0][j] = UNBREAKABLE_WALL;
-
-
-        }
-}
-    for (int i = 2; i < map->height-2; i++) {
-        for (int j = 2; j < map->width-2; j++) {
-            map->map[i][(j % 2) * j] = WALL;
-            map->map[(i %2)*i][j] = EMPTY;
-            map->map[i][0] = UNBREAKABLE_WALL;
-            map->map[0][j] = UNBREAKABLE_WALL;
-            map->map[1][1] = PLAYER;
-            map->map[map->height - 2][map->width - 2] = PLAYER;
         }
     }
+
+    // Place the unbreakables walls
     for (int i = 2; i < map->height-2; i++) {
         for (int j = 2; j < map->width-2; j++) {
-            map->map[1][0] = EMPTY;
-            map->map[1][map->width - 1] = EMPTY;
-
+            if (i % 2 == 0 && j % 2 == 0) {
+                map->map[i][j] = UNBREAKABLE_WALL;
+            }
         }
+    }
+
+    // if 1, holes are placed at the top of the map and at the bottom
+    if (rand() % 2) {
+        random = rand() % ((map->width - 2) + 1);
+        if (random == 0) random++;
+        if (random == map->width - 1) random--;
+        map->map[0][random] = EMPTY;
+        map->map[map->height - 1][random] = EMPTY;
+    } else {
+        // if 0, holes are placed at the left of the map and at the right
+        random = rand() % ((map->height - 2) + 1);
+        if (random == 0) random++;
+        if (random == map->height- 1) random--;
+        map->map[random][0] = EMPTY;
+        map->map[random][map->width - 1] = EMPTY;
     }
 }
 
@@ -227,6 +255,46 @@ void    map_print(const t_map *map) {
     printf("\n");
 };
 
+void    drawMapInRect(const SDL_Rect *rectList, size_t index) {
+    SDL_Rect        rect;
+    SDL_Rect        rectdest;
+    const char      *tex;
+    unsigned int    cellSizeX;
+    unsigned int    cellSizeY;
+    const t_game    *game;
+    const t_map     *map;
+    
+    game = getGame();
+    map = &game->maps[index];
+    cellSizeX = rectList->w / map->width; // ex: 166 (width of 1000 divided by 6 (nb of cols))
+    cellSizeY = rectList->h / map->height;
+
+    for (int i = 0; i < map->height; i++) {
+        for (int j = 0; j < map->width; j++) {
+            switch (map->map[i][j])
+            {
+                case UNBREAKABLE_WALL:
+                    tex = TEX_UNBREAKABLE_WALL;
+                    break;
+                default:
+                    tex = TEX_DIRT; //player & empty
+                    break;
+            }
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 288; //TODO: dynamic
+            rect.h = 288;
+
+            rectdest.x = j * cellSizeX + rectList->x;
+            rectdest.y = i * cellSizeY + rectList->y;
+            rectdest.w = cellSizeX;
+            rectdest.h = cellSizeY;
+            drawTexture(tex, &rect, &rectdest);
+        }
+    }
+}
+
 
 void    drawMap() {
     SDL_Rect        rect;
@@ -244,35 +312,127 @@ void    drawMap() {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            switch (map->map[i][j])
-            {
-                case WALL:
-                    tex = TEX_WALL;
-                    break;
-                case UNBREAKABLE_WALL:
-                    tex = TEX_UNBREAKABLE_WALL;
-                    break;
-                default:
-                    tex = TEX_DIRT; //player & empty
-                    break;
-            }
 
             rect.x = 0;
             rect.y = 0;
             rect.w = 288; //TODO: dynamic
             rect.h = 288;
 
+            switch (GETCELL(j, i))
+            {
+                case WALL:
+                    tex = TEX_WALL;
+                    break;
+                case LOOT:
+                    tex = TEX_LOOT;
+                    break;
+                case UNBREAKABLE_WALL:
+                    tex = TEX_UNBREAKABLE_WALL;
+                    break;
+                case GRAVEL:
+                    tex = TEX_GRAVEL;
+                    break;
+                default:
+                    tex = TEX_DIRT; //player & empty
+                    break;
+            }
+
             rectdest.x = j * cellSizeX;
             rectdest.y = i * cellSizeY;
             rectdest.w = cellSizeX;
             rectdest.h = cellSizeY;
             drawTexture(tex, &rect, &rectdest);
+
+            tex = NULL;
+
+            // Draw items
+            switch (GETCELL(j, i))
+            {
+                case BOMB:
+                    rect.w = 758; //TODO: dynamic
+                    rect.h = 980;
+                    tex = TEX_BOMB;
+                    break;
+                
+                //items
+                case ITEM_BOMB:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB;
+                    break;
+                case ITEM_BOMB_UP:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_UP;
+                    break;
+                case ITEM_BOMB_DOWN:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_DOWN;
+                    break;
+                case ITEM_YELLOW_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_YELLOW_FLAME;
+                    break;
+                case ITEM_BLUE_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BLUE_FLAME;
+                    break;
+                case ITEM_RED_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_RED_FLAME;
+                    break;
+                case ITEM_PASS_THROUGH_BOMB:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_PASS_THROUGH;
+                    break;
+                case ITEM_BOMB_KICK:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_KICK;
+                    break;
+                case ITEM_INVINCIBILITY:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_INVINCIBILITY;
+                    break;
+                case ITEM_HEART:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_HEART;
+                    break;
+                case ITEM_LIFE:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_LIFE;
+                    break;
+                
+                default:
+                    break;
+            }
+
+            if (tex) {
+                drawTexture(tex, &rect, &rectdest);
+            }
         }
     }
+
+    drawInventory();
+    drawSelectedItem();
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
         drawPlayer(game->players[i]);
+    }
+
+    // bots
+    for (size_t i = 0; i < g_nbBots; i++)
+    {
+        drawPlayer(g_bots[i]);
     }
 }
 
@@ -313,6 +473,7 @@ void    drawPlayer(const t_player *player) {
     short           spriteH;
     SDL_Rect        rect;
     SDL_Rect        rectdest;
+    SDL_Color       textColor = {255, 255, 255, 255};
 
     //draw player
     spriteW = 50;
@@ -331,5 +492,35 @@ void    drawPlayer(const t_player *player) {
     rect.w = spriteW;
     rect.h = spriteH;
 
-    drawTexture(TEX_PLAYER, &rect, &rectdest);
+    drawTexture(player->health ? TEX_PLAYER : TEX_TOMBSTONE, &rect, &rectdest);
+
+    if (!player->health) {
+        rect.w = 900;
+        rect.h = 600;
+        drawTexture(TEX_TOMBSTONE, &rect, &rectdest);
+    } else {
+        drawTexture(TEX_PLAYER, &rect, &rectdest);
+    }
+
+    // draw player name
+    drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, player->name, true, 0);
+}
+
+void    spawnRandomItem(int xCell, int yCell) {
+    t_item  *item;
+    int     random;
+    t_map   *map;
+
+    map = getGame()->map;
+
+    item = &g_items[rand() % NB_ITEMS];
+    random = rand() % 100;
+    
+    if (random < 50) {
+        GETCELL(xCell, yCell) = item->type;
+        updateCell(xCell, yCell, (t_type) item->type);
+    } else {
+        GETCELL(xCell, yCell) = EMPTY;
+        updateCell(xCell, yCell, EMPTY);
+    }
 }

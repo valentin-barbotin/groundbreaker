@@ -7,6 +7,8 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
+#include <pthread.h>
+
 #include "config.h"
 #include "cache.h"
 #include "utils.h"
@@ -19,12 +21,36 @@
 #include "game.h"
 #include "moves.h"
 #include "dialog.h"
+#include "effects.h"
+
+#include "discord.h"
 
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
 extern t_gameConfig    *gameConfig;
+extern void    assignMenuParents();
+extern t_player         *g_bots[MAX_BOTS];
+extern short            g_nbBots;
+extern t_discord_app    *g_app_discord;
 
 #define DEBUG true
+
+SDL_Color colorWhite = {255, 255, 255, 255};
+SDL_Color colorBlack = {0, 0, 0, 255};
+SDL_Color colorRed = {255, 0, 0, 255};
+SDL_Color colorGreen = {0, 255, 0, 255};
+SDL_Color colorBlue = {0, 0, 255, 255};
+SDL_Color colorYellow = {255, 255, 0, 255};
+SDL_Color colorCyan = {0, 255, 255, 255};
+SDL_Color colorMagenta = {255, 0, 255, 255};
+SDL_Color colorOrange = {255, 165, 0, 255};
+SDL_Color colorPurple = {128, 0, 128, 255};
+SDL_Color colorBrown = {165, 42, 42, 255};
+SDL_Color colorGray = {128, 128, 128, 255};
+SDL_Color colorLightGray = {128, 128, 128, 128};
+SDL_Color colorDarkGray = {169, 169, 169, 255};
+SDL_Color colorPink = {255, 192, 203, 255};
+SDL_Color colorTransparent = {0, 0, 0, 0};
 
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
@@ -51,9 +77,6 @@ void setupSDL() {
         #endif
 		exit(EXIT_FAILURE);
 	}
-
-    // setPath for sound
-    setPath();
 }
 
 // export DISPLAY=:0.0
@@ -67,6 +90,8 @@ int main(int argc, char **argv)
     }
     time_t t;
     srand((unsigned) time(&t));
+
+    assignMenuParents();
 
     unsigned int    windowWidth;
     unsigned int    windowHeight;
@@ -94,8 +119,6 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-
-
     // window limits, i3
     SDL_Rect windowLimits = {0, 0, windowWidth, windowHeight};
 
@@ -103,10 +126,11 @@ int main(int argc, char **argv)
 
     SDL_RaiseWindow(g_window);
 
-    SDL_Color windowLimitsColor = { 255, 255, 0, 255 };
-    SDL_Color blackColor = { 0, 0, 0, 255 };
 
     g_currentState = GAME_MAINMENU;
+
+    pthread_t       th;
+    pthread_create(&th, NULL, &setupDiscord, "");
 
     int running = 1;
     SDL_Event event;
@@ -153,8 +177,7 @@ int main(int argc, char **argv)
         }
         SDL_RenderClear(g_renderer);
 
-       
-        pickColor(&blackColor);
+        pickColor(&colorBlack);
 
         if (inMainMenu()) {
             // No need to render at 1000 fps
@@ -162,19 +185,33 @@ int main(int argc, char **argv)
             SDL_Delay(30);
         } else if (inGame())
         {
-            movePlayer();
-            // map_print(getGame()->map);
             drawMap();
-            // printf("x = %d, y = %d , velx = %d, vely = %d\n", getGame()->x, getGame()->y, getGame()->vx, getGame()->vy);
+            drawEffects();
+
+            if (isGamePaused()) {
+                setupMenu();
+                SDL_Delay(30);
+
+            } else {
+                // move bots
+                for (size_t i = 0; i < g_nbBots; i++)
+                {
+                    if (g_bots[i]->health) {
+                        movePlayer(g_bots[i]);
+                    }
+                }
+
+                movePlayer(getPlayer());
+            }
         }
 
         if (getEditBox()->active) {
             displayEditBox();
         }
 
-        pickColor(&windowLimitsColor);
+        pickColor(&colorRed);
         SDL_RenderDrawRect(g_renderer, &windowLimits);
-        pickColor(&blackColor);
+        pickColor(&colorBlack);
 
         SDL_RenderPresent(g_renderer);
 

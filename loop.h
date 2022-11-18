@@ -22,7 +22,7 @@
  bool   inMainMenu();
  void   makeSelection(unsigned short);
  void   handleMouseButtonUp(const SDL_Event *event);
- void   handleKeyDown(const SDL_Event *event);
+ void   handleKeyDown(const SDL_KeyboardEvent *event);
  void   handleKeyUp(const SDL_Event *event);
  void   handleTextEditing(const SDL_Event *event);
 
