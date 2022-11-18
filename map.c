@@ -474,6 +474,7 @@ void    drawPlayer(const t_player *player) {
     SDL_Rect        rect;
     SDL_Rect        rectdest;
     SDL_Color       textColor = {255, 255, 255, 255};
+    char            buffer[256];
 
     //draw player
     spriteW = 50;
@@ -503,7 +504,12 @@ void    drawPlayer(const t_player *player) {
     }
 
     // draw player name
-    drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, player->name, true, 0);
+    if (player->lives) {
+        sprintf(buffer, "%s%s lives: %hu", player->name, player->health ? "" : "(dead)", player->lives);
+    } else {
+        sprintf(buffer, "%s (dead)", player->name);
+    }
+    drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, buffer, true, 0);
 }
 
 void    spawnRandomItem(int xCell, int yCell) {

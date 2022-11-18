@@ -578,8 +578,9 @@ void    handleMouseButtonUpPlaying(const SDL_Event *event) {
 
 void    handleDamage(t_player *player) {
     char    buffer[256];
-    if (!player->godMode && !player->canSurviveExplosion) {
+    if (player->lives && !player->godMode && !player->canSurviveExplosion) {
         player->health = 0;
+        player->lives--;
         //TODO: spawn tombstone and send it to all
 
         sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
@@ -797,14 +798,12 @@ void    receiveDamage(const char *content) {
     sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
     if (id != player->id) return;
 
-    if (--player->lives == 0) {
-        puts("not enough lives");
-        //TODO: spec mode
-    }
-
     player->health = 0;
     player->vx = 0;
     player->vy = 0;
+
+    if (--player->lives == 0) return;
+
     //TODO: static tombstone
 
     buff = malloc(sizeof(char) * 100);
