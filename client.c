@@ -96,6 +96,8 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         action = EFFECT;
     } else if (stringIsEqual(type, "DAMAGE")) {
         action = DAMAGE;
+    } else if (stringIsEqual(type, "RESPAWN")) {
+        action = RESPAWN;
     } else {
         #ifdef DEBUG
             puts("Invalid message type");
@@ -115,24 +117,19 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         case MOVE:
             receiveMove(content);
             break;
-        case DAMAGE: {
+        case RESPAWN: {
             short       id;
             int         xCell;
             int         yCell;
 
-            player = getPlayer();
-
             sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
-            if (id != player->id) return;
+            player = game->players[id];
 
-            if (--player->lives == 0) {
-                puts("not enough lives");
-                //TODO: spec mode
-            }
-
-            puts("You died");
-            putPlayerInFreeCell(player);
-            doSendPos(player);
+            player->health = 100;    
+        }
+            break;
+        case DAMAGE: {
+            receiveDamage(content);
         }
             break;
         case START: {

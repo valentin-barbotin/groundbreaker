@@ -45,5 +45,7 @@
  void    handleMouseButtonUpPlaying(const SDL_Event *event);
  void    launchGame();
  void    putPlayerInFreeCell(t_player *player);
+ Uint32  timedRespawn(Uint32 interval, char *param);
+ void    receiveDamage(const char *content);
 
 #endif

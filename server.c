@@ -89,6 +89,7 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     char        *content;
     t_message   action;
     t_game      *game;
+    t_player    *player;
 
     content = strchr(buffer, ':');
     if (content == NULL) {
@@ -127,6 +128,10 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         action = CELL;
     } else if (stringIsEqual(type, "EFFECT")) {
         action = EFFECT;
+    } else if (stringIsEqual(type, "DAMAGE")) {
+        action = DAMAGE;
+    } else if (stringIsEqual(type, "RESPAWN")) {
+        action = RESPAWN;
     } else {
         #ifdef DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -146,6 +151,20 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         case MOVE:
             receiveMove(content);
             break;
+        case RESPAWN: {
+            short       id;
+            int         xCell;
+            int         yCell;
+
+            sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
+            player = game->players[id];
+
+            player->health = 100;    
+        }
+            break;
+        case DAMAGE: {
+            receiveDamage(content);
+        }
         case BROADCAST:
             // if clientAddr is not null, it's a UDP message
             clientAddr ? sendToAllUDP(content, clientAddr) : sendToAll(content, client);

@@ -805,3 +805,55 @@ void    launchGame() {
 
     spawnPlayer(x, y, player);
  }
+
+Uint32   timedRespawn(Uint32 interval, char *param) {
+    t_player    *player;
+    
+    puts("respawn");
+    puts(param);
+    player = getPlayer();
+    sendToAll(param, -1);
+    free(param);
+
+    player->health = 100;
+    putPlayerInFreeCell(player);
+    doSendPos(player);
+    return 0;
+}
+
+void    receiveDamage(const char *content) {
+    short       id;
+    int         xCell;
+    int         yCell;
+    char        *buff;
+    t_player    *player;
+
+    player = getPlayer();
+
+    sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
+    if (id != player->id) return;
+
+    if (--player->lives == 0) {
+        puts("not enough lives");
+        //TODO: spec mode
+    }
+
+    player->health = 0;
+    player->vx = 0;
+    player->vy = 0;
+    //TODO: static tombstone
+
+    buff = malloc(sizeof(char) * 100);
+    if (!buff) {
+        #ifdef DEBUG
+            fprintf(stderr, "Error allocating memory");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
+        exit(1);
+    }
+
+    // respawn after n seconds
+    sprintf(buff, "RESPAWN:%hd %d %d", id, player->xCell, player->yCell);
+    //TODO: respawn time in config
+    SDL_AddTimer(3000, timedRespawn, buff);
+}

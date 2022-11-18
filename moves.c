@@ -29,6 +29,18 @@ void    handleKeyDownPlay(const SDL_Event *event) {
                 break;
         }
     }
+    
+    if (player->vx < -VELOCITY) {
+        player->vx = -VELOCITY;
+    } else if (player->vx > VELOCITY) {
+        player->vx = VELOCITY;
+    }
+
+    if (player->vy < -VELOCITY) {
+        player->vy = -VELOCITY;
+    } else if (player->vy > VELOCITY) {
+        player->vy = VELOCITY;
+    }
 }
 void    handleKeyUpPlay(const SDL_Event *event) {
     t_player    *player;
@@ -36,6 +48,9 @@ void    handleKeyUpPlay(const SDL_Event *event) {
     player = getPlayer();
 
     if (!isGamePaused()) {
+        // disable keys if player is dead (spectator mode or waiting for respawn)
+        if (!player->health) return;
+
         printf("11 %d\n", (event->key.keysym.sym));
         if (event->key.repeat == 0) {
             switch (event->key.keysym.sym) {

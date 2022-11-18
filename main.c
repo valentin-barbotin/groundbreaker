@@ -62,7 +62,7 @@ int             g_currentState;
  * @return {void}
 */
 void setupSDL() {
-    if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO )) {
+    if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER )) {
         #ifdef DEBUG
 		    fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         #endif
