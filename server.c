@@ -19,48 +19,63 @@
 bool        g_serverRunning = false;
 bool        g_serverRunningUDP = false;
 pthread_t   g_serverThread = 0;
-t_peer      *g_peersList[3]; // 4 players max
+t_peer      *g_peersList[4]; // 4 players max
 int         g_peersListNb = 0;
-t_peer      *g_peersListUDP[3]; // 4 players max
+t_peer      *g_peersListUDP[4]; // 4 players max
 int         g_peersListUDPNb = 0;
 
 
 // TODO: use players list
 void    sendToAll(const char *msg, int except) {
-    if (g_serverRunning) {
-        // printf("g_peersListNb! %d\n", g_peersListNb);
-        for (int i = 0; i < g_peersListNb; i++) {
-            // avoid loopback
-            if (g_peersList[i]->socket == except) continue;
+    const char    *pos;
 
-            if (!stringIsEqual(g_peersList[i]->name, getUsername())) {
-                printf("Sending to [%s]: %s\n", g_peersList[i]->name, msg);
+    if (g_serverRunning) {
+        for (int i = 0; i < g_peersListNb; i++) {
+            if (g_peersList[i]->id != except) {
+                printf("Sending to [%d, %s]: %s\n", i, g_peersList[i]->name, msg);
                 sendMsg(msg, g_peersList[i]->socket);
             }
         }
+
+        if (except != 0) {
+            pos = strstr(msg, "BROADCAST");
+            if (!pos) {
+                handleMessageSrv(msg, 0, NULL); // dummy values
+            }
+        }
+
         return;
     }
     //let the server broadcast the message
-    broadcastMsg(msg);
+    broadcastMsg(msg, except);
 }
 
-void    sendToAllUDP(const char *msg, const struct sockaddr_in *except) {
+void    sendToAllUDP(const char *msg, short except) {
+    const char    *pos;
 
     if (g_serverRunningUDP) {
         for (int i = 0; i < g_peersListUDPNb; i++) {
-            if (!stringIsEqual(g_peersListUDP[i]->name, getUsername())) {
-                //avoid loopback
-                printf("Sending to [%s]: %s\n", g_peersListUDP[i]->name, msg);
+            if (g_peersListUDP[i]->id != except) {
+                printf("Sending to [%d, %s]: %s\n", i, g_peersListUDP[i]->name, msg);
                 sendMsgUDP(msg, g_peersListUDP[i]->socket, g_peersListUDP[i]->clientAddr);
             }
         }
+
+        if (except != 0) {
+            //check if the message is a broadcast
+            pos = strstr(msg, "BROADCAST");
+            if (!pos) {
+                handleMessageSrv(msg, 0, NULL); // dummy values
+            }
+        }
+
         return;
     }
     //let the server broadcast the message
-    broadcastMsgUDP(msg);
+    broadcastMsgUDP(msg, except);
 }
 
-void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *name) {
+void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *name, unsigned short id) {
     t_peer  *peer;
 
     peer = malloc(sizeof(t_peer));
@@ -73,6 +88,7 @@ void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *na
 
     peer->socket = socket;
     strcpy(peer->name, name);
+    peer->id = id;
 
     // UDP peer
     if (clientAddr != NULL) {
@@ -87,9 +103,6 @@ void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *na
 void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *clientAddr) {
     char        type[128];
     char        *content;
-    t_message   action;
-    t_game      *game;
-    t_player    *player;
 
     content = strchr(buffer, ':');
     if (content == NULL) {
@@ -107,6 +120,15 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     #if DEBUG
         printf("type: %s, msg: [%s]\n", type, content);
     #endif
+
+    handleMessageSrv2(type, content, client, clientAddr);
+    memset(buffer, 0, 1024); //TODO: check if needed
+}
+
+void    handleMessageSrv2(char *type, char *content, int client, const struct sockaddr_in *clientAddr) {
+    t_message   action;
+    t_game      *game;
+    t_player    *player;
 
     if (stringIsEqual(type, "JOIN")) {
         action = JOIN;
@@ -175,23 +197,43 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         case DAMAGE: {
             receiveDamage(content);
         }
-        case BROADCAST:
+        case BROADCAST: {
+            char    *content2;
+            short   except;
+
+            content2 = strchr(content, ' ');
+            if (content2 == NULL) {
+                #if DEBUG
+                    puts("Invalid message (:)");
+                    puts(buffer);
+                    // exit(1);
+                #endif
+                return;
+            }
+
+            *content2 = '\0';
+            content2++;
+
+            except = atoi(content);
+            printf("Broadcasting: (except: %hd) %s", except, content2);
             // if clientAddr is not null, it's a UDP message
-            clientAddr ? sendToAllUDP(content, clientAddr) : sendToAll(content, client);
-            handleMessageClient(content, client, NULL);
+            clientAddr ? sendToAllUDP(content2, except) : sendToAll(content2, except);
+            // handleMessageClient(content, client, NULL);
             break;
+        }
         case MYNAME:
             //TODO: check name
-            addPeer(client, clientAddr, content);
+            addPeer(client, clientAddr, content, game->nbPlayers); // a client connect to the server in TCP and UDP in the same time, no guarantee that the client has the same id in both protocol.. 
             break;
         case JOIN:
             //TODO: mutex ?
             printf("JOIN: %s\n", content);
             printf("game->nbPlayers: %d\n", game->nbPlayers);
-            strcpy(game->players[game->nbPlayers++]->name, content);
+            strcpy(game->players[game->nbPlayers]->name, content);
             // printf("2 - game->nbPlayers: %d\n", game->nbPlayers);
 
-            addPeer(client, clientAddr, content);
+            addPeer(client, clientAddr, content, game->nbPlayers);
+            game->nbPlayers++;
 
             // update players list for each pear
             sendPlayersToAll();
@@ -205,8 +247,6 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
         default:
             break;
     }
-    
-    memset(buffer, 0, 1024);
 }
 
 /**
@@ -513,7 +553,7 @@ void    multiplayerStart() {
     *ptr = '\0';
     
     // send map to clients
-    sendToAll(buffer, -1);
+    sendToAll(buffer, getPlayer()->id);
 }
 
 
@@ -521,7 +561,7 @@ void    multiplayerEnd(short winner) {
     char buffer[256];
 
     sprintf(buffer, "END:%hd", winner);
-    sendToAll(buffer, -1);
+    sendToAll(buffer, getPlayer()->id);
 }
 
 void    sendPlayersToAll() {
@@ -538,6 +578,6 @@ void    sendPlayersToAll() {
         }
         sprintf(buffer, "PLAYERDAT:%s %d %d %hu%c", game->players[i]->name, game->players[i]->xCell, game->players[i]->yCell, i, '\0');
         puts(buffer);
-        sendToAll(buffer, -1);
+        sendToAll(buffer, getPlayer()->id);
     }
 }

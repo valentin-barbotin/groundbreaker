@@ -114,8 +114,8 @@ void    doSendPos(const t_player *player) {
     // update the grid position for other players
 
     posToGrid(player);
-    sprintf(buffer, "MOVE:%d %d %d %d %u %hu%c", player->x, player->y, player->xCell, player->yCell, player->direction, g_playersMultiIndex, '\0');
-    sendToAllUDP(buffer, NULL);
+    sprintf(buffer, "MOVE:%d %d %d %d %u %hu", player->x, player->y, player->xCell, player->yCell, player->direction, g_playersMultiIndex);
+    sendToAllUDP(buffer, g_playersMultiIndex);
 }
 
 void       initInventory(t_player *player) {

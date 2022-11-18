@@ -29,13 +29,15 @@
     int                         socket;
     const struct sockaddr_in    *clientAddr;
     char                        name[256];
+    unsigned short              id;
  }                  t_peer;
  
 
  void    sendToAll(const char *msg, int except);
- void    sendToAllUDP(const char *msg, const struct sockaddr_in *except);
- void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *name);
+ void    sendToAllUDP(const char *msg, short except);
+ void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *name, unsigned short id);
  void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *clientAddr);
+ void    handleMessageSrv2(char *type, char *content, int client, const struct sockaddr_in *clientAddr);
  void    handleClientUDP(int socket);
  void    *handleClient(void *clientSocket);
  void    launchServer();

@@ -30,17 +30,17 @@ struct sockaddr_in  *g_serverAddrUDP = NULL;
 
 t_serverConfig g_serverConfig;
 
-void    broadcastMsg(const char *msg) {
+void    broadcastMsg(const char *msg, int except) {
     char    buffer[1024];
 
-    sprintf(buffer, "BROADCAST:%s", msg);
+    sprintf(buffer, "BROADCAST:%d %s", except, msg);
     sendMsg(buffer, g_serverSocket);
 }
 
-void    broadcastMsgUDP(const char *msg) {
+void    broadcastMsgUDP(const char *msg, short except) {
     char    buffer[1024];
 
-    sprintf(buffer, "BROADCAST:%s", msg);
+    sprintf(buffer, "BROADCAST:%d %s", except, msg);
     sendMsgUDP(buffer, g_serverSocketUDP, g_serverAddrUDP);
 }
 
@@ -56,8 +56,6 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     char        *pos;
     char        type[128];
     char        *content;
-    t_message   action;
-    t_game      *game;
 
     pos = strchr(buffer, ':');
     if (pos == NULL) {
@@ -75,6 +73,14 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     #if DEBUG
         printf("type: %s, msg: [%s]\n", type, content);
     #endif
+
+    handleMessageClient2(type, content);
+}
+
+void    handleMessageClient2(char *type, char *content) {
+    t_player    *player;
+    t_game      *game;
+    t_message   action;
 
     if (stringIsEqual(type, "JOIN")) {
         action = JOIN;
@@ -108,7 +114,6 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
         #endif
     }
 
-    t_player    *player;
     game = getGame();
     switch (action)
     {
@@ -352,7 +357,7 @@ void    *connectToServer(void *arg) {
 
     puts("Connected to server");
 
-    sprintf(buffer, "JOIN:%s%c", g_username, '\0');
+    sprintf(buffer, "JOIN:%s", g_username);
     sendMsg(buffer, g_serverSocket);
     do
     {
@@ -413,7 +418,7 @@ void    *connectToServerUDP(void *arg) {
 
     puts("(UDP) Connected to server");
 
-    sprintf(buffer, "MYNAME:%s%c", g_username, '\0');
+    sprintf(buffer, "MYNAME:%s", g_username);
     sendMsgUDP(buffer, g_serverSocketUDP, &cl);
     memset(buffer, 0, 1024);
 
@@ -457,7 +462,7 @@ void    updateCell(unsigned short xCell, unsigned short yCell, t_type type) {
     char    buffer[1024];
 
     sprintf(buffer, "CELL:%hu %hu %u", xCell, yCell, type);
-    sendToAll(buffer, -1); //TODO: check except
+    sendToAll(buffer, getPlayer()->id); //TODO: check except
 }
 
 void    sendEffect(const t_effect *effect) {
@@ -465,5 +470,5 @@ void    sendEffect(const t_effect *effect) {
     char    buffer[1024];
     
     sprintf(buffer, "EFFECT:%d %d %d", effect->xCell, effect->yCell, effect->type);
-    sendToAll(buffer, -1);
+    sendToAll(buffer, getPlayer()->id);
 }

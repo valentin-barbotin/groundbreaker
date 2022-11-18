@@ -445,7 +445,7 @@ void    movePlayer(t_player *player) {
             updateCell(player->xCell, player->yCell, EMPTY);
 
             sprintf(buffer, "LIFE: %hd %d", player->id, player->lives);
-            sendToAll(buffer, -1);
+            sendToAll(buffer, getPlayer()->id);
         } 
             break;
         default:
@@ -589,7 +589,7 @@ void    handleDamage(t_player *player) {
         //TODO: spawn tombstone and send it to all
 
         sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
-        sendToAll(buffer, -1);
+        sendToAll(buffer, getPlayer()->id);
         //TODO: respawn using lives
     }
 
@@ -782,7 +782,7 @@ Uint32   timedRespawn(Uint32 interval, char *param) {
     puts("respawn");
     puts(param);
     player = getPlayer();
-    sendToAll(param, -1);
+    sendToAll(param, getPlayer()->id);
     free(param);
 
     player->health = 100;
