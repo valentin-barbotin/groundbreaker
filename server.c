@@ -122,7 +122,6 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     #endif
 
     handleMessageSrv2(type, content, client, clientAddr);
-    memset(buffer, 0, 1024); //TODO: check if needed
 }
 
 void    handleMessageSrv2(char *type, char *content, int client, const struct sockaddr_in *clientAddr) {
