@@ -23,7 +23,7 @@ void    saveSetting(const char *key, const char *value) {
     
     buff = readFile("config.ini");
     if (buff == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error reading config.ini");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't read config file", g_window);
@@ -33,7 +33,7 @@ void    saveSetting(const char *key, const char *value) {
     // find the key
     pos = strstr(buff, key);
     if (pos == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error finding key in config.ini");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Config error", g_window);
@@ -43,7 +43,7 @@ void    saveSetting(const char *key, const char *value) {
     // find the end of the line
     posEnd = strchr(pos, '\n');
     if (posEnd == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error finding end of line in config.ini");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Config error", g_window);
@@ -54,7 +54,7 @@ void    saveSetting(const char *key, const char *value) {
 
     fd = fopen("config.ini", "w");
     if (fd == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error opening config.ini");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't edit config file", g_window);
@@ -329,7 +329,7 @@ int     readConfig(t_gameConfig *config) {
     // to define
     char* data = calloc(SIZE_DATA, sizeof(char));
     if (data == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
                 fprintf(stderr, "Error: calloc failed\n");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);

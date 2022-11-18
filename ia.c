@@ -13,7 +13,7 @@ void    searchBotsPos(const t_map *map) {
         for (short x = 1; x < map->width - 2; x++) {
             // find a line of empty cells (min 3)
             if (map->map[y][x] == EMPTY && map->map[y][x + 1] == EMPTY && map->map[y][x + 2] == EMPTY) {
-                #ifdef DEBUG
+                #if DEBUG
                     printf("found empty line x:%d, y:%d\n", x, y);
                 #endif
 
@@ -33,7 +33,7 @@ void    searchBotsPos(const t_map *map) {
                 break;
             // find a column of empty cells (min 3)
             } else if (map->map[y][x] == EMPTY && map->map[y + 1][x] == EMPTY && map->map[y + 2][x] == EMPTY) {
-                #ifdef DEBUG
+                #if DEBUG
                     printf("found empty column x:%d, y:%d\n", x, y);
                 #endif
                 // check proximity of bots
@@ -58,14 +58,14 @@ void    searchBotsPos(const t_map *map) {
 
 void    spawnBot(const t_map *map, short x, short y, t_direction direction) {
     if (x < 0 || y < 0 || x >= map->width || y >= map->height) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "spawnBot: invalid position x:%d, y:%d\n", x, y);
         #endif
         return;
     }
 
     if (x == 1 && y == 1) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "spawnBot: invalid position x:%d, y:%d\n", x, y);
         #endif
         return;
@@ -74,7 +74,7 @@ void    spawnBot(const t_map *map, short x, short y, t_direction direction) {
     unsigned int    cellSizeY;
 
     if (g_nbBots == MAX_BOTS) {
-        #ifdef DEBUG
+        #if DEBUG
         printf("Max number of bots reached\n");
         #endif
         return;

@@ -34,7 +34,7 @@ void   useItem(t_item *item) {
             // SDL TIMER
             SDL_Point   *pos = malloc(sizeof(SDL_Point));
             if (!pos) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Malloc error in useItem()");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);

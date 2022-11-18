@@ -131,7 +131,7 @@ void    setupMenu() {
     }
 
     if (setBackgroundImage(TEX_MENU_BACKGROUND)) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error setting background image");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Error setting background image", NULL);
@@ -255,7 +255,7 @@ void    drawLobbyMenu() {
     if (g_lobby == NULL) {
         g_lobby = malloc(sizeof(t_lobby));
         if (g_lobby == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -353,7 +353,7 @@ void    setupMenuButtons() {
         tex = getTextureFromString(g_currentMenu->buttons[i], color, 0);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);

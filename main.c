@@ -63,7 +63,7 @@ int             g_currentState;
 */
 void setupSDL() {
     if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER )) {
-        #ifdef DEBUG
+        #if DEBUG
 		    fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         #endif
         exit(EXIT_FAILURE);
@@ -72,7 +72,7 @@ void setupSDL() {
     // init sdl2_ttf
     if (TTF_Init() == -1)
 	{
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "TTF_Init: %s", TTF_GetError());
         #endif
 		exit(EXIT_FAILURE);

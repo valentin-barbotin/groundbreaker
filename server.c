@@ -14,7 +14,7 @@
 #include "player.h"
 #include "client.h"
 
-#define DEBUG true
+#define DEBUG false
 
 bool        g_serverRunning = false;
 bool        g_serverRunningUDP = false;
@@ -65,7 +65,7 @@ void    addPeer(int socket, const struct sockaddr_in *clientAddr, const char *na
 
     peer = malloc(sizeof(t_peer));
     if (peer == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             printf("Error: malloc failed for peer");
         #endif
         exit(1);
@@ -93,7 +93,7 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
 
     content = strchr(buffer, ':');
     if (content == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid message (:)");
             puts(buffer);
             // exit(1);
@@ -104,7 +104,7 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     *content = '\0';
     content++;
     strcpy(type, buffer);
-    #ifdef DEBUG
+    #if DEBUG
         printf("type: %s, msg: [%s]\n", type, content);
     #endif
 
@@ -133,7 +133,7 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     } else if (stringIsEqual(type, "RESPAWN")) {
         action = RESPAWN;
     } else {
-        #ifdef DEBUG
+        #if DEBUG
             printf("Invalid message type: [%s]\n", type);
             puts("Invalid message type");
         #endif
@@ -216,14 +216,14 @@ void   *handleClient(void *clientSocket) {
     int     client = *(int *)clientSocket;
     ptr = NULL;
 
-    #ifdef DEBUG
+    #if DEBUG
         printf("Client socket: %d\n", client);
     #endif
 
     do
     {
         // receive message from client, wait if no message
-        #ifdef DEBUG
+        #if DEBUG
             puts("Waiting for message from client");
         #endif
 
@@ -268,7 +268,7 @@ void   handleClientUDP(int socket) {
         struct sockaddr_in  clientAddr;
 
         // receive message from client, wait if no message
-        #ifdef DEBUG
+        #if DEBUG
             puts("(UDP) Waiting for message");
         #endif
 
@@ -291,7 +291,7 @@ void   handleClientUDP(int socket) {
 
         } while (len != total);
 
-        #ifdef DEBUG
+        #if DEBUG
             printf("(UDP) Received message [%s]\n",  buffer);
         #endif
 
@@ -301,7 +301,7 @@ void   handleClientUDP(int socket) {
 
 void    launchServer() {
     if (g_serverRunning) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Server already running");
         #endif
         return;
@@ -324,7 +324,7 @@ void    launchServer() {
  */
 void    *createServerUDP(const void *arg) {
     if (g_serverRunningUDP) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Server already running");
         #endif
         return NULL;
@@ -342,7 +342,7 @@ void    *createServerUDP(const void *arg) {
     // create socket with IPv4 and UDP
     serverSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (serverSocket < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             perror("Error opening socket");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't create socket", g_window);
@@ -356,7 +356,7 @@ void    *createServerUDP(const void *arg) {
     serverAddress.sin_port = htons(port);
 
     if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             perror("(UDP) Error on binding");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't bind", g_window);
@@ -382,7 +382,7 @@ void    *createServerUDP(const void *arg) {
  */
 void    *createServer(const void *arg) {
     if (g_serverRunning) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Server already running");
         #endif
         return NULL;
@@ -403,7 +403,7 @@ void    *createServer(const void *arg) {
     // create socket with IPv4 and TCP
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             perror("Error opening socket");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't create socket", g_window);
@@ -418,7 +418,7 @@ void    *createServer(const void *arg) {
     serverAddress.sin_port = htons(port);
 
     if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             perror("Error on binding");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't open server", "Can't bind", g_window);

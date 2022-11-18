@@ -28,7 +28,7 @@ t_player        *initPlayer() {
 
     player = malloc(sizeof(t_player));
     if (player == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error allocating memory for player");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Error while creating player", g_window);
@@ -47,7 +47,7 @@ t_player        *initPlayer() {
     player->isBot = false;
     player->selectedSlot = 0;
     player->maxBombs = 2;
-    player->lives = 3;
+    player->lives = 2;
     player->lastBombX = 0;
     player->lastBombY = 0;
     player->id = -1;

@@ -19,7 +19,7 @@
 #include "game.h"
 #include "effects.h"
 
-#define DEBUG true
+#define DEBUG false
 
 pthread_t           g_clientThread = 0;
 pthread_t           g_clientThreadUDP = 0;
@@ -61,7 +61,7 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
 
     pos = strchr(buffer, ':');
     if (pos == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid message (: client)");
             exit(1);
         #endif
@@ -72,7 +72,7 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     strcpy(type, buffer);
 
     content = pos;
-    #ifdef DEBUG
+    #if DEBUG
         printf("type: %s, msg: [%s]\n", type, content);
     #endif
 
@@ -99,7 +99,7 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
     } else if (stringIsEqual(type, "RESPAWN")) {
         action = RESPAWN;
     } else {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid message type");
         #endif
     }
@@ -149,7 +149,7 @@ void    handleMessageClient(const char  *buffer, int server, const struct sockad
 
             ptr = strchr(content, '$');
             if (ptr == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     puts("Invalid message ($ client)");
                     exit(1);
                 #endif
@@ -227,7 +227,7 @@ void    askUsernameCallback() {
     //TODO: check if host is valid
 
     if (strlen(getEditBox()->edit) == 0) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("No username entered");
         #endif
         return;
@@ -289,7 +289,7 @@ void    askServerPortCallback() {
 void    joinServer() {
     bool    valid = false;
     if (g_clientThread != 0) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Client already running");
         #endif
         return;
@@ -331,7 +331,7 @@ void    *connectToServer(void *arg) {
 
     int res = connect(g_serverSocket, (struct sockaddr *)&cl, sizeof(cl));
     if (res < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             perror("Error connecting to server");
             fprintf(stderr, "Error connecting to server: %s", strerror(res));
         #endif
@@ -347,7 +347,7 @@ void    *connectToServer(void *arg) {
     do
     {
         // receive message from client, wait if no message
-        #ifdef DEBUG
+        #if DEBUG
             puts("Waiting for message from server");
         #endif
 
@@ -412,7 +412,7 @@ void    *connectToServerUDP(void *arg) {
         struct sockaddr_in  sockaddr;
 
         // receive message from client, wait if no message
-        #ifdef DEBUG
+        #if DEBUG
             puts("Waiting for message from server");
         #endif
 

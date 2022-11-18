@@ -50,7 +50,7 @@ void     getMaps() {
     g_nbMap = 0;
     dir = opendir("maps");
     if (dir == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Can't open maps directory\n");
             perror("opendir");
         #endif
@@ -67,7 +67,7 @@ void     getMaps() {
             // We can strdup because d_name array is 256 bytes long
             buff = strdup(files->d_name);
             if (buff == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for buff in getMaps()\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -77,7 +77,7 @@ void     getMaps() {
 
             fd = fopen(buff, "rb");
             if (fd == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Can't open map file %s\n", files->d_name);
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't open map file", g_window);
@@ -87,7 +87,7 @@ void     getMaps() {
 
             mapfd = malloc(sizeof(t_map));
             if (mapfd == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for mapfd in getMaps()\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -100,7 +100,7 @@ void     getMaps() {
 
             map = map_create(w, h);
             if (map == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for map in getMaps()\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -129,7 +129,7 @@ void    saveMap(const t_map *map) {
 
     name = randomString(20);
     if (name == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Could not allocate memory for name in saveMap()\n");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -140,7 +140,7 @@ void    saveMap(const t_map *map) {
 
     fd = fopen(buff, "wb");
     if (fd == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Can't open map file %s\n", name);
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't write map", g_window);
@@ -167,7 +167,7 @@ t_map   *map_create(unsigned short width, unsigned short height) {
     map->height = height;
     map->map = malloc(sizeof(char *) * height);
     if (map->map == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Could not allocate memory for map->map in map_create()\n");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -177,7 +177,7 @@ t_map   *map_create(unsigned short width, unsigned short height) {
     for (int i = 0; i < height; i++) {
         map->map[i] = malloc(sizeof(char) * width);
         if (map->map[i] == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error: Could not allocate memory for map->map[i] in map_create()\n");
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);

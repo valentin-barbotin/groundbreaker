@@ -17,7 +17,7 @@
 #include "player.h"
 #include "client.h"
 
-#define DEBUG true
+#define DEBUG false
 
 /**
  * Description
@@ -39,7 +39,7 @@ char   *randomString(unsigned short size) {
 
     str = malloc(sizeof(char) * size + 1);
     if (str == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -106,7 +106,7 @@ char* readFile(const char* src) {
     rewind(fd);
     char* data = malloc(size);
     if (data == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -164,7 +164,7 @@ SDL_Texture* textureFromFile(const char* src) {
 char* removeSuffix(const char *src, const char *suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error removing suffix from string");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "String error", g_window);
@@ -400,7 +400,7 @@ void    receiveMove(const char *content) {
     // //TODO: hashmap to get player by name
 
     if (player == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid player id");
         #endif
         return;
