@@ -537,6 +537,10 @@ void explodeBomb(int xCell, int yCell) {
     player = getPlayer();
     game = getGame();
     map = game->map;
+
+    // if the bomb already exploded, return
+    if (GETCELL(xCell, yCell) == GRAVEL) return;
+
     GETCELL(xCell, yCell) = GRAVEL;
     updateCell(xCell, yCell, GRAVEL);
 
@@ -656,59 +660,18 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
                 GETCELL(cellX, cellY) = GRAVEL;
                 updateCell(cellX, cellY, GRAVEL);
                 printf("Wall destroyed at x:%d y:%d\n", cellX, cellY);
-                // if (player->bombKick) {
-                //     // on met la bombe sur la case précédente
-                //     GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
-                //     return;
-                // }
                 break;
             case LOOT:
                 printf("Loot destroyed at x:%d y:%d\n", cellX, cellY);
-
                 spawnRandomItem(cellX, cellY);
-                // if (player->bombKick) {
-                //     // on met la bombe sur la case précédente
-                //     GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
-                //     return;
-                // }
                 break;
             case UNBREAKABLE_WALL:
                 // on arrête la bombe dans sa course
-                // if (player->bombKick) {
-                //     // on met la bombe sur la case précédente
-                //     GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
-                //     return;
-                // }
                 return;
-            case PLAYER:
-                // if the player is on a bomb kill him if he is not invicible
-                // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
-                if (player->godMode || player->passThroughBomb) {
-                } else if (player->bombKick) {
-                    // if (GETCELL(player->xCell + player->vx, player->yCell + player->vy) == EMPTY) {
-                    //     // move the bomb to the next cell
-                    //     GETCELL(player->xCell + player->vx, player->yCell + player->vy) = BOMB;
-                    //     GETCELL(player->xCell, player->yCell) = EMPTY;
-                    //     // move the player to the next cell
-                    //     player->x += player->vx;
-                    //     player->y += player->vy;
-                    // }
-                } else if (player->canSurviveExplosion) {
-                    // player->canSurviveExplosion = false;
-                    // player->inventory[ITEM_HEART]->quantity = -1;
-                } else {
-                    // player->x -= player->vx;
-                    // player->y -= player->vy;
-                    // player->health -= 100;
-                }
-                break;
             case BOMB:
-                // if (player->passThroughBomb) {
-                //     player->x += player->vx;
-                //     break;
-                // }
+                if (!player->passThroughBomb) break;
 
-                // explodeBomb(cellX, cellY);
+                explodeBomb(cellX, cellY);
                 break;
             default:
                 break;
