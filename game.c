@@ -889,6 +889,11 @@ void    receiveEndGame(const char* content) {
     // the winner can still move until he click on the button
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", buff, g_window);
 
+    if (g_serverRunning) {
+        // reset the game
+        getMaps();
+    }
+
     // puts the player back in the lobby
     g_currentState = GAME_MAINMENU_PLAY;
 }

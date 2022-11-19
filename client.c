@@ -171,12 +171,15 @@ void    handleMessageClient2(char *type, char *content) {
                 #endif
             }
             ptr++;
+            if (game->map != NULL) {
+                map_destroy(game->map);
+            }
 
             map = map_create(w, h);
             // note: players
 
             for (int i = 0; i < h; i++) {
-                strncat(map->map[i], ptr + w * i, w);
+                strncpy(map->map[i], ptr + w * i, w);
             }
 
             game->map = map;

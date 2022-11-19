@@ -534,6 +534,14 @@ void    multiplayerStart() {
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
         t_player *player = game->players[i];
+        //TODO: set default values
+        initInventory(player->inventory);
+        player->scope = 2;
+        player->maxBombs = 2;
+        player->lives = 2;
+        player->lastBombX = 0;
+        player->lastBombY = 0;
+
         putPlayerInFreeCell(player);
         player->id = i;
         printf("(init) spawned player %s at %d, %d\n", player->name, player->xCell, player->yCell);
