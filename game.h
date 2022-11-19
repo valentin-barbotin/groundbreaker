@@ -50,5 +50,6 @@
  void    receiveLife(const char *content);
  bool    checkIfEveryoneIsDead();
  void    receiveEndGame(const char* content);
+ void    kickBomb();
 
 #endif

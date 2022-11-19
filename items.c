@@ -5,7 +5,7 @@
 #define DEBUG true
 
 t_item g_items[NB_ITEMS] = {
-        {ITEM_BOMB, 0, 0, false, 4, 2000, false, TEX_BOMB},
+        {ITEM_BOMB, 0, 0, false, 4, 4000, false, TEX_BOMB},
         {ITEM_BOMB_UP, 0, 0, false, 0, 0, false, TEX_BOMB_UP},
         {ITEM_BOMB_DOWN, 0, 0, false, 0, 0, false, TEX_BOMB_DOWN},
         {ITEM_YELLOW_FLAME, 0, 0, false, 0, 0, false, TEX_YELLOW_FLAME},

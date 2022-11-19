@@ -353,9 +353,14 @@ void    movePlayer(t_player *player) {
             if (player->lastBombX == player->xCell && player->lastBombY == player->yCell) break;
 
             // trigger the bomb if the player is on it
-            if (player->passThroughBomb) break;
+            if (player->passThroughBomb) {
+                break;
+            }
             if (player->bombKick) {
                 //TODO: kick the bomb
+
+                kickBomb();
+                break;
             }
 
             explodeBomb(player->xCell, player->yCell);
@@ -896,4 +901,80 @@ void    receiveEndGame(const char* content) {
 
     // puts the player back in the lobby
     g_currentState = GAME_MAINMENU_PLAY;
+}
+
+
+void    kickBomb() {
+    const t_player    *player;
+    const t_map       *map;
+    t_game            *game;
+    short             xCellNew;
+    short             yCellNew;
+
+    player = getPlayer();
+    game = getGame();
+    map = game->map;
+
+    xCellNew = player->xCell;
+    yCellNew = player->yCell;
+
+    switch (player->direction)
+    {
+        case DIR_UP_RIGHT:
+        case DIR_UP_LEFT:
+        case DIR_UP:
+            do
+            {
+                // search for a free cell
+                yCellNew++;
+            } while (GETCELL(xCellNew, yCellNew + 1) == EMPTY || GETCELL(xCellNew + 1, yCellNew) == GRAVEL);
+            break;
+        case DIR_DOWN_RIGHT:
+        case DIR_DOWN_LEFT:
+        case DIR_DOWN:
+            do
+            {
+                // search for a free cell
+                yCellNew--;
+            } while (GETCELL(xCellNew, yCellNew - 1) == EMPTY || GETCELL(xCellNew, yCellNew - 1) == GRAVEL);
+            break;
+        case DIR_LEFT:
+            do
+            {
+                // search for a free cell
+                xCellNew++;
+            } while (GETCELL(xCellNew + 1, yCellNew) == EMPTY || GETCELL(xCellNew + 1, yCellNew) == GRAVEL);
+            break;
+        case DIR_RIGHT:
+            do
+            {
+                // search for a free cell
+                xCellNew--;
+            } while (GETCELL(xCellNew - 1, yCellNew) == EMPTY || GETCELL(xCellNew - 1, yCellNew) == GRAVEL);
+            break;
+        default:
+            break;
+    }
+
+    if (xCellNew != player->xCell || yCellNew != player->yCell) {
+        GETCELL(xCellNew, yCellNew) = BOMB;
+        GETCELL(player->xCell, player->yCell) = EMPTY;
+
+        updateCell(xCellNew, yCellNew, BOMB);
+        updateCell(player->xCell, player->yCell, EMPTY);
+    }
+
+    
+    SDL_Point   *pos = malloc(sizeof(SDL_Point));
+    if (!pos) {
+        #if DEBUG
+            fprintf(stderr, "Malloc error in useItem()");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
+        exit(1);
+    }
+
+    pos->x = xCellNew;
+    pos->y = yCellNew;
+    SDL_AddTimer(g_items[ITEM_BOMB].duration, bombTimer, pos);
 }
