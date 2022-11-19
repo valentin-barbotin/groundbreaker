@@ -381,11 +381,13 @@ void    *connectToServer(void *arg) {
         {
             ptr = buffer + len;
             len += (strlen(ptr) + 1);
+            // printf("ptr: char:%d %s\n", *ptr, ptr);
+            // printf("len: %lu, total: %lu\n", len, total);
 
             handleMessageClient(ptr, g_serverSocket, NULL);
 
         } while (len != total);
-        
+        // printf("len == total, %lu  %lu\n", len, total);
 
         memset(buffer, 0, 1024);
     } while (true);

@@ -14,7 +14,7 @@
 #include "player.h"
 #include "client.h"
 
-#define DEBUG false
+#define DEBUG true
 
 bool        g_serverRunning = false;
 bool        g_serverRunningUDP = false;
@@ -40,6 +40,7 @@ void    sendToAll(const char *msg, int except) {
         if (except != 0) {
             pos = strstr(msg, "BROADCAST");
             if (!pos) {
+                printf("TCP LOCAL HANDLE: [%s]\n", msg);
                 handleMessageSrv(msg, 0, NULL); // dummy values
             }
         }
@@ -56,7 +57,7 @@ void    sendToAllUDP(const char *msg, short except) {
     if (g_serverRunningUDP) {
         for (int i = 0; i < g_peersListUDPNb; i++) {
             if (g_peersListUDP[i]->id != except) {
-                printf("Sending to [%d, %s]: %s\n", i, g_peersListUDP[i]->name, msg);
+                // printf("Sending to [%d, %s]: %s\n", i, g_peersListUDP[i]->name, msg);
                 sendMsgUDP(msg, g_peersListUDP[i]->socket, g_peersListUDP[i]->clientAddr);
             }
         }
@@ -65,6 +66,7 @@ void    sendToAllUDP(const char *msg, short except) {
             //check if the message is a broadcast
             pos = strstr(msg, "BROADCAST");
             if (!pos) {
+                // printf("UDP LOCAL HANDLE: [%s]\n", msg);
                 handleMessageSrv(msg, 0, NULL); // dummy values
             }
         }
@@ -107,8 +109,7 @@ void    handleMessageSrv(char  *buffer, int client, const struct sockaddr_in *cl
     content = strchr(buffer, ':');
     if (content == NULL) {
         #if DEBUG
-            puts("Invalid message (:)");
-            puts(buffer);
+            printf("1 Invalid message (:) [%s]\n", buffer);
             // exit(1);
         #endif
         return;
@@ -203,8 +204,7 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
             content2 = strchr(content, ' ');
             if (content2 == NULL) {
                 #if DEBUG
-                    puts("Invalid message (:)");
-                    puts(buffer);
+                    printf("2 Invalid message (:) [%s]\n", content);
                     // exit(1);
                 #endif
                 return;
@@ -214,7 +214,7 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
             content2++;
 
             except = atoi(content);
-            printf("Broadcasting: (except: %hd) %s", except, content2);
+            printf("Broadcasting: (except: %hd) %s\n", except, content2);
             // if clientAddr is not null, it's a UDP message
             clientAddr ? sendToAllUDP(content2, except) : sendToAll(content2, except);
             // handleMessageClient(content, client, NULL);
@@ -258,7 +258,7 @@ void   *handleClient(void *clientSocket) {
     // thread does not need to be joined
     pthread_detach(pthread_self());
     char                buffer[1024];
-    const char          *ptr;
+    char                *ptr;
     size_t              total;
     size_t              len;
 
@@ -290,10 +290,13 @@ void   *handleClient(void *clientSocket) {
         {
             ptr = buffer + len;
             len += (strlen(ptr) + 1);
+            // printf("ptr: char:%d %s\n", *ptr, ptr);
+            // printf("len: %lu, total: %lu\n", len, total);
 
-            handleMessageSrv(buffer, client, NULL);
+            handleMessageSrv(ptr, client, NULL);
 
         } while (len != total);
+        // printf("len == total, %lu  %lu\n", len, total);
         
         memset(buffer, 0, 1024);
     } while (true);
@@ -307,7 +310,7 @@ void   *handleClient(void *clientSocket) {
  */
 void   handleClientUDP(int socket) {
     char                buffer[1024];
-    const char          *ptr;
+    char                *ptr;
     size_t              total;
     size_t              len;
 
@@ -336,15 +339,16 @@ void   handleClientUDP(int socket) {
             ptr = buffer + len;
             len += (strlen(ptr) + 1);
 
-            handleMessageSrv(buffer, socket, &clientAddr);
+            handleMessageSrv(ptr, socket, &clientAddr);
 
         } while (len != total);
 
-        #if DEBUG
-            printf("(UDP) Received message [%s]\n",  buffer);
-        #endif
+        // #if DEBUG
+        //     printf("(UDP) Received message [%s]\n",  buffer);
+        // #endif
 
-        handleMessageSrv(buffer, socket, &clientAddr);
+        // handleMessageSrv(buffer, socket, &clientAddr);
+        memset(buffer, 0, 1024);
     } while (true);
 }
 

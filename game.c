@@ -783,8 +783,6 @@ void    launchGame() {
 Uint32   timedRespawn(Uint32 interval, char *param) {
     t_player    *player;
     
-    puts("respawn");
-    puts(param);
     player = getPlayer();
     sendToAll(param, getPlayer()->id);
     free(param);
