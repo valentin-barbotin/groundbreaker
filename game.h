@@ -51,5 +51,6 @@
  bool    checkIfEveryoneIsDead();
  void    receiveEndGame(const char* content);
  void    kickBomb();
+ bool    searchPlayerToExplode(int xCell, int yCell);
 
 #endif

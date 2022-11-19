@@ -925,8 +925,10 @@ void    kickBomb() {
         case DIR_UP:
             do
             {
-                // search for a free cell
                 yCellNew++;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
             } while (GETCELL(xCellNew, yCellNew + 1) == EMPTY || GETCELL(xCellNew + 1, yCellNew) == GRAVEL);
             break;
         case DIR_DOWN_RIGHT:
@@ -934,22 +936,28 @@ void    kickBomb() {
         case DIR_DOWN:
             do
             {
-                // search for a free cell
                 yCellNew--;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
             } while (GETCELL(xCellNew, yCellNew - 1) == EMPTY || GETCELL(xCellNew, yCellNew - 1) == GRAVEL);
             break;
         case DIR_LEFT:
             do
             {
-                // search for a free cell
                 xCellNew++;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
             } while (GETCELL(xCellNew + 1, yCellNew) == EMPTY || GETCELL(xCellNew + 1, yCellNew) == GRAVEL);
             break;
         case DIR_RIGHT:
             do
             {
-                // search for a free cell
                 xCellNew--;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
             } while (GETCELL(xCellNew - 1, yCellNew) == EMPTY || GETCELL(xCellNew - 1, yCellNew) == GRAVEL);
             break;
         default:
@@ -977,4 +985,22 @@ void    kickBomb() {
     pos->x = xCellNew;
     pos->y = yCellNew;
     SDL_AddTimer(g_items[ITEM_BOMB].duration, bombTimer, pos);
+}
+
+
+bool    searchPlayerToExplode(int xCell, int yCell) {
+    const t_game    *game;
+    const t_player  *player;
+
+    game = getGame();
+
+    for (int j = 0; j < game->nbPlayers; j++) {
+        player = game->players[j];
+        if (player->xCell == xCell && player->yCell == yCell) {
+            explodeBomb(xCell, yCell);
+            return true;
+        }
+    }
+
+    return false;
 }
