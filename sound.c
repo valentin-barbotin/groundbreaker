@@ -8,49 +8,31 @@
  * @return  true on success, false on failure
  */
 bool     initAudio(t_sound *sound) {
-    int flags;
+    if (sound->file == NULL) return false;
 
     // get the 3 last characters of sound->file
     char *fileType = sound->file + strlen(sound->file) - 3;
 
-    if (strcmp(fileType, "ogg") == 0) {
-        flags = MIX_INIT_OGG;
-    } else {
-        flags = MIX_INIT_MP3;
+    if(!IS_FILE_TYPE("wav")) {
+        SDL_Log("Error: %s is not a valid audio file", sound->file);
+        exit(1);
     }
 
-    if (flags != (Mix_Init(flags))) {
-        printf("Could not initialize mixer (result: %d).\n", Mix_Init(flags));
-        printf("Mix_Init: %s\n", Mix_GetError());
-        return false;
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1) {
+        SDL_Log("SDL_mixer could not initialize! SDL_mixer Error: %s", Mix_GetError());
+        exit(1);
     }
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        printf("SDL_mixer could not initialize! SDL_mixer Error: %s", Mix_GetError());
-        return false;
+    Mix_AllocateChannels(32);
+    Mix_Volume(sound->channel, MIX_MAX_VOLUME/2);
+    sound->chunk = Mix_LoadWAV(sound->file);
+    Mix_VolumeChunk(sound->chunk, MIX_MAX_VOLUME/2);
+
+    if (sound->chunk == NULL) {
+        SDL_Log("Mix_LoadWAV: %s\n", Mix_GetError());
+        exit(1);
     }
 
-    return true;
-}
-
-/**
- * @brief Initialize the music
- * @param sound
- * @return true on success, false on error
- */
-bool    initMusic(t_sound *sound) {
-    if (sound->file == NULL) return false;
-
-    initAudio(sound);
-
-    if (sound->music == NULL) {
-        sound->music = Mix_LoadMUS(sound->file);
-
-        if (sound->music == NULL) {
-            SDL_Log("Failed to load music: %s", Mix_GetError());
-            return false;
-        }
-    }
     return true;
 }
 
@@ -60,20 +42,14 @@ bool    initMusic(t_sound *sound) {
  * @return true on success or false on error
  */
 bool    playSound(t_sound *sound) {
-    if (!initMusic(sound)) return false;
-
-    if (Mix_PlayingMusic() == 0) {
-        Mix_PlayMusic(sound->music, 0);
-        return true;
-    }
-
+    if (!initAudio(sound)) return false;
+    if (isSoundPlaying(sound)) return false;
     if (pauseSound(sound)) {
-        Mix_ResumeMusic();
+        Mix_Resume(sound->channel);
         return true;
     }
 
-    SDL_Log("La musique n'est pas en pause");
-    return false;
+    return Mix_PlayChannel(sound->channel, sound->chunk, 0);
 }
 
 /**
@@ -82,20 +58,20 @@ bool    playSound(t_sound *sound) {
  * @return true on success or false on error
  */
 bool    playSoundLoop(t_sound *sound) {
-    if (!initMusic(sound)) return false;
-
-    if (Mix_PlayingMusic() == 0) {
-        Mix_PlayMusic(sound->music, -1);
-        return true;
-    }
-
+    if (!initAudio(sound)) return false;
+    if (isSoundPlaying(sound)) return false;
     if (pauseSound(sound)) {
-        Mix_ResumeMusic();
+        Mix_Resume(sound->channel);
         return true;
     }
 
-    SDL_Log("La musique est déjà en cours de lecture");
-    return false;
+    Mix_PlayChannel(sound->channel, sound->chunk, -1);
+    if (!isSoundPlaying(sound)) {
+        SDL_Log("Failed to play music: %s", Mix_GetError());
+        exit(1);
+    }
+
+    return true;
 }
 
 /**
@@ -104,11 +80,10 @@ bool    playSoundLoop(t_sound *sound) {
  * @return  true on success or false on error
  */
 bool    stopSound(t_sound *sound) {
-    if (!initMusic(sound)) return false;
-    Mix_HaltMusic();
-    sound->music = NULL;
-    Mix_CloseAudio();
-
+    if (!initAudio(sound)) return false;
+    Mix_HaltChannel(sound->channel);
+    Mix_FreeChunk(sound->chunk);
+    //Mix_CloseAudio();
     return true;
 }
 
@@ -118,18 +93,15 @@ bool    stopSound(t_sound *sound) {
  * @return  true on success or false on error
  */
 bool    pauseSound(t_sound *sound) {
-    if (!initMusic(sound)) return false;
-    if (Mix_PlayingMusic() == 0) {
-        SDL_Log("Music is not playing");
-        return false;
-    }
+    if (!initAudio(sound)) return false;
+    if (!isSoundPlaying(sound)) return false;
 
-    switch (Mix_PausedMusic()) {
+    switch (Mix_Paused(sound->channel)) {
         case 0:
-            Mix_PauseMusic();
+            Mix_Pause(sound->channel);
             return true;
         case 1:
-            Mix_ResumeMusic();
+            Mix_Resume(sound->channel);
             break;
         default:
             SDL_Log("Music is not playing");
@@ -146,19 +118,22 @@ bool    pauseSound(t_sound *sound) {
  * @return  true on success or false on error
  */
 bool    setSoundVolume(t_sound *sound, int volume) {
-    if (!initMusic(sound)) return false;
+    if (!initAudio(sound)) return false;
+    if (Mix_Playing(sound->channel) == 0) return false;
 
-    if (Mix_PlayingMusic() == 0) {
-        SDL_Log("Music is not playing");
-        return false;
-    }
 
-    if (Mix_VolumeMusic(volume) == -1) {
+    if (Mix_Volume(sound->channel, volume) == -1) {
         SDL_Log("Failed to set volume: %s", Mix_GetError());
         return false;
     }
 
-    Mix_VolumeMusic(volume);
-
+    Mix_Volume(sound->channel, volume);
+    Mix_VolumeChunk(sound->chunk, volume);
     return true;
+}
+
+
+bool    isSoundPlaying(t_sound *sound) {
+    if (!initAudio(sound)) return false;
+    return (Mix_Playing(sound->channel) == 0) ? false : true;
 }

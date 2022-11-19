@@ -31,6 +31,7 @@ bool    inMainMenu() {
     if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
         if (Mix_PlayingMusic() == 0) {
             main_music = malloc(sizeof(t_sound));
+
             if(main_music == NULL) {
                 #if DEBUG
                     fprintf(stderr, "Error allocating memory for main_music");
@@ -39,8 +40,9 @@ bool    inMainMenu() {
                 exit(1);
             }
             main_music->file = SOUND_MUSIC_MAIN;
-            initMusic(main_music);
-            if (main_music->music == NULL) {
+            main_music->channel = 0;
+            initAudio(main_music);
+            if (main_music->chunk == NULL) {
                 #if DEBUG
                                 fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
                 #endif
@@ -51,7 +53,7 @@ bool    inMainMenu() {
             playSoundLoop(main_music);
 
         }
-    }else if(Mix_PlayingMusic() == 1 && main_music->music != NULL) {
+    }else if(isSoundPlaying(main_music)) {
         if (!stopSound(main_music)) {
             #if DEBUG
                 fprintf(stderr, "Error: Can't open stop the music\n");
