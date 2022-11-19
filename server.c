@@ -196,6 +196,7 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
             break;
         case DAMAGE: {
             receiveDamage(content);
+            break;
         }
         case BROADCAST: {
             char    *content2;
