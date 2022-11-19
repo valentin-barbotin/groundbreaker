@@ -28,7 +28,11 @@ t_sound     *item;
  */
 void    killBots(int xCell, int yCell) {
     t_player        *bot;
+    bool            allDead;
 
+    if (g_currentState == GAME_MAINMENU_PLAY) return;
+
+    allDead = true;
     for (short i = 0; i < g_nbBots; i++) {
         bot = g_bots[i];
         if (bot->health && bot->xCell == xCell && bot->yCell == yCell) {
@@ -36,6 +40,19 @@ void    killBots(int xCell, int yCell) {
             bot->vx = 0;
             bot->vy = 0;
         }
+
+        if (bot->health) {
+            allDead = false;
+        }
+    }
+
+    if (allDead) {
+        if (!inMultiplayer()) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", "You won the game", g_window);
+        }
+
+        // puts the player back in the lobby
+        g_currentState = GAME_MAINMENU_PLAY;
     }
 }
 
