@@ -5,6 +5,7 @@
 #include <pthread.h>
 
 #include "discord.h"
+#include "player.h"
 
 
 t_discord_app           *g_app_discord = NULL;
@@ -52,7 +53,7 @@ void    setupDiscord() {
 
     strcpy(activity.state, "(Idle)");
     strcpy(activity.details, "Description");
-    strcpy(activity.assets.large_image, "fvtud6yx0aa7zha");
+    strcpy(activity.assets.large_image, "wallpaper");
     strcpy(activity.assets.large_text, "ratio");
     // strcpy(activity.party.id, "party_id");
     // strcpy(activity.secrets.join, "join_secret");
@@ -66,6 +67,12 @@ void    setupDiscord() {
     app.activities->update_activity(app.activities, &activity, &app, NULL);
 
     for (;;) {
+        // discord updates
+        if (g_activity_discord) {
+            updateDiscord();
+            app.activities->update_activity(app.activities, &activity, &app, NULL);
+        }
+
         DISCORD_REQUIRE(g_app_discord->core->run_callbacks(g_app_discord->core));
         sleep(4);
     }
@@ -73,4 +80,30 @@ void    setupDiscord() {
 
 void    updateDiscordActivity() {
     g_app_discord->activities->update_activity(g_app_discord->activities, &g_activity_discord, g_app_discord, NULL);
+}
+
+void    updateDiscord() {
+    const char    *state;
+    const char    *details;
+
+    switch (g_currentState)
+    {
+        case GAME_PLAY_PLAYING:
+            state = "(Playing)";
+            details = inMultiplayer() ? "Playing Multiplayer" : "Playing Singleplayer";
+            break;
+        
+        case GAME_MAINMENU_PLAY:
+            state = "(Lobby)";
+            details = inMultiplayer() ? "Waiting for some friends" : "Adjust some settings";
+            break;
+        
+        default:
+            state = "(Idle)";
+            details = "Wait for Ragnarok";
+            break;
+    }
+
+    strcpy(g_activity_discord->state, state);
+    strcpy(g_activity_discord->details, details);
 }
