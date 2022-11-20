@@ -370,8 +370,11 @@ void    movePlayer(t_player *player) {
 
             t_player    *owner;
             owner = findBombOwner(player->xCell, player->yCell);
-
+            
+            // local player placed the bomb, owner can't trigger
             if (owner && owner == player) break;
+
+            // if a bot moved on it and the owner is a bot then we don't explode it
             if (!inMultiplayer() && owner && owner->isBot && player->isBot) break;
 
             // trigger the bomb if the player is on it
@@ -387,7 +390,7 @@ void    movePlayer(t_player *player) {
 
             // null allow use to kill all the players
             // the owner of the bomb can be killed by others players using his bomb
-            explodeBomb(player->xCell, player->yCell, NULL); 
+            explodeBomb(player->xCell, player->yCell, owner); 
 
             break;
         }
@@ -708,9 +711,9 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
         // no bots in multiplayer
         if (!inMultiplayer() && owner) {
             if (!owner->isBot) {
-                killBots(xCellBase, yCellBase);
+                killBots(cellX, cellY);
             } else {
-                if (getPlayer()->xCell == xCellBase && getPlayer()->yCell == yCellBase) {
+                if (getPlayer()->xCell == cellX && getPlayer()->yCell == cellY) {
                     handleDamage(getPlayer());
                 }
             }
