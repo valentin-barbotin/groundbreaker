@@ -7,23 +7,20 @@
 
 #define DEBUG true
 
-void drawInventory() {
-    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
-
+/**
+ * @brief Draw the inventory item
+ * @param {SDL_RECT} *rect
+ * @param {int} separator
+ * @param {int} item
+ * @return void
+ */
+void    drawInventoryItem(SDL_Rect *rect, int separator, int item) {
     const t_player      *player;
-    SDL_Rect            rect;
     SDL_Rect            rectItem;
     SDL_Rect            rectDest;
     char                buff[8];
 
     player = getPlayer();
-
-    pickColor(&colorLightGray);
-
-    rect.x = (gameConfig->video.width) * 0.175;
-    rect.y = (gameConfig->video.height) * 0.92;
-    rect.w = (gameConfig->video.width) * 0.65;
-    rect.h = (gameConfig->video.width) * 0.05;
 
     rectItem.x = 0;
     rectItem.y = 0;
@@ -31,29 +28,54 @@ void drawInventory() {
     rectItem.w = 758;
     rectItem.h = 988;
 
+    SDL_RenderDrawLine(g_renderer, rect->x + (rect->w / INVENTORY_ITEM_NB) * separator, rect->y, rect->x + (rect->w / INVENTORY_ITEM_NB) * separator, rect->y + rect->h);
+    // TODO : replace 0 by player->inventory[ITEM_NAME]->quantity
+    sprintf(buff, "%d", player->inventory[item]->quantity);
+    drawText(&colorWhite, rect->x + (rect->w / INVENTORY_ITEM_NB) * separator + 5, rect->y + 6, buff, false, rect->w);
+
+    SDL_RenderDrawRect(g_renderer, &rect);
+
+    rectDest.x = rect->x + (rect->w / INVENTORY_ITEM_NB) * separator;
+    rectDest.y = rect->y;
+    rectDest.w = rect->w / INVENTORY_ITEM_NB;
+    rectDest.h = rect->h;
+
+    drawTexture(player->inventory[item]->tex, &rectItem, &rectDest);
+}
+
+/**
+ * @brief Draw the inventory
+ * @return void
+ */
+void drawInventory() {
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+
+    SDL_Rect            rect;
+
+    pickColor(&colorLightGray);
+
+    rect.x = (gameConfig->video.width) * 0.175;
+    rect.y = (gameConfig->video.height) * 0.87;
+    rect.w = (gameConfig->video.width) * 0.65;
+    rect.h = (gameConfig->video.width) * 0.10;
+
     SDL_RenderFillRect(g_renderer, &rect);
     loadFont(FONT_PATH, 10);
     pickColor(&colorWhite);
 
-    for (int separator = ITEM_BOMB; separator < 11; separator++) {
-        SDL_RenderDrawLine(g_renderer, rect.x + (rect.w / 11) * separator, rect.y, rect.x + (rect.w / 11) * separator, rect.y + rect.h);
-        // TODO : replace 0 by player->inventory[ITEM_NAME]->quantity
-        sprintf(buff, "%d", player->inventory[separator]->quantity);
-        drawText(&colorWhite, rect.x + (rect.w / 11) * separator + 5, rect.y + 6, buff, false, rect.w);
+    drawInventoryItem(&rect, 0, ITEM_BOMB);
+    drawInventoryItem(&rect, 1, ITEM_PASS_THROUGH_BOMB);
+    drawInventoryItem(&rect, 2, ITEM_BOMB_KICK);
+    drawInventoryItem(&rect, 3, ITEM_INVINCIBILITY);
+    drawInventoryItem(&rect, 4, ITEM_HEART);
 
-        SDL_RenderDrawRect(g_renderer, &rect);
-
-        rectDest.x = rect.x + (rect.w / 11) * separator;
-        rectDest.y = rect.y;
-        rectDest.w = rect.w / 11;
-        rectDest.h = rect.h;
-
-        drawTexture(player->inventory[separator]->tex, &rectItem, &rectDest);
-
-    }
     loadFont(FONT_PATH, 20);
 }
 
+/**
+ * @brief Draw the selected item
+ * @return void
+ */
 void drawSelectedItem() {
     SDL_Color           colorYellow = {255, 255, 0, 255};
     SDL_Color           colorBlack = {0, 0, 0, 255};
@@ -65,10 +87,10 @@ void drawSelectedItem() {
 
     pickColor(&colorYellow);
 
-    rect.x = (gameConfig->video.width) * 0.175 + (player->selectedSlot * (gameConfig->video.width) * 0.65 / 11);
-    rect.y = (gameConfig->video.height) * 0.92;
-    rect.w = (gameConfig->video.width) * 0.65 / 11;
-    rect.h = (gameConfig->video.width) * 0.05;
+    rect.x = (gameConfig->video.width) * 0.175 + (player->selectedSlot * (gameConfig->video.width) * 0.65 / INVENTORY_ITEM_NB);
+    rect.y = (gameConfig->video.height) * 0.87;
+    rect.w = (gameConfig->video.width) * 0.65 / INVENTORY_ITEM_NB;
+    rect.h = (gameConfig->video.width) * 0.10;
 
     // Increase the width of the rectangle
     for (int i = 0; i < 3; i++) {

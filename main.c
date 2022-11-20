@@ -14,13 +14,13 @@
 #include "utils.h"
 #include "font.h"
 #include "display.h"
-#include "timer.h"
 #include "menu.h"
 #include "loop.h"
 #include "map.h"
 #include "game.h"
 #include "moves.h"
 #include "dialog.h"
+#include "effects.h"
 
 #include "discord.h"
 
@@ -31,6 +31,7 @@ extern void    assignMenuParents();
 extern t_player         *g_bots[MAX_BOTS];
 extern short            g_nbBots;
 extern t_discord_app    *g_app_discord;
+extern Mix_Music        *music;
 
 #define DEBUG true
 
@@ -61,8 +62,8 @@ int             g_currentState;
  * @return {void}
 */
 void setupSDL() {
-    if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO )) {
-        #ifdef DEBUG
+    if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER )) {
+        #if DEBUG
 		    fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         #endif
         exit(EXIT_FAILURE);
@@ -71,7 +72,7 @@ void setupSDL() {
     // init sdl2_ttf
     if (TTF_Init() == -1)
 	{
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "TTF_Init: %s", TTF_GetError());
         #endif
 		exit(EXIT_FAILURE);
@@ -99,6 +100,9 @@ int main(int argc, char **argv)
 
     // init SDL
     setupSDL();
+
+    loadSounds();
+
     windowWidth = config.video.width;
     windowHeight = config.video.height;
 
@@ -179,11 +183,20 @@ int main(int argc, char **argv)
         pickColor(&colorBlack);
 
         if (inMainMenu()) {
+
+            if (!Mix_PlayingMusic() && !Mix_PlayMusic(music, -1)) {
+                fprintf(stderr, "Mix_PlayMusic: %s", Mix_GetError());
+            }
+            
             // No need to render at 1000 fps
             setupMenu();
             SDL_Delay(30);
         } else if (inGame())
         {
+            if (Mix_PlayingMusic()) {
+                Mix_HaltMusic();
+            }
+
             drawMap();
             drawEffects();
 
@@ -195,8 +208,15 @@ int main(int argc, char **argv)
                 // move bots
                 for (size_t i = 0; i < g_nbBots; i++)
                 {
-                    if (g_bots[i]->health) {
+                    if (g_nbBots && g_bots[i]->health) {
                         movePlayer(g_bots[i]);
+                        // bots try to place bombs
+                        //TODO: difficulty
+                        int r = rand() % 10000;
+                        // printf("r = %d\n", r);
+                        if (g_nbBots && !g_bots[i]->bombPlaced && (r < 20)) { // 0.02% chance
+                            placeBomb(g_bots[i]->xCell, g_bots[i]->yCell, g_bots[i]);
+                        }
                     }
                 }
 
@@ -208,8 +228,9 @@ int main(int argc, char **argv)
             displayEditBox();
         }
 
-        pickColor(&colorRed);
-        SDL_RenderDrawRect(g_renderer, &windowLimits);
+        // i3 window
+        // pickColor(&colorRed);
+        // SDL_RenderDrawRect(g_renderer, &windowLimits);
         pickColor(&colorBlack);
 
         SDL_RenderPresent(g_renderer);

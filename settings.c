@@ -5,8 +5,42 @@
 #include "settings.h"
 #include "dialog.h"
 #include "config.h"
+#include "loop.h"
 
 #define DEBUG true
+
+t_command    getActionFor(SDL_KeyCode key) {
+    printf("1 %d %c\n", key, key);
+    if (gameConfig->commands.up == key) return ACTION_KEY_UP;
+    if (gameConfig->commands.down == key) return ACTION_KEY_DOWN;
+    if (gameConfig->commands.left == key) return ACTION_KEY_LEFT;
+    if (gameConfig->commands.right == key) return ACTION_KEY_RIGHT;
+    if (gameConfig->commands.tchat == key) return ACTION_KEY_TCHAT;
+    if (gameConfig->commands.use_item == key) return ACTION_KEY_USE_ITEM;
+    if (gameConfig->commands.item_1 == key) return ACTION_KEY_ITEM_1;
+    if (gameConfig->commands.item_2 == key) return ACTION_KEY_ITEM_2;
+    if (gameConfig->commands.item_3 == key) return ACTION_KEY_ITEM_3;
+    if (gameConfig->commands.item_4 == key) return ACTION_KEY_ITEM_4;
+    if (gameConfig->commands.item_5 == key) return ACTION_KEY_ITEM_5;
+
+    return ACTION_OTHER;
+}
+
+bool    isKeyAvailable(char key) {
+    if (gameConfig->commands.up == key) return false;
+    if (gameConfig->commands.down == key) return false;
+    if (gameConfig->commands.left == key) return false;
+    if (gameConfig->commands.right == key) return false;
+    if (gameConfig->commands.tchat == key) return false;
+    if (gameConfig->commands.use_item == key) return false;
+    if (gameConfig->commands.item_1 == key) return false;
+    if (gameConfig->commands.item_2 == key) return false;
+    if (gameConfig->commands.item_3 == key) return false;
+    if (gameConfig->commands.item_4 == key) return false;
+    if (gameConfig->commands.item_5 == key) return false;
+
+    return true;
+}
 
 void    editSettingCallback() {
     const t_dialog  *dialog;
@@ -18,10 +52,18 @@ void    editSettingCallback() {
     value = dialog->edit;
 
     if (!strlen(value)) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: empty value");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Empty value", g_window);
+        return;
+    }
+
+    if (!isKeyAvailable(*value)) {
+        #if DEBUG
+            fprintf(stderr, "Error: key already used");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Key already used", g_window);
         return;
     }
 
@@ -29,14 +71,14 @@ void    editSettingCallback() {
     {
         case SETTING_VIDEO_FULLSCREEN:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
                 return;
             }
             if (*value != '0' && *value != '1' && *value != '2') {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -65,7 +107,7 @@ void    editSettingCallback() {
             break;
         case SETTING_VIDEO_WIDTH:
             if (strspn(value, "0123456789") != strlen(value)) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: value must be a number");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -79,7 +121,7 @@ void    editSettingCallback() {
             break;
         case SETTING_VIDEO_HEIGHT:
             if (strspn(value, "0123456789") != strlen(value)) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: value must be a number");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -93,14 +135,14 @@ void    editSettingCallback() {
             break;
         case SETTING_VIDEO_VSYNC:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
                 return;
             }
             if (value[0] != '0' && value[0] != '1') {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -151,7 +193,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_UP:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -163,7 +205,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_DOWN:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -175,7 +217,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_LEFT:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -187,7 +229,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_RIGHT:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -197,9 +239,21 @@ void    editSettingCallback() {
             sprintf(buffer, "%c", *value);
             saveSetting("right", buffer);
             break;
+        case SETTING_CONTROLS_TCHAT:
+            if (strlen(value) != 1) {
+                #if DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("tchat", buffer);
+            break;
         case SETTING_CONTROLS_USE_ITEM:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -211,7 +265,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_ITEM_1:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -223,7 +277,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_ITEM_2:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -235,7 +289,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_ITEM_3:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -247,7 +301,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_ITEM_4:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -259,7 +313,7 @@ void    editSettingCallback() {
             break;
         case SETTING_CONTROLS_ITEM_5:
             if (strlen(value) != 1) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: invalid value\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
@@ -268,53 +322,6 @@ void    editSettingCallback() {
 
             sprintf(buffer, "%c", *value);
             saveSetting("item_5", buffer);
-            break;
-        case SETTING_CONTROLS_ITEM_6:
-            if (strlen(value) != 1) {
-                #ifdef DEBUG
-                    fprintf(stderr, "Error: invalid value\n");
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
-                return;
-            }
-
-            sprintf(buffer, "%c", *value);
-            saveSetting("item_6", buffer);
-            break;
-        case SETTING_CONTROLS_ITEM_7:
-            if (strlen(value) != 1) {
-                #ifdef DEBUG
-                    fprintf(stderr, "Error: invalid value\n");
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
-                return;
-            }
-
-            sprintf(buffer, "%c", *value);
-            saveSetting("item_7", buffer);
-            break;
-        case SETTING_CONTROLS_ITEM_8:
-            if (strlen(value) != 1) {
-                #ifdef DEBUG
-                    fprintf(stderr, "Error: invalid value\n");
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
-                return;
-            }
-
-            sprintf(buffer, "%c", *value);
-            saveSetting("item_8", buffer);
-            break;
-        case SETTING_CONTROLS_ITEM_9:
-            if (strlen(value) != 1) {
-                #ifdef DEBUG
-                    fprintf(stderr, "Error: invalid value\n");
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
-                return;
-            }
-            sprintf(buffer, "%c", *value);
-            saveSetting("item_9", buffer);
             break;
         
         default:
@@ -427,6 +434,16 @@ void    editRight() {
     dialog->arg = SETTING_CONTROLS_RIGHT;
 }
 
+void    editTchat() {
+    t_dialog  *dialog;
+
+    dialog = createEditBox("Enter tchat key:", 20, colorWhite, colorBlack);
+
+    memset(dialog->edit, 0, sizeof(dialog->edit));
+    dialog->callback = editSettingCallback;
+    dialog->arg = SETTING_CONTROLS_TCHAT;
+}
+
 void    editUseItem() {
     t_dialog  *dialog;
 
@@ -481,40 +498,4 @@ void    editItem5() {
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
     dialog->arg = SETTING_CONTROLS_ITEM_5;
-}
-void    editItem6() {
-    t_dialog  *dialog;
-
-    dialog = createEditBox("Enter item 6 key:", 20, colorWhite, colorBlack);
-
-    memset(dialog->edit, 0, sizeof(dialog->edit));
-    dialog->callback = editSettingCallback;
-    dialog->arg = SETTING_CONTROLS_ITEM_6;
-}
-void    editItem7() {
-    t_dialog  *dialog;
-
-    dialog = createEditBox("Enter item 7 key:", 20, colorWhite, colorBlack);
-
-    memset(dialog->edit, 0, sizeof(dialog->edit));
-    dialog->callback = editSettingCallback;
-    dialog->arg = SETTING_CONTROLS_ITEM_7;
-}
-void    editItem8() {
-    t_dialog  *dialog;
-
-    dialog = createEditBox("Enter item 8 key:", 20, colorWhite, colorBlack);
-
-    memset(dialog->edit, 0, sizeof(dialog->edit));
-    dialog->callback = editSettingCallback;
-    dialog->arg = SETTING_CONTROLS_ITEM_8;
-}
-void    editItem9() {
-    t_dialog  *dialog;
-
-    dialog = createEditBox("Enter item 9 key:", 20, colorWhite, colorBlack);
-
-    memset(dialog->edit, 0, sizeof(dialog->edit));
-    dialog->callback = editSettingCallback;
-    dialog->arg = SETTING_CONTROLS_ITEM_9;
 }

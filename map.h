@@ -30,7 +30,6 @@
          WALL= 'W',
          UNBREAKABLE_WALL = 'U',
          EMPTY = ' ',
-         ITEM = 'I',
          GRAVEL = 'G',
          PLAYER = 'P',
          LOOT = 'L'
@@ -47,5 +46,7 @@
  void    drawMap();
  void    getPlayerDirection(SDL_Rect *rect, const t_direction *direction);
  void    drawPlayer(const t_player *player);
+ void    spawnRandomItem(int cellX, int cellY);
+ bool    canMoveOnNextCell(char cell);
 
 #endif

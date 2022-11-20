@@ -8,9 +8,13 @@
 
  #include "discord/discord_game_sdk.h"
 
+ #include "config.h"
+
  #define DISCORD_REQUIRE(x) assert(x == DiscordResult_Ok)
 
  #define CLIENT_ID  1041430157715587132
+
+ extern int             g_currentState;
 
  typedef struct s_discord_app
  {
@@ -26,4 +30,5 @@
 
  void   setupDiscord();
  void   updateDiscordActivity();
+ void   updateDiscord();
 #endif

@@ -12,36 +12,44 @@
 #include "effects.h"
 #include "client.h"
 
-#define DEBUG
-
-t_sound     *walk;
-t_sound     *wall;
-t_sound     *unbreakableWall;
-t_sound     *bomb;
-t_sound     *item;
+#define DEBUG true
 
 /**
  * @brief Kills the bots if they are on the given cell
- * 
- * @param xCell 
- * @param yCell 
+ * Bots are immuned from other bot's bombs
+ *
+ * @param xCell
+ * @param yCell
  */
 void    killBots(int xCell, int yCell) {
-    t_game      *game;
-    t_map       *map;
-    t_player    *bot;
+    t_player        *bot;
+    bool            allDead;
 
-    game = getGame();
-    map = game->map;
+    if (g_currentState == GAME_MAINMENU_PLAY) return;
 
+    allDead = true;
     for (short i = 0; i < g_nbBots; i++) {
         bot = g_bots[i];
         if (bot->health && bot->xCell == xCell && bot->yCell == yCell) {
             bot->health = 0; // kill bot
             bot->vx = 0;
             bot->vy = 0;
-            printf("bot killed\n");
         }
+
+        if (bot->health) {
+            allDead = false;
+        }
+    }
+
+    if (allDead) {
+        if (!inMultiplayer()) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", "You won the game", g_window);
+        }
+
+        // puts the player back in the lobby
+        g_currentState = GAME_MAINMENU_PLAY;
+        resetBots();
+        clearEffects();
     }
 }
 
@@ -60,7 +68,7 @@ void    injectItems(const t_map *map) {
 
 /**
  * @brief Place the player in his cell instead of a wall..
- * 
+ *
  */
 void    spawnPlayer(int x, int y, t_player *player) {
     const t_game    *game;
@@ -99,14 +107,6 @@ void    pauseGame() {
     g_currentMenu = &menuPause;
 }
 
-void setPath() {
-    walk->file = SOUND_WALK;
-    wall->file = SOUND_WALL;
-    unbreakableWall->file = SOUND_UNBREAKABLE_WALL;
-    //bomb->file = changemeBombPath;
-    //item->file = changemeItemPath;
-    //life->file = changemeLifePath;
-}
 
 t_game* getGame() {
     static t_game*  game;
@@ -114,7 +114,7 @@ t_game* getGame() {
     if (game == NULL) {
         game = malloc(sizeof(t_game));
         if (game == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error allocating memory for game");
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -123,21 +123,12 @@ t_game* getGame() {
 
         game->map = NULL;
 
-        //TODO
-        walk = malloc(sizeof(t_sound));
-        wall = malloc(sizeof(t_sound));
-        unbreakableWall = malloc(sizeof(t_sound));
-        //bomb = malloc(sizeof(t_sound));
-        //item = malloc(sizeof(t_sound));
-        setPath();
-        ///////////
-
         //TMP max players
         //TODO:
         int nb = 4;
         game->players = malloc(sizeof(t_player *) * nb);
         if (game->players == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error allocating memory for game->players");
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -149,9 +140,6 @@ t_game* getGame() {
         }
 
         game->nbPlayers = 1;
-
-        // setPath for sound
-        setPath();
     }
     return game;
 }
@@ -188,14 +176,17 @@ void    movePlayer(t_player *player) {
     const t_game    *game;
     const t_map     *map;
     bool            stopped;
+    char            currentCell;
+    char            nextCell;
 
     game = getGame();
     map = game->map;
 
     if (map == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: map is NULL in movePlayer()\n");
         #endif
+
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Game error", g_window);
         exit(1);
     }
@@ -242,69 +233,49 @@ void    movePlayer(t_player *player) {
 
     //if the player is moving out of the map then we move him at the other side if possible
     if (player->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
-        if(GETCELL(0, player->yCell) == EMPTY) {
+        nextCell = GETCELL(0, player->yCell);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->x = 0;
         }
     } else if (player->x == 0 && player->vx < 0) {
         // if the player is on the left side of the map and he is moving left then we move him to the right side of the map
-        
+
         // check if the player can be placed on the next cell
-        if (GETCELL(game->map->width-1, player->yCell) == EMPTY) {
+        nextCell = GETCELL(game->map->width-1, player->yCell);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->x = gameConfig->video.width - PLAYER_WIDTH/2;
         }
     }
 
     if (player->y >= (gameConfig->video.height - PLAYER_HEIGHT/2)) {
-        if (GETCELL(player->xCell, 0) == EMPTY) {
+        nextCell = GETCELL(player->xCell, 0);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->y = 0;
         }
     } else if (player->y == 0 && player->vy < 0) {
         // if the player is on the top side of the map and he is moving up then we move him to the bottom side of the map
-        
+
         // check if the player can be placed on the next cell
-        if (GETCELL(player->xCell, game->map->height-1) == EMPTY) {
+        nextCell = GETCELL(player->xCell, game->map->height-1);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->y = gameConfig->video.height - PLAYER_HEIGHT/2;
         }
     }
 
-
-    switch (GETCELL(player->xCell, player->yCell)) {
+    currentCell = GETCELL(player->xCell, player->yCell);
+    switch (currentCell) {
         case WALL:
             // if the player is on a wall then we move him back to the old position
             player->x -= player->vx;
             player->y -= player->vy;
             stopped = true;
 
-            if (Mix_PlayingMusic() == 1) {
-                if (!stopSound(wall)) {
-                    #ifdef DEBUG
-                            fprintf(stderr, "Error: can't stop sound\n");
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                    exit(1);
-                }
-            } else if (Mix_PlayingMusic() == 0) {
-                initMusic(wall);
-                if (wall->music == NULL) {
-                    #ifdef DEBUG
-                            fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
-                    exit(1);
-                }
-                playSound(wall);
-            } else if (Mix_PlayingMusic() == 1) {
-                if (!stopSound(wall)) {
-                    #ifdef DEBUG
-                            fprintf(stderr, "Error: can't stop sound\n");
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                    exit(1);
-                }
+            if (player->wallChannel == -1) {
+                player->wallChannel = playSound(wall);
             }
 
             break;
@@ -319,91 +290,138 @@ void    movePlayer(t_player *player) {
             player->y -= player->vy;
             stopped = true;
 
-            if (Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
-
-            if (Mix_PlayingMusic() == 0) {
-                if (walk == NULL) {
-                #ifdef DEBUG
-                        fprintf(stderr, "Error: malloc failed in movePlayer()\n");
-                #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
-                    exit(1);
-                }
-                initMusic(unbreakableWall);
-                if (unbreakableWall->music == NULL) {
-                    #ifdef DEBUG
-                                fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
-                    exit(1);
-                }
-
-                // TODO: Timer to not play the sound every frame
-                playSound(unbreakableWall);
-
-            } else if (Mix_PlayingMusic() == 1) {
-                if (!stopSound(unbreakableWall)) {
-                    #ifdef DEBUG
-                        fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                    exit(1);
-                }
+            if (player->wallChannel == -1) {
+                player->wallChannel = playSound(unbreakableWall);
             }
+
             break;
-        case BOMB:
-            // if the player is on a bomb kill him if he is not invicible
-            //TODO: trigger the bomb if it's a mine
+        case BOMB: {
+            // if the bomb is placed by the player then we don't explode it
 
+            t_player    *owner;
+            owner = findBombOwner(player->xCell, player->yCell);
+            
+            // local player placed the bomb, owner can't trigger
+            if (owner && owner == player) break;
 
-            //TODO: old
-            // if (player->godMode == 1) {
-            //     break;
-            // } else if (player->passThroughBomb) {
-            //     // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
-            //     searchDirectionMap(player->xCell, player->yCell, getDirection(player), 2);
-            //     break;
-            // }else if (player->bombKick) {
-            //     // search in direction of the player and kick the bomb
-            //     searchDirectionMap(player->xCell, player->yCell, player->direction, 999);
-            //     break;
-            // } else if (player->canSurviveExplosion) {
-            //     player->canSurviveExplosion = false;
-            //     player->inventory[ITEM_HEART]->quantity = -1;
-            //     break;
-            // } else {
-            //     player->x -= player->vx;
-            //     player->y -= player->vy;
-            //     player->health -= 100;
-            //     break;
-            // }
+            // if a bot moved on it and the owner is a bot then we don't explode it
+            if (!inMultiplayer() && owner && owner->isBot && player->isBot) break;
+
+            // trigger the bomb if the player is on it
+            if (player->passThroughBomb) {
+                break;
+            }
+            if (player->bombKick) {
+                //TODO: kick the bomb
+
+                kickBomb();
+                break;
+            }
+
+            // null allow use to kill all the players
+            // the owner of the bomb can be killed by others players using his bomb
+            explodeBomb(player->xCell, player->yCell, owner); 
+
             break;
+        }
+        case ITEM_BOMB:
+            if (player->inventory[ITEM_BOMB]->quantity == player->maxBombs) {
+                break;
+            }
 
-        case ITEM:
-            player->inventory[GETCELL(player->xCell, player->yCell)]->quantity++;
+            player->inventory[currentCell]->quantity++;
             GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_BOMB_UP:
+            player->maxBombs++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_BOMB_DOWN:
+            player->maxBombs--;
+
+            if (player->maxBombs < 1) {
+                player->maxBombs = 1;
+            }
+
+            if (player->inventory[ITEM_BOMB]->quantity > player->maxBombs) {
+                player->inventory[ITEM_BOMB]->quantity = player->maxBombs;
+            }
+
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_YELLOW_FLAME:
+            player->scope++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_BLUE_FLAME:
+            player->scope--;
+
+            if (player->scope < 1) {
+                player->scope = 1;
+            }
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_RED_FLAME:
+            player->scope = 999;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_PASS_THROUGH_BOMB:
+            player->passThroughBomb = true;
+            player->bombKick = false;
+
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_BOMB_KICK:
+            player->passThroughBomb = false;
+            player->bombKick = true;
+
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_INVINCIBILITY:
+            // only one godmode
+            if (player->godMode) break;
+
+            player->godMode = true;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_HEART:
+            // only one heart
+            if (player->canSurviveExplosion) break;
+
+            player->canSurviveExplosion = true;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+            break;
+        case ITEM_LIFE: {
+            char    buffer[128];
+            player->lives++;
+            GETCELL(player->xCell, player->yCell) = EMPTY;
+            updateCell(player->xCell, player->yCell, EMPTY);
+
+            sprintf(buffer, "LIFE: %hd %d", player->id, player->lives);
+
+            sendToAll(buffer, getPlayer()->id);
+        } 
             break;
         default:
-            if(isMoving(player)) {
-                if (Mix_PlayingMusic() == 0) {
-                    initMusic(walk);
-                    if (walk->music == NULL) {
-                        #ifdef DEBUG
-                            fprintf(stderr, "Error loading sound : %s\n", Mix_GetError());
-                        #endif
-                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
-                        exit(1);
+            if (!player->isBot) {
+                if (isMoving(player)) {
+                    if (player->walkChannel == -1) {
+                        player->walkChannel = playSoundLoop(walk);
                     }
-                    playSoundLoop(walk);
-                }
-            }else{
-                if(Mix_PlayingMusic() == 1) {
-                    if (!stopSound(walk)) {
-                        #ifdef DEBUG
-                            fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
-                        #endif
-                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                        exit(1);
+                } else {
+                    if (player->walkChannel != -1) {
+                        Mix_HaltChannel(player->walkChannel);
+                        player->walkChannel = -1;
                     }
                 }
             }
@@ -428,7 +446,7 @@ void    movePlayer(t_player *player) {
             case DIR_DOWN:
                 player->vy = -BOT_SPEED;
                 break;
-            
+
             default:
                 break;
         }
@@ -469,7 +487,7 @@ void    posToGridN(int x, int y, int *cellX, int *cellY) {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-void explodeBomb(int xCell, int yCell) {
+void explodeBomb(int xCell, int yCell, t_player *owner) {
     const t_map      *map;
     const t_game     *game;
     const t_player    *player;
@@ -478,6 +496,10 @@ void explodeBomb(int xCell, int yCell) {
     player = getPlayer();
     game = getGame();
     map = game->map;
+
+    // if the bomb already exploded, return
+    if (GETCELL(xCell, yCell) == GRAVEL) return;
+
     GETCELL(xCell, yCell) = GRAVEL;
     updateCell(xCell, yCell, GRAVEL);
 
@@ -486,14 +508,20 @@ void explodeBomb(int xCell, int yCell) {
         sendEffect(effect);
     }
 
+    playSound(bombExplosion);
+
     printf("cell destroyed at x:%d y:%d\n", xCell, yCell);
 
 
     // pour chaque direction (UP, DOWN, LEFT, RIGHT)
-    searchDirectionMap(xCell, yCell, DIR_UP, player->scope);
-    searchDirectionMap(xCell, yCell, DIR_DOWN, player->scope);
-    searchDirectionMap(xCell, yCell, DIR_LEFT, player->scope);
-    searchDirectionMap(xCell, yCell, DIR_RIGHT, player->scope);
+    searchDirectionMap(xCell, yCell, DIR_UP, player->scope, owner);
+    searchDirectionMap(xCell, yCell, DIR_DOWN, player->scope, owner);
+    searchDirectionMap(xCell, yCell, DIR_LEFT, player->scope, owner);
+    searchDirectionMap(xCell, yCell, DIR_RIGHT, player->scope, owner);
+
+    if (player->isBot) {
+        removePlacedBomb(player, xCell, yCell);
+    }
 }
 
 void    handleMouseButtonUpPlaying(const SDL_Event *event) {
@@ -512,9 +540,28 @@ void    handleMouseButtonUpPlaying(const SDL_Event *event) {
     }
 }
 
-void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int scope) {
+void    handleDamage(t_player *player) {
+    char    buffer[256];
+    if (player->lives && !player->godMode && !player->canSurviveExplosion) {
+        //TODO: spawn tombstone and send it to all
+
+        if (inMultiplayer()) {
+            sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
+            sendToAll(buffer, getPlayer()->id);
+        } else {
+            sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
+            receiveDamage(buffer);
+        }
+    }
+
+    if (player->canSurviveExplosion) {
+        player->canSurviveExplosion = false;
+    }
+}
+
+void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int scope, t_player *owner) {
     const t_game        *game;
-    const t_player      *player;
+    t_player            *player;
     const t_map         *map;
     int                 cellX;
     int                 cellY;
@@ -525,7 +572,7 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
     map = game->map;
 
     if (map == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: map is NULL in searchDirectionMap()\n");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Map error", g_window);
@@ -534,8 +581,24 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
 
     // no bots in multiplayer
     // in case of a bot on the map itself
-    if (!inMultiplayer()) {
-        killBots(xCellBase, yCellBase);
+    if (!inMultiplayer() && owner) {
+        if (!owner->isBot) {
+            killBots(xCellBase, yCellBase);
+        } else {
+            if (player->health && player->xCell == xCellBase && player->yCell == yCellBase) {
+                handleDamage(player);
+            }
+        }
+    } else {
+        for (int j = 0; j < game->nbPlayers; j++) {
+            // disable this only if the player can receive damage of its own bomb
+            if (owner && game->players[j] == owner) continue;
+
+            player = game->players[j];
+            if (player->xCell == xCellBase && player->yCell == yCellBase) {
+                handleDamage(player);
+            }
+        }
     }
 
     for (int i = 1; i <= scope; i++) {
@@ -561,13 +624,24 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
         }
 
         //TODO: explosion over border
-        if (cellX < 0 || cellX >= map->width || cellY < 0 || cellY >= map->height) {
-            return;
-        }
+        if (cellX < 0) cellX = map->width - i;
+        if (cellX >= map->width) cellX = i;
+        if (cellY < 0) cellY = map->height - i - 1;
+        if (cellY >= map->height) cellY = i - 1;
+
+        printf("explosion sur cellule :\n cellX : %d\n cellY : %d\n", cellX, cellY);
+
+
 
         // no bots in multiplayer
-        if (!inMultiplayer()) {
-            killBots(cellX, cellY);
+        if (!inMultiplayer() && owner) {
+            if (!owner->isBot) {
+                killBots(cellX, cellY);
+            } else {
+                if (player->health && player->xCell == cellX && player->yCell == cellY) {
+                    handleDamage(player);
+                }
+            }
         }
 
         switch (GETCELL(cellX, cellY)) {
@@ -575,63 +649,35 @@ void searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int
                 GETCELL(cellX, cellY) = GRAVEL;
                 updateCell(cellX, cellY, GRAVEL);
                 printf("Wall destroyed at x:%d y:%d\n", cellX, cellY);
-                // if (player->bombKick) {
-                //     // on met la bombe sur la case précédente
-                //     GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
-                //     return;
-                // }
                 break;
             case LOOT:
-                GETCELL(cellX, cellY) = GRAVEL;
-                updateCell(cellX, cellY, GRAVEL);
                 printf("Loot destroyed at x:%d y:%d\n", cellX, cellY);
-                //TODO: spawn random item
-                // if (player->bombKick) {
-                //     // on met la bombe sur la case précédente
-                //     GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
-                //     return;
-                // }
+                spawnRandomItem(cellX, cellY);
                 break;
             case UNBREAKABLE_WALL:
                 // on arrête la bombe dans sa course
-                // if (player->bombKick) {
-                //     // on met la bombe sur la case précédente
-                //     GETCELL(cellY - player->vy, cellX - player->vx) = BOMB;
-                //     return;
-                // }
                 return;
-            case PLAYER:
-                // if the player is on a bomb kill him if he is not invicible
-                // if the player is on a bomb and he has the passThroughBomb powerup so he jumps over the bomb
-                if (player->godMode || player->passThroughBomb) {
-                } else if (player->bombKick) {
-                    // if (GETCELL(player->xCell + player->vx, player->yCell + player->vy) == EMPTY) {
-                    //     // move the bomb to the next cell
-                    //     GETCELL(player->xCell + player->vx, player->yCell + player->vy) = BOMB;
-                    //     GETCELL(player->xCell, player->yCell) = EMPTY;
-                    //     // move the player to the next cell
-                    //     player->x += player->vx;
-                    //     player->y += player->vy;
-                    // }
-                } else if (player->canSurviveExplosion) {
-                    // player->canSurviveExplosion = false;
-                    // player->inventory[ITEM_HEART]->quantity = -1;
-                } else {
-                    // player->x -= player->vx;
-                    // player->y -= player->vy;
-                    // player->health -= 100;
-                }
-                break;
             case BOMB:
-                // if (player->passThroughBomb) {
-                //     player->x += player->vx;
-                //     break;
-                // }
+                if (!player->passThroughBomb) break;
 
-                // explodeBomb(cellX, cellY);
+                explodeBomb(cellX, cellY, owner);
                 break;
             default:
                 break;
+        }
+
+        // search for players on the cell
+        if (inMultiplayer()) {
+            for (int j = 0; j < game->nbPlayers; j++) {
+                // disable this only if the player can receive damage of its own bomb
+                // if (j == g_playersMultiIndex) continue;
+                if (game->players[j] == owner) continue;
+
+                player = game->players[j];
+                if (player->xCell == cellX && player->yCell == cellY) {
+                    handleDamage(player);
+                }
+            }
         }
 
         effect = addEffect(cellX, cellY, BOMB_EXPLOSION);
@@ -648,16 +694,8 @@ void    launchGame() {
     t_map             *tmp[10] = {0};
 
     game = getGame();
-
-    if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
-        #ifdef DEBUG
-            puts("Not enough players");
-        #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
-        return;
-    }
-
     index = -1;
+
     for (size_t i = 0; i < g_nbMap; i++)
     {
         if (game->maps[i].selected) {
@@ -665,6 +703,17 @@ void    launchGame() {
             tmp[index++] = &game->maps[i];
         }
     }
+
+    getMaps(tmp);
+
+    if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
+        #if DEBUG
+            puts("Not enough players");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "Not enough player", g_window);
+        return;
+    }
+
     if (index == -1) {
         printf("No map selected\n");
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "You must select a map", g_window);
@@ -675,9 +724,19 @@ void    launchGame() {
     printf("index = %d\n", index);
     game->map = tmp[index];
 
+    resetPlayer(getPlayer());
+
     injectItems(game->map);
 
     putPlayerInFreeCell(getPlayer());
+
+    for (size_t i = 0; i < MAX_BOMBS; i++)
+    {
+        if (getPlayer()->bombs[i] != NULL) {
+            free(getPlayer()->bombs[i]);
+        }
+        getPlayer()->bombs[i] = NULL;
+    }
 
     if (g_serverRunning) {
 
@@ -712,3 +771,281 @@ void    launchGame() {
 
     spawnPlayer(x, y, player);
  }
+
+Uint32   timedRespawn(Uint32 interval, char *param) {
+    t_player    *player;
+
+    if (inMultiplayer()) {
+        sendToAll(param, getPlayer()->id);
+        free(param);
+    }
+    
+    player = getPlayer();
+
+    player->health = 100;
+    putPlayerInFreeCell(player);
+    if (inMultiplayer()) {
+        doSendPos(player);
+    }
+    return 0;
+}
+
+void    receiveDamage(const char *content) {
+    short       id;
+    short       winner;
+    int         xCell;
+    int         yCell;
+    char        *buff;
+    t_player    *player;
+
+    player = getPlayer();
+
+    sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
+    if (inMultiplayer() && id != player->id) return;
+
+    player->health = 0;
+    player->vx = 0;
+    player->vy = 0;
+
+    puts("You died");
+
+    if (--player->lives == 0) {
+        // check if everyone is dead
+        if (inMultiplayer() && checkIfEveryoneIsDead(&winner)) {
+            // send end game message
+            multiplayerEnd(winner);
+        }
+
+        if (!inMultiplayer()) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", "You lost", g_window);
+            g_currentState = GAME_MAINMENU_PLAY;
+            resetBots();
+            clearEffects();
+        }
+        return;
+        //TODO: handle endgame in solo
+    }
+
+    //TODO: static tombstone
+
+    buff = malloc(sizeof(char) * 100);
+    if (!buff) {
+        #if DEBUG
+            fprintf(stderr, "Error allocating memory");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
+        exit(1);
+    }
+
+    // respawn after n seconds
+    sprintf(buff, "RESPAWN:%hd %d %d", id, player->xCell, player->yCell);
+    //TODO: respawn time in config
+    SDL_AddTimer(3000, timedRespawn, buff);
+}
+
+
+void    receiveLife(const char *content) {
+    short           id;
+    unsigned short  lifes;
+    t_player    *player;
+
+    sscanf(content, "%hd %hu", &id, &lifes);
+
+    player = getGame()->players[id];
+
+    player->lives = lifes;
+}
+
+bool    checkIfEveryoneIsDead(short *winner) {
+    const t_game      *game;
+    const t_player    *player;
+    
+    *winner = 0;
+
+    game = getGame();
+
+    for (int i = 0; i < game->nbPlayers; i++) {
+        player = game->players[i];
+        if (player->lives) {
+            // if there is at least two players alive, the game is not over
+            if (*winner) return false;
+            
+            // if we have a winner, we store it
+            *winner = player->id;
+        }
+    }
+
+    // everyone is dead
+    return true;
+}
+
+
+void    receiveEndGame(const char* content) {
+    short           winner;
+    const t_game    *game;
+    const t_player  *player;
+    char            buff[256];
+
+    sscanf(content, "%hd", &winner);
+
+    game = getGame();
+    player = game->players[winner];
+
+    sprintf(buff, "%s won the game", player->name);
+
+    // the winner can still move until he click on the button
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", buff, g_window);
+    clearEffects();
+
+    if (g_serverRunning) {
+        // reset the game
+        getMaps();
+    }
+
+    // puts the player back in the lobby
+    g_currentState = GAME_MAINMENU_PLAY;
+}
+
+
+void    kickBomb() {
+    const t_player    *player;
+    const t_map       *map;
+    t_game            *game;
+    short             xCellNew;
+    short             yCellNew;
+
+    player = getPlayer();
+    game = getGame();
+    map = game->map;
+
+    xCellNew = player->xCell;
+    yCellNew = player->yCell;
+
+    switch (player->direction)
+    {
+        case DIR_UP_RIGHT:
+        case DIR_UP_LEFT:
+        case DIR_UP:
+            do
+            {
+                yCellNew++;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
+            } while (GETCELL(xCellNew, yCellNew + 1) == EMPTY || GETCELL(xCellNew + 1, yCellNew) == GRAVEL);
+            break;
+        case DIR_DOWN_RIGHT:
+        case DIR_DOWN_LEFT:
+        case DIR_DOWN:
+            do
+            {
+                yCellNew--;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
+            } while (GETCELL(xCellNew, yCellNew - 1) == EMPTY || GETCELL(xCellNew, yCellNew - 1) == GRAVEL);
+            break;
+        case DIR_LEFT:
+            do
+            {
+                xCellNew++;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
+            } while (GETCELL(xCellNew + 1, yCellNew) == EMPTY || GETCELL(xCellNew + 1, yCellNew) == GRAVEL);
+            break;
+        case DIR_RIGHT:
+            do
+            {
+                xCellNew--;
+
+                if (searchPlayerToExplode(xCellNew, yCellNew)) return;
+
+            } while (GETCELL(xCellNew - 1, yCellNew) == EMPTY || GETCELL(xCellNew - 1, yCellNew) == GRAVEL);
+            break;
+        default:
+            break;
+    }
+
+    if (xCellNew != player->xCell || yCellNew != player->yCell) {
+        placeBomb(xCellNew, yCellNew, player); // change bomb owner
+
+        GETCELL(player->xCell, player->yCell) = EMPTY;
+        updateCell(player->xCell, player->yCell, EMPTY);
+    }
+}
+
+
+bool    searchPlayerToExplode(int xCell, int yCell) {
+    const t_game    *game;
+    const t_player  *player;
+
+    game = getGame();
+
+    for (int j = 0; j < game->nbPlayers; j++) {
+        player = game->players[j];
+        if (player->xCell == xCell && player->yCell == yCell) {
+            explodeBomb(xCell, yCell, getPlayer()); //function only used in multiplayer, bomb owner is us because we kicked it
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void    placeBomb(int xCell, int yCell, t_player *player) {
+    const t_game    *game;
+    const t_map     *map;
+    t_bomb          *bomb2;
+
+    game = getGame();
+    map = game->map;
+
+    storePlacedBomb(player, xCell, yCell);
+
+    bomb2 = malloc(sizeof(t_bomb));
+    if (!bomb2) {
+        #if DEBUG
+            fprintf(stderr, "Malloc error in placeBomb()");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
+        exit(1);
+    }
+
+    GETCELL(xCell, yCell) = BOMB;
+    updateCell(xCell, yCell, BOMB);
+
+    bomb2->owner = player;
+    bomb2->pos.x = xCell;
+    bomb2->pos.y = yCell;
+    // printf("Placed bomb at %d %d, detonation in %lu ms\n", xCell, yCell, g_items[ITEM_BOMB].duration);
+    SDL_AddTimer(g_items[ITEM_BOMB].duration, bombTimer, bomb2);
+}
+
+
+void    resetBots() {
+    for (size_t i = 0; i < g_nbBots; i++)
+    {
+        for (size_t j = 0; j < MAX_BOMBS; j++)
+        {
+            // if (g_bots[i]->bombs[j] != NULL) {
+            //     free(g_bots[i]->bombs[j]);
+            // }
+            // g_bots[i]->bombs[j] = NULL;
+        }
+
+        if (g_bots[i]->walkChannel != -1) {
+            Mix_HaltChannel(g_bots[i]->walkChannel);
+            g_bots[i]->walkChannel = -1;
+        }
+
+        if (g_bots[i]->wallChannel != -1) {
+            Mix_HaltChannel(g_bots[i]->wallChannel);
+            g_bots[i]->wallChannel = -1;
+        }
+        free(g_bots[i]);
+        g_bots[i] = NULL;
+    }
+
+    g_nbBots = 0;
+}

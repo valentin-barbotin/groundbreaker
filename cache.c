@@ -14,7 +14,7 @@ t_cache      *getImageCache() {
     if (cache == NULL) {
         cache = malloc(sizeof(t_cache));
         if (cache == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error allocating memory for cache");
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);

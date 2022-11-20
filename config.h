@@ -4,7 +4,7 @@
  #define SIZE_DATA 256
  #define FONT_PATH "./DejaVuSansMono.ttf"
  #define MAX_BOTS 32
- #define BOT_SPEED 3
+ #define BOT_SPEED 2
 
  #include <stdio.h>
  #include <stdbool.h>
@@ -52,17 +52,13 @@
  #define c_down 6385159517
  #define c_left 6385435568
  #define c_right 210726633827
+ #define c_tchat 210728790905
  #define c_use_item 7573023720639904
  #define c_item_1 6953639675812
  #define c_item_2 6953639675813
  #define c_item_3 6953639675814
  #define c_item_4 6953639675815
  #define c_item_5 6953639675816
- #define c_item_6 6953639675817
- #define c_item_7 6953639675818
- #define c_item_8 6953639675819
- #define c_item_9 6953639675820
-
  
  typedef struct     s_globalConfig
  {
@@ -96,16 +92,13 @@
      char down;
      char left;
      char right;
+     char tchat;
      char use_item;
      char item_1;
      char item_2;
      char item_3;
      char item_4;
      char item_5;
-     char item_6;
-     char item_7;
-     char item_8;
-     char item_9;
  }                  t_commandsConfig;
 
 

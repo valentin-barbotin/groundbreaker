@@ -39,7 +39,7 @@ int     setBackgroundImage(const char *name) {
     }
 
     if (SDL_QueryTexture(texture, NULL, NULL, &source.w, &source.h) < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
@@ -49,7 +49,7 @@ int     setBackgroundImage(const char *name) {
     target.w = gameConfig->video.width;
     target.h = gameConfig->video.height;
     if (!drawTexture(name, &source, &target)) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error setting background image");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Error setting background image", NULL);

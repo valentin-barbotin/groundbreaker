@@ -17,7 +17,7 @@
 #include "player.h"
 #include "client.h"
 
-#define DEBUG true
+#define DEBUG false
 
 /**
  * Description
@@ -39,7 +39,7 @@ char   *randomString(unsigned short size) {
 
     str = malloc(sizeof(char) * size + 1);
     if (str == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -106,7 +106,7 @@ char* readFile(const char* src) {
     rewind(fd);
     char* data = malloc(size);
     if (data == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -148,8 +148,12 @@ SDL_Texture* textureFromFile(const char* src) {
     SDL_Texture* tex;
     tex = IMG_LoadTexture(g_renderer, src);
     if (tex == NULL) {
-        fprintf(stderr, "Erreur IMG_LoadTexture : %s\n", SDL_GetError());
-        return NULL;
+        char buff[256] = {0};
+
+        sprintf(buff, "Error loading texture %s", src);
+        fputs(buff, stderr);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", buff, g_window);
+        exit(1);
     }
 
     return addImageToCache(src, tex);
@@ -164,7 +168,7 @@ SDL_Texture* textureFromFile(const char* src) {
 char* removeSuffix(const char *src, const char *suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error removing suffix from string");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "String error", g_window);
@@ -231,7 +235,7 @@ size_t    receiveMsg(char *buffer, int socket) {
         if (nb == -1)
         {
             fprintf(stderr, "Error receiving message from server: %s\n", strerror(errno));
-            exit(1);
+            pthread_cancel(pthread_self());
         }
         // if 0, we have received the whole message
         // TODO: check
@@ -245,7 +249,7 @@ size_t    receiveMsg(char *buffer, int socket) {
                 printf("Socket %d shut down\n", socket);
             }
             
-            exit(1);
+            pthread_cancel(pthread_self());
         }
 
 
@@ -253,7 +257,7 @@ size_t    receiveMsg(char *buffer, int socket) {
             total += nb;
         } else {
             fprintf(stderr, "Error receiving message from server: %s\n", strerror(errno));
-            exit(1);
+            pthread_cancel(pthread_self());
         }
 
         // printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
@@ -375,10 +379,8 @@ bool    checkUsername() {
     if (*getUsername() == 0) {
         puts("Creating dialog");
         dialog = getEditBox();
-        if (dialog->text == NULL) {
-            createEditBox("Enter your name", 20, colorWhite, colorBlack);
-            dialog->callback = askUsernameCallback;
-        }
+        createEditBox("Enter your name", 20, colorWhite, colorBlack);
+        dialog->callback = askUsernameCallback;
         return false;
     }
 
@@ -388,17 +390,19 @@ bool    checkUsername() {
 void    receiveMove(const char *content) {
     int             x;
     int             y;
+    int             xCell;
+    int             yCell;
     short           playerIndex;
     t_player        *player;
     unsigned short  direction; // t_direction
 
-    sscanf(content, "%d %d %hu %hu", &x, &y, &direction, &playerIndex);
+    sscanf(content, "%d %d %d %d %hu %hu", &x, &y, &xCell, &yCell, &direction, &playerIndex);
 
     player = getGame()->players[playerIndex];
     // //TODO: hashmap to get player by name
 
     if (player == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid player id");
         #endif
         return;
@@ -406,7 +410,51 @@ void    receiveMove(const char *content) {
 
     player->x = x;
     player->y = y;
+    player->xCell = xCell;
+    player->yCell = yCell;
+    //TODO: remove x and y, use cells instead (differents for each player)
+    //TMP
+    posToGrid(player);
     player->direction = direction;
 
     // printf("Player %hu moved to %d %d\n", playerIndex, x, y);
+}
+
+bool    hostToAddr(const char *host, in_addr_t *in_addr) {
+    struct addrinfo hints;
+    struct addrinfo *res;
+
+    hints.ai_family = AF_INET;
+
+    memset(&hints, 0, sizeof hints);
+
+    int ret = getaddrinfo(host, NULL, &hints, &res);
+    if (ret != 0) {
+        #if DEBUG
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(ret));
+        #endif
+        return false;
+    }
+
+    *in_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr.s_addr;
+    return true;
+}
+
+bool        isNameAvailable(const char *name, int mode) {
+    //host
+    if (stringIsEqual(getPlayer()->name, name)) return false;
+
+    if (mode) {
+        for (size_t i = 0; i < g_peersListNb; i++)
+        {
+            if (stringIsEqual(g_peersList[i]->name, name)) return false;
+        }
+    } else {
+        for (size_t i = 0; i < g_peersListUDPNb; i++)
+        {
+            if (stringIsEqual(g_peersListUDP[i]->name, name)) return false;
+        }
+    }
+
+    return true;
 }

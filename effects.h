@@ -38,6 +38,7 @@
 
  void       initEffects();
  void       findAvailableEffect(t_effect **effect);
+ void       clearEffects();
  void       drawEffects();
  t_effect   *addEffect(int xCell, int yCell, t_effects type);
  void       drawSprite(const char *tex, int x, int y, int row, int col);

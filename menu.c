@@ -42,25 +42,14 @@ void    exitGame() {
     g_currentState = GAME_EXIT;
 }
 
-
-t_menu menuCommands3 = {
-    "Commands 3",
-    {"Item 8", "Item 9", "Back"},
-    {&editItem8, &editItem9, &exitMenu},
-    NULL,
-    {NULL, NULL, NULL},
-    0,
-    3
-};
-
 t_menu menuCommands2 = {
     "Commands 2",
-    {"Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Next", "Back"},
-    {&editItem2, &editItem3, &editItem4, &editItem5, &editItem6, &editItem7, NULL, &exitMenu},
+    {"Item 2", "Item 3", "Item 4", "Item 5", "Tchat", "Back"},
+    {&editItem2, &editItem3, &editItem4, &editItem5, &editTchat, &exitMenu},
     NULL,
-    {NULL, NULL, NULL, NULL, NULL, NULL, &menuCommands3, NULL},
+    {NULL, NULL, NULL, NULL, NULL, NULL},
     0,
-    8
+    6
 };
 
 t_menu menuCommands1 = {
@@ -131,7 +120,7 @@ void    setupMenu() {
     }
 
     if (setBackgroundImage(TEX_MENU_BACKGROUND)) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error setting background image");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Error setting background image", NULL);
@@ -255,7 +244,7 @@ void    drawLobbyMenu() {
     if (g_lobby == NULL) {
         g_lobby = malloc(sizeof(t_lobby));
         if (g_lobby == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error: Could not allocate memory for g_lobby in drawLobbyMenu()\n");
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -353,7 +342,7 @@ void    setupMenuButtons() {
         tex = getTextureFromString(g_currentMenu->buttons[i], color, 0);
         op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
         if (op != 0) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
@@ -377,7 +366,7 @@ void    exitMenu() {
 void    assignMenuParents() {
     menuVideo.parent = &menuSettings;
     menuAudio.parent = &menuSettings;
-    menuCommands3.parent = &menuCommands2;
+    // menuCommands3.parent = &menuCommands2;
     menuCommands2.parent = &menuCommands1;
     menuCommands1.parent = &menuSettings;
 

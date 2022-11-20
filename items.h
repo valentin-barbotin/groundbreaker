@@ -4,7 +4,11 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
+
 #include "config.h"
+#include "bomb.h"
+
+#define ITEM_BOMB_NB 2
 
 typedef enum e_item_type {
     ITEM_BOMB,
@@ -32,14 +36,8 @@ typedef struct s_item {
     char            *tex;
 }              t_item;
 
-t_item  *getItem(t_item_type type);
-void    drawItem(t_item *item);
-void    updateItem(t_item *item);
-void    destroyItem(t_item *item);
-void    activateItem(t_item *item);
-void    deactivateItem(t_item *item);
 void    useItem(t_item *item);
-Uint32  bombTimer(Uint32 interval, SDL_Point *param);
+Uint32  bombTimer(Uint32 interval, t_bomb *param);
 Uint32  invincibilityTimer(Uint32 interval, void *param);
 
 

@@ -4,9 +4,11 @@
  #include <stdbool.h>
 
  #include <SDL.h>
-#include "items.h"
+ #include "items.h"
 
-extern SDL_Window*     g_window;
+ #define MAX_BOMBS 40
+
+ extern SDL_Window*     g_window;
  extern SDL_Renderer*   g_renderer;
  extern bool            g_serverRunning;
  extern t_item          g_items[NB_ITEMS];
@@ -28,6 +30,7 @@ extern SDL_Window*     g_window;
 
  typedef struct     s_player
  {
+     short           id;
      char            name[256];
      int             x;
      int             y;
@@ -36,16 +39,23 @@ extern SDL_Window*     g_window;
      int             xCell;
      int             yCell;
      int             health;
-     int             score;
      t_direction     direction;
      int             scope;
      bool            godMode;
      bool            passThroughBomb;
      bool            bombKick;
      bool            canSurviveExplosion;
-     t_item          *inventory[NB_ITEMS];
+     struct s_item   *inventory[NB_ITEMS];
      int             selectedSlot;
      bool            isBot;
+     unsigned short  lives;
+     unsigned short  maxBombs;
+     t_bomb          *bombs[MAX_BOMBS];
+     bool            bombPlaced;
+     int             lastBombX;
+     int             lastBombY;
+     int             walkChannel; //sound
+     int             wallChannel; //sound
  }                  t_player;
 
  char            *getUsername();
@@ -56,8 +66,13 @@ extern SDL_Window*     g_window;
  bool            isMoving(const t_player *player);
  void            sendPos();
  void            doSendPos(const t_player *player);
- bool            hasItemInInventory(const t_player *player, const t_item *item);
+ bool            hasItemInInventory(const t_player *player, const struct s_item *item);
  void            initInventory(t_player *player);
  bool            isAlive(const t_player *player);
+ void            removePlacedBomb(t_player *player, int xCell, int yCell);
+ void            storePlacedBomb(t_player *player, int xCell, int yCell);
+ t_player        *findBombOwner(int xCell, int yCell);
+ bool            searchPlacedBomb(t_player *player, int xCell, int yCell);
+ void            resetPlayer(t_player *player);
 
 #endif

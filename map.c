@@ -10,6 +10,8 @@
 #include "player.h"
 #include "inventory.h"
 #include "font.h"
+#include "tchat.h"
+#include "client.h"
 
 #define DEBUG true
 
@@ -49,7 +51,7 @@ void     getMaps() {
     g_nbMap = 0;
     dir = opendir("maps");
     if (dir == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Can't open maps directory\n");
             perror("opendir");
         #endif
@@ -66,7 +68,7 @@ void     getMaps() {
             // We can strdup because d_name array is 256 bytes long
             buff = strdup(files->d_name);
             if (buff == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for buff in getMaps()\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -76,7 +78,7 @@ void     getMaps() {
 
             fd = fopen(buff, "rb");
             if (fd == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Can't open map file %s\n", files->d_name);
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't open map file", g_window);
@@ -86,7 +88,7 @@ void     getMaps() {
 
             mapfd = malloc(sizeof(t_map));
             if (mapfd == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for mapfd in getMaps()\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -99,7 +101,7 @@ void     getMaps() {
 
             map = map_create(w, h);
             if (map == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     fprintf(stderr, "Error: Could not allocate memory for map in getMaps()\n");
                 #endif
                 SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -128,7 +130,7 @@ void    saveMap(const t_map *map) {
 
     name = randomString(20);
     if (name == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Could not allocate memory for name in saveMap()\n");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -139,7 +141,7 @@ void    saveMap(const t_map *map) {
 
     fd = fopen(buff, "wb");
     if (fd == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Can't open map file %s\n", name);
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't write map", g_window);
@@ -166,7 +168,7 @@ t_map   *map_create(unsigned short width, unsigned short height) {
     map->height = height;
     map->map = malloc(sizeof(char *) * height);
     if (map->map == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error: Could not allocate memory for map->map in map_create()\n");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -176,7 +178,7 @@ t_map   *map_create(unsigned short width, unsigned short height) {
     for (int i = 0; i < height; i++) {
         map->map[i] = malloc(sizeof(char) * width);
         if (map->map[i] == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error: Could not allocate memory for map->map[i] in map_create()\n");
             #endif
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
@@ -311,6 +313,12 @@ void    drawMap() {
 
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 288; //TODO: dynamic
+            rect.h = 288;
+
             switch (GETCELL(j, i))
             {
                 case WALL:
@@ -330,16 +338,14 @@ void    drawMap() {
                     break;
             }
 
-            rect.x = 0;
-            rect.y = 0;
-            rect.w = 288; //TODO: dynamic
-            rect.h = 288;
-
             rectdest.x = j * cellSizeX;
             rectdest.y = i * cellSizeY;
             rectdest.w = cellSizeX;
             rectdest.h = cellSizeY;
+
             drawTexture(tex, &rect, &rectdest);
+
+            tex = NULL;
 
             // Draw items
             switch (GETCELL(j, i))
@@ -347,14 +353,79 @@ void    drawMap() {
                 case BOMB:
                     rect.w = 758; //TODO: dynamic
                     rect.h = 980;
-
-                    drawTexture(TEX_BOMB, &rect, &rectdest);
+                    tex = TEX_BOMB_BOUM;
+                    break;
+                
+                //items
+                case ITEM_BOMB:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB;
+                    break;
+                case ITEM_BOMB_UP:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_UP;
+                    break;
+                case ITEM_BOMB_DOWN:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_DOWN;
+                    break;
+                case ITEM_YELLOW_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_YELLOW_FLAME;
+                    break;
+                case ITEM_BLUE_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BLUE_FLAME;
+                    break;
+                case ITEM_RED_FLAME:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_RED_FLAME;
+                    break;
+                case ITEM_PASS_THROUGH_BOMB:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_PASS_THROUGH;
+                    break;
+                case ITEM_BOMB_KICK:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_BOMB_KICK;
+                    break;
+                case ITEM_INVINCIBILITY:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_INVINCIBILITY;
+                    break;
+                case ITEM_HEART:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_HEART;
+                    break;
+                case ITEM_LIFE:
+                    rect.w = 758;
+                    rect.h = 980;
+                    tex = TEX_LIFE;
                     break;
                 
                 default:
                     break;
             }
+
+            if (tex) {
+                drawTexture(tex, &rect, &rectdest);
+            }
         }
+    }
+
+    if (inMultiplayer()) {
+        drawTchat();
+        drawTchatMessages();
     }
 
     drawInventory();
@@ -410,6 +481,7 @@ void    drawPlayer(const t_player *player) {
     SDL_Rect        rect;
     SDL_Rect        rectdest;
     SDL_Color       textColor = {255, 255, 255, 255};
+    char            buffer[256];
 
     //draw player
     spriteW = 50;
@@ -428,12 +500,67 @@ void    drawPlayer(const t_player *player) {
     rect.w = spriteW;
     rect.h = spriteH;
 
-    drawTexture(TEX_PLAYER, &rect, &rectdest);
+    if (!player->health) {
+        rect.w = 900;
+        rect.h = 600;
+        drawTexture(TEX_TOMBSTONE, &rect, &rectdest);
+    } else {
+        drawTexture(TEX_PLAYER, &rect, &rectdest);
+    }
 
     // draw player name
-    drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, player->name, true, 0);
+    if (player->lives && !player->isBot) {
+        sprintf(buffer, "%s%s lives: %hu", player->name, player->health ? "" : " (dead)", player->lives);
+    } else if (player->lives && player->isBot) {
+        strcpy(buffer, "Bot");
+    } else {
+        sprintf(buffer, "%s (dead)", player->name);
+    }
+    drawText(&textColor, player->x, player->y + gameConfig->video.height * 0.08, buffer, true, 0);
 }
 
 void    spawnRandomItem(int xCell, int yCell) {
+    t_item  *item;
+    int     random;
+    t_map   *map;
+
+    map = getGame()->map;
+
+    item = &g_items[rand() % NB_ITEMS];
+    random = rand() % 100;
     
+    if (random < 50) {
+        item->isRare ? random = rand() % 100 : 0;
+        GETCELL(xCell, yCell) = item->type;
+        updateCell(xCell, yCell, (t_type) item->type);
+    } else {
+        GETCELL(xCell, yCell) = EMPTY;
+        updateCell(xCell, yCell, EMPTY);
+    }
+}
+
+
+bool    canMoveOnNextCell(char cell) {
+    switch (cell)
+    {
+        case ITEM_BOMB:
+        case ITEM_BOMB_UP:
+        case ITEM_BOMB_DOWN:
+        case ITEM_YELLOW_FLAME:
+        case ITEM_BLUE_FLAME:
+        case ITEM_RED_FLAME:
+        case ITEM_PASS_THROUGH_BOMB:
+        case ITEM_BOMB_KICK:
+        case ITEM_INVINCIBILITY:
+        case ITEM_HEART:
+        case ITEM_LIFE:
+        case EMPTY:
+        case GRAVEL:
+            return true;
+            break;
+        
+        default:
+            return false;
+            break;
+    }
 }
