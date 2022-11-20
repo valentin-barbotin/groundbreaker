@@ -240,10 +240,9 @@ void    handleMessageClient2(char *type, char *content) {
         }
             break;
 
-        case TCHAT: {
+        case TCHAT:
             // we update the tchat to display the message for all players
             updateTchatMessages(content);
-        }
             break;
         default:
             break;

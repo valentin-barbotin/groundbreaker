@@ -78,7 +78,6 @@ void    putMessageInTchat(t_player *player, const char *msg) {
 
     // at first, we update the tchat messages to the sender
     sprintf(buffer, "%s: %s%c", player->name, msg, '\0');
-    updateTchatMessages(buffer);
 
     // then, we send the message to the other players
     sprintf(buffer, "TCHAT:%s: %s%c", player->name, msg, '\0');

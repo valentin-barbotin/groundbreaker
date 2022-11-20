@@ -173,10 +173,10 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
     game = getGame();
     switch (action)
     {
-        case TCHAT: {
+        case TCHAT:
             // we update the tchat to display the message for all players
             updateTchatMessages(content);
-        }
+            break;
         case END:
             receiveEndGame(content);
             break;
