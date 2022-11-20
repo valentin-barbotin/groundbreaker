@@ -27,6 +27,8 @@ int         g_peersListUDPNb = 0;
 
 // TODO: use players list
 void    sendToAll(const char *msg, int except) {
+    if (!inMultiplayer()) return;
+
     const char    *pos;
 
     if (g_serverRunning) {
@@ -539,8 +541,6 @@ void    multiplayerStart() {
         player->scope = 2;
         player->maxBombs = 2;
         player->lives = 2;
-        player->lastBombX = 0;
-        player->lastBombY = 0;
 
         putPlayerInFreeCell(player);
         player->id = i;

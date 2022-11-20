@@ -48,9 +48,15 @@ t_player        *initPlayer() {
     player->selectedSlot = 0;
     player->maxBombs = 2;
     player->lives = 2;
-    player->lastBombX = 0;
-    player->lastBombY = 0;
     player->id = -1;
+    player->bombPlaced = false;
+
+    // used to store bombs placed by us
+    for (size_t i = 0; i < MAX_BOMBS; i++)
+    {
+        player->bombs[i] = NULL;
+    }
+    
 
     initInventory(player);
     return player;
@@ -149,4 +155,61 @@ bool        hasItemInInventory(const t_player *player, const t_item *item) {
  */
 bool        isAlive(const t_player *player) {
     return (player->health > 0);
+}
+
+void        removePlacedBomb(t_player *player, int xCell, int yCell) {
+    for (size_t i = 0; i < MAX_BOMBS; i++)
+    {
+        if (player->bombs[i] != NULL && player->bombs[i]->pos.x == xCell && player->bombs[i]->pos.y == yCell) {
+            free(player->bombs[i]);
+            player->bombs[i] = NULL;
+            printf("Bomb removed from player at %d %d\n", xCell, yCell);
+            player->bombPlaced = false;
+            break;
+        }
+    }
+}
+
+void        storePlacedBomb(t_player *player, int xCell, int yCell) {
+    for (int i = 0; i < MAX_BOMBS; i++) {
+        if (player->bombs[i] == NULL) {
+            printf("Storing bomb at %d %d\n", xCell, yCell);
+            player->bombs[i] = malloc(sizeof(t_bomb));
+            if (player->bombs[i] == NULL) {
+                #if DEBUG
+                    fprintf(stderr, "Error allocating memory for bomb");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Error while creating bomb", g_window);
+                exit(1);
+            }
+
+            player->bombs[i]->owner = player;
+            player->bombs[i]->pos.x = xCell;
+            player->bombs[i]->pos.y = yCell;
+
+            player->bombPlaced = true;
+            return;
+        }
+    }
+}
+
+// bots
+t_player    *findBombOwner(int xCell, int yCell) {
+    for (int i = 0; i < g_nbBots; i++) {
+        if (searchPlacedBomb(g_bots[i], xCell, yCell)) return g_bots[i];
+    }
+
+    if (searchPlacedBomb(getPlayer(), xCell, yCell)) return getPlayer();
+
+    return NULL;
+}
+
+bool        searchPlacedBomb(t_player *player, int xCell, int yCell) {
+    for (int i = 0; i < MAX_BOMBS; i++) {
+        if (player->bombs[i] != NULL && player->bombs[i]->pos.x == xCell && player->bombs[i]->pos.y == yCell) {
+            return true;
+        }
+    }
+
+    return false;
 }

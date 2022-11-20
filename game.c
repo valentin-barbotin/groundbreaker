@@ -22,6 +22,7 @@ t_sound     *item;
 
 /**
  * @brief Kills the bots if they are on the given cell
+ * Bots are immuned from other bot's bombs
  * 
  * @param xCell 
  * @param yCell 
@@ -284,7 +285,6 @@ void    movePlayer(t_player *player) {
         }
     }
 
-
     currentCell = GETCELL(player->xCell, player->yCell);
     switch (currentCell) {
         case WALL:
@@ -365,9 +365,14 @@ void    movePlayer(t_player *player) {
                 }
             }
             break;
-        case BOMB:
+        case BOMB: {
             // if the bomb is placed by the player then we don't explode it
-            if (player->lastBombX == player->xCell && player->lastBombY == player->yCell) break;
+
+            t_player    *owner;
+            owner = findBombOwner(player->xCell, player->yCell);
+
+            if (owner && owner == player) break;
+            if (!inMultiplayer() && owner && owner->isBot && player->isBot) break;
 
             // trigger the bomb if the player is on it
             if (player->passThroughBomb) {
@@ -380,9 +385,12 @@ void    movePlayer(t_player *player) {
                 break;
             }
 
-            explodeBomb(player->xCell, player->yCell);
+            // null allow use to kill all the players
+            // the owner of the bomb can be killed by others players using his bomb
+            explodeBomb(player->xCell, player->yCell, NULL); 
 
             break;
+        }
         case ITEM_BOMB:
             if (player->inventory[ITEM_BOMB]->quantity == player->maxBombs) {
                 break;
@@ -556,7 +564,7 @@ void    posToGridN(int x, int y, int *cellX, int *cellY) {
     // ex: 768 / 166 = 4.6 => 4
 }
 
-void explodeBomb(int xCell, int yCell) {
+void explodeBomb(int xCell, int yCell, t_player *owner) {
     const t_map      *map;
     const t_game     *game;
     const t_player    *player;
@@ -581,10 +589,14 @@ void explodeBomb(int xCell, int yCell) {
 
 
     // pour chaque direction (UP, DOWN, LEFT, RIGHT)
-    searchDirectionMap(xCell, yCell, DIR_UP, player->scope);
-    searchDirectionMap(xCell, yCell, DIR_DOWN, player->scope);
-    searchDirectionMap(xCell, yCell, DIR_LEFT, player->scope);
-    searchDirectionMap(xCell, yCell, DIR_RIGHT, player->scope);
+    searchDirectionMap(xCell, yCell, DIR_UP, player->scope, owner);
+    searchDirectionMap(xCell, yCell, DIR_DOWN, player->scope, owner);
+    searchDirectionMap(xCell, yCell, DIR_LEFT, player->scope, owner);
+    searchDirectionMap(xCell, yCell, DIR_RIGHT, player->scope, owner);
+
+    if (player->isBot) {
+        removePlacedBomb(player, xCell, yCell);
+    }
 }
 
 void    handleMouseButtonUpPlaying(const SDL_Event *event) {
@@ -610,9 +622,13 @@ void    handleDamage(t_player *player) {
         player->lives--;
         //TODO: spawn tombstone and send it to all
 
-        sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
-        sendToAll(buffer, getPlayer()->id);
-        //TODO: respawn using lives
+        if (inMultiplayer()) {
+            sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
+            sendToAll(buffer, getPlayer()->id);
+        } else {
+            sprintf(buffer, "DAMAGE:%hu %d %d", player->id, player->xCell, player->yCell);
+            receiveDamage(buffer);
+        }
     }
 
     if (player->canSurviveExplosion) {
@@ -620,7 +636,7 @@ void    handleDamage(t_player *player) {
     }
 }
 
-void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int scope) {
+void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, int scope, t_player *owner) {
     const t_game        *game;
     t_player            *player;
     const t_map         *map;
@@ -642,12 +658,18 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
 
     // no bots in multiplayer
     // in case of a bot on the map itself
-    if (!inMultiplayer()) {
-        killBots(xCellBase, yCellBase);
+    if (!inMultiplayer() && owner) {
+        if (!owner->isBot) {
+            killBots(xCellBase, yCellBase);
+        } else {
+            if (getPlayer()->xCell == xCellBase && getPlayer()->yCell == yCellBase) {
+                handleDamage(getPlayer());
+            }
+        }
     } else {
         for (int j = 0; j < game->nbPlayers; j++) {
             // disable this only if the player can receive damage of its own bomb
-            if (j == g_playersMultiIndex) continue;
+            if (owner && game->players[j] == owner) continue;
 
             player = game->players[j];
             if (player->xCell == xCellBase && player->yCell == yCellBase) {
@@ -684,8 +706,14 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
         }
 
         // no bots in multiplayer
-        if (!inMultiplayer()) {
-            killBots(cellX, cellY);
+        if (!inMultiplayer() && owner) {
+            if (!owner->isBot) {
+                killBots(xCellBase, yCellBase);
+            } else {
+                if (getPlayer()->xCell == xCellBase && getPlayer()->yCell == yCellBase) {
+                    handleDamage(getPlayer());
+                }
+            }
         }
 
         switch (GETCELL(cellX, cellY)) {
@@ -704,7 +732,7 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
             case BOMB:
                 if (!player->passThroughBomb) break;
 
-                explodeBomb(cellX, cellY);
+                explodeBomb(cellX, cellY, owner);
                 break;
             default:
                 break;
@@ -714,7 +742,8 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
         if (inMultiplayer()) {
             for (int j = 0; j < game->nbPlayers; j++) {
                 // disable this only if the player can receive damage of its own bomb
-                if (j == g_playersMultiIndex) continue;
+                // if (j == g_playersMultiIndex) continue;
+                if (game->players[j] == owner) continue;
 
                 player = game->players[j];
                 if (player->xCell == cellX && player->yCell == cellY) {
@@ -768,6 +797,14 @@ void    launchGame() {
 
     putPlayerInFreeCell(getPlayer());
 
+    for (size_t i = 0; i < MAX_BOMBS; i++)
+    {
+        if (getPlayer()->bombs[i] != NULL) {
+            free(getPlayer()->bombs[i]);
+        }
+        getPlayer()->bombs[i] = NULL;
+    }
+
     if (g_serverRunning) {
 
         if (game->nbPlayers == game->map->players) {
@@ -804,14 +841,19 @@ void    launchGame() {
 
 Uint32   timedRespawn(Uint32 interval, char *param) {
     t_player    *player;
+
+    if (inMultiplayer()) {
+        sendToAll(param, getPlayer()->id);
+        free(param);
+    }
     
     player = getPlayer();
-    sendToAll(param, getPlayer()->id);
-    free(param);
 
     player->health = 100;
     putPlayerInFreeCell(player);
-    doSendPos(player);
+    if (inMultiplayer()) {
+        doSendPos(player);
+    }
     return 0;
 }
 
@@ -838,7 +880,13 @@ void    receiveDamage(const char *content) {
             // send end game message
             multiplayerEnd(winner);
         }
+
+        if (!inMultiplayer()) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", "You lost", g_window);
+            g_currentState = GAME_MAINMENU_PLAY;
+        }
         return;
+        //TODO: handle endgame in solo
     }
 
     //TODO: static tombstone
@@ -982,26 +1030,11 @@ void    kickBomb() {
     }
 
     if (xCellNew != player->xCell || yCellNew != player->yCell) {
-        GETCELL(xCellNew, yCellNew) = BOMB;
-        GETCELL(player->xCell, player->yCell) = EMPTY;
+        placeBomb(xCellNew, yCellNew, player); // change bomb owner
 
-        updateCell(xCellNew, yCellNew, BOMB);
+        GETCELL(player->xCell, player->yCell) = EMPTY;
         updateCell(player->xCell, player->yCell, EMPTY);
     }
-
-    
-    SDL_Point   *pos = malloc(sizeof(SDL_Point));
-    if (!pos) {
-        #if DEBUG
-            fprintf(stderr, "Malloc error in useItem()");
-        #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
-        exit(1);
-    }
-
-    pos->x = xCellNew;
-    pos->y = yCellNew;
-    SDL_AddTimer(g_items[ITEM_BOMB].duration, bombTimer, pos);
 }
 
 
@@ -1014,10 +1047,39 @@ bool    searchPlayerToExplode(int xCell, int yCell) {
     for (int j = 0; j < game->nbPlayers; j++) {
         player = game->players[j];
         if (player->xCell == xCell && player->yCell == yCell) {
-            explodeBomb(xCell, yCell);
+            explodeBomb(xCell, yCell, getPlayer()); //function only used in multiplayer, bomb owner is us because we kicked it
             return true;
         }
     }
 
     return false;
+}
+
+void    placeBomb(int xCell, int yCell, t_player *player) {
+    const t_game    *game;
+    const t_map     *map;
+    t_bomb          *bomb2;
+
+    game = getGame();
+    map = game->map;
+
+    storePlacedBomb(player, xCell, yCell);
+
+    bomb2 = malloc(sizeof(t_bomb));
+    if (!bomb2) {
+        #if DEBUG
+            fprintf(stderr, "Malloc error in placeBomb()");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
+        exit(1);
+    }
+
+    GETCELL(xCell, yCell) = BOMB;
+    updateCell(xCell, yCell, BOMB);
+
+    bomb2->owner = player;
+    bomb2->pos.x = xCell;
+    bomb2->pos.y = yCell;
+    // printf("Placed bomb at %d %d, detonation in %lu ms\n", xCell, yCell, g_items[ITEM_BOMB].duration);
+    SDL_AddTimer(g_items[ITEM_BOMB].duration, bombTimer, bomb2);
 }
