@@ -20,7 +20,7 @@
 #include "tchat.h"
 #include "effects.h"
 
-#define DEBUG false
+#define DEBUG true
 
 pthread_t           g_clientThread = 0;
 pthread_t           g_clientThreadUDP = 0;
@@ -296,7 +296,26 @@ void    askServerPort() {
 }
 
 void    askServerPortCallback() {
-    //TODO: check if port is valid
+    int     port;
+
+    port = atoi(getEditBox()->edit);
+    if (port == 0) {
+        #if DEBUG
+            puts("Invalid port");
+        #endif
+        getEditBox()->edit[0] = 0;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Invalid port", g_window);
+        return;
+    }
+
+    if (port < 0 || port > 65535) {
+        #if DEBUG
+            puts("Invalid port");
+        #endif
+        getEditBox()->edit[0] = 0;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Invalid port", g_window);
+        return;
+    }
 
     strcpy(g_serverConfig.port, getEditBox()->edit);
 
@@ -475,7 +494,7 @@ void    updateCell(unsigned short xCell, unsigned short yCell, t_type type) {
     char    buffer[1024];
 
     sprintf(buffer, "CELL:%hu %hu %u", xCell, yCell, type);
-    sendToAll(buffer, getPlayer()->id); //TODO: check except
+    sendToAll(buffer, getPlayer()->id);
 }
 
 void    sendEffect(const t_effect *effect) {
