@@ -500,8 +500,6 @@ void    drawPlayer(const t_player *player) {
     rect.w = spriteW;
     rect.h = spriteH;
 
-    drawTexture(player->health ? TEX_PLAYER : TEX_TOMBSTONE, &rect, &rectdest);
-
     if (!player->health) {
         rect.w = 900;
         rect.h = 600;
