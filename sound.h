@@ -20,7 +20,7 @@
  int     playSoundLoop(t_sound *sound);
  bool    stopSound(t_sound *sound);
  bool    pauseSound(t_sound *sound);
- bool    setSoundVolume(int volume);
+ bool    setSoundVolume(Mix_Chunk *chunk, int volume);
  bool    isChannelAvailable(int channel);
  void    freeSound(t_sound *sound);
  void    channelFinishedCallback(int channel);

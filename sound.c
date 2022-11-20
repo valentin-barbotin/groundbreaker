@@ -51,16 +51,16 @@ bool     initAudio(t_sound *sound) {
         exit(1);
     }
 
-    if(!setSoundVolume(gameConfig->audio.sound_volume)) {
-        SDL_Log("Mix_VolumeChunk: %s\n", Mix_GetError());
-        exit(1);
-    }
-
     return true;
 }
 
 static int playSoundWrapper(Mix_Chunk *chunk, int loops) {
     int     channel;
+
+    if(!setSoundVolume(chunk, gameConfig->audio.sound_volume)) {
+        SDL_Log("Mix_VolumeChunk: %s\n", Mix_GetError());
+        exit(1);
+    }
 
     channel = Mix_PlayChannel(-1, chunk, loops);
     if (channel < 0) {
@@ -119,8 +119,8 @@ bool    pauseSound(t_sound *sound) {
  * @param volume
  * @return  true on success or false on error
  */
-bool    setSoundVolume(int volume) {
-    return Mix_Volume(-1, volume) != -1;
+bool    setSoundVolume(Mix_Chunk *chunk, int volume) {
+    return Mix_VolumeChunk(chunk, volume) != -1;
 }
 
 void    loadSounds() {
