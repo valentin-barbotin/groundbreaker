@@ -145,6 +145,8 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
         action = START;
     } else if (stringIsEqual(type, "QUIT")) {
         action = QUIT;
+    } else if (stringIsEqual(type, "PLAYERDAT")) {
+        action = PLAYERDAT;
     } else if (stringIsEqual(type, "MYNAME")) {
         action = MYNAME;
     } else if (stringIsEqual(type, "BROADCAST")) {
@@ -226,6 +228,10 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
             except = atoi(content);
             printf("Broadcasting: (except: %hd) %s\n", except, content2);
             // if clientAddr is not null, it's a UDP message
+
+            //tmp
+            except = -1;
+
             clientAddr ? sendToAllUDP(content2, except) : sendToAll(content2, except);
             // handleMessageClient(content, client, NULL);
             break;
