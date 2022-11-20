@@ -7,7 +7,6 @@
 #include "map.h"
 #include "game.h"
 #include "moves.h"
-#include "timer.h"
 #include "sound.h"
 #include "utils.h"
 #include "dialog.h"

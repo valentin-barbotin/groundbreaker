@@ -2,7 +2,6 @@
  #define SOUND_H
 
  #include "config.h"
- #include "timer.h"
  #include <SDL_mixer.h>
  #define NB_CHANNELS 128
 
