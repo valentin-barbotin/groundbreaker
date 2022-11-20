@@ -228,8 +228,9 @@ int main(int argc, char **argv)
             displayEditBox();
         }
 
-        pickColor(&colorRed);
-        SDL_RenderDrawRect(g_renderer, &windowLimits);
+        // i3 window
+        // pickColor(&colorRed);
+        // SDL_RenderDrawRect(g_renderer, &windowLimits);
         pickColor(&colorBlack);
 
         SDL_RenderPresent(g_renderer);
