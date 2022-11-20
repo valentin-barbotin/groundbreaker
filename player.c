@@ -61,7 +61,7 @@ t_player        *initPlayer() {
         player->bombs[i] = NULL;
     }
     
-
+    
     initInventory(player);
     return player;
 }
@@ -129,7 +129,8 @@ void    doSendPos(const t_player *player) {
 }
 
 void       initInventory(t_player *player) {
-    // TODO : init inventory, example : player->inventory[ITEM_BOMB] = getItem(ITEM_BOMB);
+    g_items[ITEM_BOMB].quantity = 2;
+
     player->inventory[ITEM_BOMB]                = g_items + ITEM_BOMB;
     player->inventory[ITEM_BOMB_UP]             = g_items + ITEM_BOMB_UP;
     player->inventory[ITEM_BOMB_DOWN]           = g_items + ITEM_BOMB_DOWN;
@@ -238,5 +239,5 @@ void        resetPlayer(t_player *player) {
     player->bombKick = false;
     player->godMode = false;
 
-    player->inventory[ITEM_BOMB] = ITEM_BOMB_NB;
+    initInventory(player);
 }
