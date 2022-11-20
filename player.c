@@ -51,6 +51,8 @@ t_player        *initPlayer() {
     player->lastBombX = 0;
     player->lastBombY = 0;
     player->id = -1;
+    player->walkChannel = -1;
+    player->wallChannel = -1;
 
     initInventory(player);
     return player;

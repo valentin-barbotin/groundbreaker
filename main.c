@@ -32,6 +32,7 @@ extern void    assignMenuParents();
 extern t_player         *g_bots[MAX_BOTS];
 extern short            g_nbBots;
 extern t_discord_app    *g_app_discord;
+extern Mix_Music        *music;
 
 #define DEBUG true
 
@@ -100,6 +101,9 @@ int main(int argc, char **argv)
 
     // init SDL
     setupSDL();
+
+    loadSounds();
+
     windowWidth = config.video.width;
     windowHeight = config.video.height;
 
@@ -180,11 +184,20 @@ int main(int argc, char **argv)
         pickColor(&colorBlack);
 
         if (inMainMenu()) {
+
+            if (!Mix_PlayingMusic() && !Mix_PlayMusic(music, -1)) {
+                fprintf(stderr, "Mix_PlayMusic: %s", Mix_GetError());
+            }
+            
             // No need to render at 1000 fps
             setupMenu();
             SDL_Delay(30);
         } else if (inGame())
         {
+            if (Mix_PlayingMusic()) {
+                Mix_HaltMusic();
+            }
+
             drawMap();
             drawEffects();
 

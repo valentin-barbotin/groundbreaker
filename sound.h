@@ -4,8 +4,7 @@
  #include "config.h"
  #include "timer.h"
  #include <SDL_mixer.h>
- #define IS_FILE_TYPE(type) (strcmp(fileType, type) == 0)
- #define NB_CHANNELS 32
+ #define NB_CHANNELS 128
 
  extern t_gameConfig    *gameConfig;
 
@@ -15,9 +14,10 @@
      Mix_Chunk   *chunk;
  }               t_sound;
 
+ void    loadSounds();
  bool    initAudio(t_sound *sound);
- bool    playSound(t_sound *sound);
- bool    playSoundLoop(t_sound *sound);
+ int     playSound(t_sound *sound);
+ int     playSoundLoop(t_sound *sound);
  bool    stopSound(t_sound *sound);
  bool    pauseSound(t_sound *sound);
  bool    setSoundVolume(t_sound *sound, int volume);
@@ -25,5 +25,6 @@
  bool    isChannelAvailable(int channel);
  int     getAvailableChannel();
  void    freeSound(t_sound *sound);
+ void    channelFinishedCallback(int channel);
 
 #endif

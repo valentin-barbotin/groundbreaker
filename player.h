@@ -51,6 +51,8 @@ extern SDL_Window*     g_window;
      unsigned short  maxBombs;
      int             lastBombX;
      int             lastBombY;
+     int             walkChannel; //sound
+     int             wallChannel; //sound
  }                  t_player;
 
  char            *getUsername();
