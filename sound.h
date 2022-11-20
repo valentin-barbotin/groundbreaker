@@ -4,20 +4,27 @@
  #include "config.h"
  #include "timer.h"
  #include <SDL_mixer.h>
+ #define NB_CHANNELS 128
 
  extern t_gameConfig    *gameConfig;
 
  typedef struct  s_sound
  {
      char        *file;
-     Mix_Music   *music;
+     Mix_Chunk   *chunk;
  }               t_sound;
 
+ void    loadSounds();
  bool    initAudio(t_sound *sound);
- bool    initMusic(t_sound *sound);
- bool    playSound(t_sound *sound);
- bool    playSoundLoop(t_sound *sound);
+ int     playSound(t_sound *sound);
+ int     playSoundLoop(t_sound *sound);
  bool    stopSound(t_sound *sound);
  bool    pauseSound(t_sound *sound);
  bool    setSoundVolume(t_sound *sound, int volume);
+ bool    isSoundPlaying(t_sound *sound);
+ bool    isChannelAvailable(int channel);
+ int     getAvailableChannel();
+ void    freeSound(t_sound *sound);
+ void    channelFinishedCallback(int channel);
+
 #endif

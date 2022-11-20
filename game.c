@@ -14,18 +14,12 @@
 
 #define DEBUG true
 
-t_sound     *walk;
-t_sound     *wall;
-t_sound     *unbreakableWall;
-t_sound     *bomb;
-t_sound     *item;
-
 /**
  * @brief Kills the bots if they are on the given cell
  * Bots are immuned from other bot's bombs
- * 
- * @param xCell 
- * @param yCell 
+ *
+ * @param xCell
+ * @param yCell
  */
 void    killBots(int xCell, int yCell) {
     t_player        *bot;
@@ -72,7 +66,7 @@ void    injectItems(const t_map *map) {
 
 /**
  * @brief Place the player in his cell instead of a wall..
- * 
+ *
  */
 void    spawnPlayer(int x, int y, t_player *player) {
     const t_game    *game;
@@ -111,14 +105,6 @@ void    pauseGame() {
     g_currentMenu = &menuPause;
 }
 
-void setPath() {
-    walk->file = SOUND_WALK;
-    wall->file = SOUND_WALL;
-    unbreakableWall->file = SOUND_UNBREAKABLE_WALL;
-    //bomb->file = changemeBombPath;
-    //item->file = changemeItemPath;
-    //life->file = changemeLifePath;
-}
 
 t_game* getGame() {
     static t_game*  game;
@@ -134,15 +120,6 @@ t_game* getGame() {
         }
 
         game->map = NULL;
-
-        //TODO
-        walk = malloc(sizeof(t_sound));
-        wall = malloc(sizeof(t_sound));
-        unbreakableWall = malloc(sizeof(t_sound));
-        //bomb = malloc(sizeof(t_sound));
-        //item = malloc(sizeof(t_sound));
-        setPath();
-        ///////////
 
         //TMP max players
         //TODO:
@@ -161,9 +138,6 @@ t_game* getGame() {
         }
 
         game->nbPlayers = 1;
-
-        // setPath for sound
-        setPath();
     }
     return game;
 }
@@ -262,7 +236,7 @@ void    movePlayer(t_player *player) {
         }
     } else if (player->x == 0 && player->vx < 0) {
         // if the player is on the left side of the map and he is moving left then we move him to the right side of the map
-        
+
         // check if the player can be placed on the next cell
         if (GETCELL(game->map->width-1, player->yCell) == EMPTY) {
             // move the player to the other side
@@ -277,7 +251,7 @@ void    movePlayer(t_player *player) {
         }
     } else if (player->y == 0 && player->vy < 0) {
         // if the player is on the top side of the map and he is moving up then we move him to the bottom side of the map
-        
+
         // check if the player can be placed on the next cell
         if (GETCELL(player->xCell, game->map->height-1) == EMPTY) {
             // move the player to the other side
@@ -293,32 +267,8 @@ void    movePlayer(t_player *player) {
             player->y -= player->vy;
             stopped = true;
 
-            if (Mix_PlayingMusic() == 1) {
-                if (!stopSound(wall)) {
-                    #if DEBUG
-                            fprintf(stderr, "Error: can't stop sound\n");
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                    exit(1);
-                }
-            } else if (Mix_PlayingMusic() == 0) {
-                initMusic(wall);
-                if (wall->music == NULL) {
-                    #if DEBUG
-                            fprintf(stderr, "Error loading sound file: %s\n", Mix_GetError());
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
-                    exit(1);
-                }
-                playSound(wall);
-            } else if (Mix_PlayingMusic() == 1) {
-                if (!stopSound(wall)) {
-                    #if DEBUG
-                            fprintf(stderr, "Error: can't stop sound\n");
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                    exit(1);
-                }
+            if (player->wallChannel == -1) {
+                player->wallChannel = playSound(wall);
             }
 
             break;
@@ -333,37 +283,10 @@ void    movePlayer(t_player *player) {
             player->y -= player->vy;
             stopped = true;
 
-            if (Mix_PlayingMusic() == 1) { stopSound(unbreakableWall); }
-
-            if (Mix_PlayingMusic() == 0) {
-                if (walk == NULL) {
-                #if DEBUG
-                        fprintf(stderr, "Error: malloc failed in movePlayer()\n");
-                #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
-                    exit(1);
-                }
-                initMusic(unbreakableWall);
-                if (unbreakableWall->music == NULL) {
-                    #if DEBUG
-                                fprintf(stderr, "Error loading sound in moveplayer(): %s\n", Mix_GetError());
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
-                    exit(1);
-                }
-
-                // TODO: Timer to not play the sound every frame
-                playSound(unbreakableWall);
-
-            } else if (Mix_PlayingMusic() == 1) {
-                if (!stopSound(unbreakableWall)) {
-                    #if DEBUG
-                        fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
-                    #endif
-                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                    exit(1);
-                }
+            if (player->wallChannel == -1) {
+                player->wallChannel = playSound(unbreakableWall);
             }
+
             break;
         case BOMB: {
             // if the bomb is placed by the player then we don't explode it
@@ -478,30 +401,20 @@ void    movePlayer(t_player *player) {
             updateCell(player->xCell, player->yCell, EMPTY);
 
             sprintf(buffer, "LIFE: %hd %d", player->id, player->lives);
+
             sendToAll(buffer, getPlayer()->id);
         } 
             break;
         default:
-            if(isMoving(player)) {
-                if (Mix_PlayingMusic() == 0) {
-                    initMusic(walk);
-                    if (walk->music == NULL) {
-                        #if DEBUG
-                            fprintf(stderr, "Error loading sound : %s\n", Mix_GetError());
-                        #endif
-                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
-                        exit(1);
+            if (!player->isBot) {
+                if (isMoving(player)) {
+                    if (player->walkChannel == -1) {
+                        player->walkChannel = playSoundLoop(walk);
                     }
-                    playSoundLoop(walk);
-                }
-            }else{
-                if(Mix_PlayingMusic() == 1) {
-                    if (!stopSound(walk)) {
-                        #if DEBUG
-                            fprintf(stderr, "Error: stopSound() failed in movePlayer()\n");
-                        #endif
-                        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop sound", g_window);
-                        exit(1);
+                } else {
+                    if (player->walkChannel != -1) {
+                        Mix_HaltChannel(player->walkChannel);
+                        player->walkChannel = -1;
                     }
                 }
             }
@@ -526,7 +439,7 @@ void    movePlayer(t_player *player) {
             case DIR_DOWN:
                 player->vy = -BOT_SPEED;
                 break;
-            
+
             default:
                 break;
         }
@@ -587,6 +500,8 @@ void explodeBomb(int xCell, int yCell, t_player *owner) {
     if (effect) {
         sendEffect(effect);
     }
+
+    playSound(bombExplosion);
 
     printf("cell destroyed at x:%d y:%d\n", xCell, yCell);
 

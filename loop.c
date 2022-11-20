@@ -20,7 +20,6 @@
 extern int              g_currentState;
 extern int              g_serverSocket;
 
-t_sound                *main_music = NULL;
 
 /**
  * @brief Check if we are in the main menu or a sub menu
@@ -28,38 +27,6 @@ t_sound                *main_music = NULL;
  * @return bool
  */
 bool    inMainMenu() {
-    if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
-        if (Mix_PlayingMusic() == 0) {
-            main_music = malloc(sizeof(t_sound));
-            if(main_music == NULL) {
-                #if DEBUG
-                    fprintf(stderr, "Error allocating memory for main_music");
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
-                exit(1);
-            }
-            main_music->file = SOUND_MUSIC_MAIN;
-            initMusic(main_music);
-            if (main_music->music == NULL) {
-                #if DEBUG
-                                fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", Mix_GetError(), g_window);
-                exit(1);
-            }
-            Mix_VolumeMusic(25);
-            playSoundLoop(main_music);
-
-        }
-    }else if(Mix_PlayingMusic() == 1 && main_music->music != NULL) {
-        if (!stopSound(main_music)) {
-            #if DEBUG
-                fprintf(stderr, "Error: Can't open stop the music\n");
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop music", g_window);
-            exit(1);
-        }
-    }
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
@@ -357,6 +324,13 @@ void    handleKeyUp(const SDL_Event *event) {
                 if (g_currentState == GAME_MAINMENU_PLAY) {
                     selectMap(1);
                 }
+                break;
+            case SDLK_o:
+                playSound(bombExplosion);
+                break;
+            case SDLK_p:
+                playSound(hurt);
+
                 break;
             default:
                 break;

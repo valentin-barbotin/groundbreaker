@@ -53,6 +53,10 @@
      unsigned short  maxBombs;
      t_bomb          *bombs[MAX_BOMBS];
      bool            bombPlaced;
+     int             lastBombX;
+     int             lastBombY;
+     int             walkChannel; //sound
+     int             wallChannel; //sound
  }                  t_player;
 
  char            *getUsername();

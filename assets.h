@@ -25,9 +25,11 @@
 
  #define TEX_BOMB_EXPLOSION          "./assets/bomb_sprite.png"
 
- #define SOUND_UNBREAKABLE_WALL      "./assets/sound/unbreakable_wall.ogg"
- #define SOUND_MUSIC_MAIN            "./assets/sound/main_music.ogg"
- #define SOUND_WALK                  "./assets/sound/walk.ogg"
- #define SOUND_WALL                  "./assets/sound/wall.ogg"
+ #define SOUND_UNBREAKABLE_WALL      "./assets/sound/unbreakable_wall.wav"
+ #define SOUND_MUSIC_MAIN            "./assets/sound/main_music.wav"
+ #define SOUND_WALK                  "./assets/sound/walk.wav"
+ #define SOUND_WALL                  "./assets/sound/wall.wav"
+ #define SOUND_EXPLODE_BOMB          "./assets/sound/explode_bomb.wav"
+ #define SOUND_HURT                 "./assets/sound/classic_hurt.wav"
 
 #endif
