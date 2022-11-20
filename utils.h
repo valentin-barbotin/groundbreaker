@@ -31,5 +31,6 @@
  size_t              receiveMsg(char *buffer, int socket);
  bool                checkUsername();
  void                receiveMove(const char *content);
+ bool                hostToAddr(const char *host, in_addr_t *in_addr);
 
 #endif /* !FOO_H */
