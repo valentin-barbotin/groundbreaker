@@ -5,8 +5,29 @@
 #include "settings.h"
 #include "dialog.h"
 #include "config.h"
+#include "loop.h"
 
 #define DEBUG true
+
+t_command    getActionFor(SDL_KeyCode key) {
+    printf("1 %d %c\n", key, key);
+    if (gameConfig->commands.up == key) return ACTION_KEY_UP;
+    if (gameConfig->commands.down == key) return ACTION_KEY_DOWN;
+    if (gameConfig->commands.left == key) return ACTION_KEY_LEFT;
+    if (gameConfig->commands.right == key) return ACTION_KEY_RIGHT;
+    if (gameConfig->commands.use_item == key) return ACTION_KEY_USE_ITEM;
+    if (gameConfig->commands.item_1 == key) return ACTION_KEY_ITEM_1;
+    if (gameConfig->commands.item_2 == key) return ACTION_KEY_ITEM_2;
+    if (gameConfig->commands.item_3 == key) return ACTION_KEY_ITEM_3;
+    if (gameConfig->commands.item_4 == key) return ACTION_KEY_ITEM_4;
+    if (gameConfig->commands.item_5 == key) return ACTION_KEY_ITEM_5;
+    if (gameConfig->commands.item_6 == key) return ACTION_KEY_ITEM_6;
+    if (gameConfig->commands.item_7 == key) return ACTION_KEY_ITEM_7;
+    if (gameConfig->commands.item_8 == key) return ACTION_KEY_ITEM_8;
+    if (gameConfig->commands.item_9 == key) return ACTION_KEY_ITEM_9;
+
+    return ACTION_OTHER;
+}
 
 void    editSettingCallback() {
     const t_dialog  *dialog;

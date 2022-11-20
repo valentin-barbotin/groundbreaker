@@ -26,6 +26,25 @@
  extern t_sound     *item;
  extern t_sound     *hurt;
 
+ typedef enum       e_command
+ {
+     ACTION_OTHER,
+     ACTION_KEY_UP,
+     ACTION_KEY_DOWN,
+     ACTION_KEY_LEFT,
+     ACTION_KEY_RIGHT,
+     ACTION_KEY_USE_ITEM,
+     ACTION_KEY_ITEM_1,
+     ACTION_KEY_ITEM_2,
+     ACTION_KEY_ITEM_3,
+     ACTION_KEY_ITEM_4,
+     ACTION_KEY_ITEM_5,
+     ACTION_KEY_ITEM_6,
+     ACTION_KEY_ITEM_7,
+     ACTION_KEY_ITEM_8,
+     ACTION_KEY_ITEM_9,
+ }                  t_command;
+
 
  bool   inMainMenu();
  void   makeSelection(unsigned short);
