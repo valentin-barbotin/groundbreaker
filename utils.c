@@ -17,7 +17,7 @@
 #include "player.h"
 #include "client.h"
 
-#define DEBUG true
+#define DEBUG false
 
 /**
  * Description
@@ -39,10 +39,10 @@ char   *randomString(unsigned short size) {
 
     str = malloc(sizeof(char) * size + 1);
     if (str == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -106,10 +106,10 @@ char* readFile(const char* src) {
     rewind(fd);
     char* data = malloc(size);
     if (data == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error allocating memory for cache");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
         exit(1);
     }
 
@@ -161,13 +161,13 @@ SDL_Texture* textureFromFile(const char* src) {
  * @param char* suffix to remove
  * @return char* suffix position in src
  */
-char* removeSuffix(const char* src, char* suffix) {
+char* removeSuffix(const char *src, const char *suffix) {
     char *pos = strstr(src, suffix);
     if (pos == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Error removing suffix from string");
         #endif
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "String error", g_window);
         exit(1);
     }
     *pos = '\0';
@@ -376,7 +376,7 @@ bool    checkUsername() {
         puts("Creating dialog");
         dialog = getEditBox();
         if (dialog->text == NULL) {
-            createEditBox("Enter your name", 20, (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255});
+            createEditBox("Enter your name", 20, colorWhite, colorBlack);
             dialog->callback = askUsernameCallback;
         }
         return false;
@@ -388,17 +388,19 @@ bool    checkUsername() {
 void    receiveMove(const char *content) {
     int             x;
     int             y;
+    int             xCell;
+    int             yCell;
     short           playerIndex;
     t_player        *player;
     unsigned short  direction; // t_direction
 
-    sscanf(content, "%d %d %hu %hu", &x, &y, &direction, &playerIndex);
+    sscanf(content, "%d %d %d %d %hu %hu", &x, &y, &xCell, &yCell, &direction, &playerIndex);
 
     player = getGame()->players[playerIndex];
     // //TODO: hashmap to get player by name
 
     if (player == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid player id");
         #endif
         return;
@@ -406,6 +408,11 @@ void    receiveMove(const char *content) {
 
     player->x = x;
     player->y = y;
+    player->xCell = xCell;
+    player->yCell = yCell;
+    //TODO: remove x and y, use cells instead (differents for each player)
+    //TMP
+    posToGrid(player);
     player->direction = direction;
 
     // printf("Player %hu moved to %d %d\n", playerIndex, x, y);

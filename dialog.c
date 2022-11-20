@@ -44,10 +44,10 @@ t_dialog    *getEditBox() {
     if (dialog == NULL) {
         dialog = malloc(sizeof(t_dialog));
         if (dialog == NULL) {
-            #ifdef DEBUG
+            #if DEBUG
                 fprintf(stderr, "Error allocating memory for dialog");
             #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
             exit(1);
         }
 
@@ -123,7 +123,7 @@ void    handleKeyUpDialog(const SDL_Event *event) {
             break;
         case SDLK_RETURN:
             if (dialog->callback != NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     puts("CALLBACK");
                 #endif
                 dialog->callback(dialog->edit);

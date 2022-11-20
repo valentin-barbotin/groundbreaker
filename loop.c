@@ -20,7 +20,6 @@
 extern int              g_currentState;
 extern int              g_serverSocket;
 
-t_sound                *main_music = NULL;
 
 /**
  * @brief Check if we are in the main menu or a sub menu
@@ -28,38 +27,6 @@ t_sound                *main_music = NULL;
  * @return bool
  */
 bool    inMainMenu() {
-    if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
-        if (Mix_PlayingMusic() == 0) {
-            main_music = malloc(sizeof(t_sound));
-            if(main_music == NULL) {
-                #ifdef DEBUG
-                    fprintf(stderr, "Error allocating memory for main_music");
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-                exit(1);
-            }
-            main_music->file = SOUND_MUSIC_MAIN;
-            initMusic(main_music);
-            if (main_music->music == NULL) {
-                #ifdef DEBUG
-                                fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-                exit(1);
-            }
-            Mix_VolumeMusic(25);
-            playSoundLoop(main_music);
-
-        }
-    }else if(Mix_PlayingMusic() == 1 && main_music->music != NULL) {
-        if (!stopSound(main_music)) {
-            #ifdef DEBUG
-                fprintf(stderr, "Error: Can't open stop the music\n");
-            #endif
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
-            exit(1);
-        }
-    }
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
 
@@ -96,11 +63,11 @@ void    handleMouseButtonUp(const SDL_Event *event) {
     }
 }
 
-void    handleKeyDown(const SDL_Event *event) {
+void    handleKeyDown(const SDL_KeyboardEvent *event) {
     t_dialog *dialog = getEditBox();
 
     if (dialog->active) {
-        switch (event->key.keysym.sym)
+        switch (event->keysym.sym)
         {
            case SDLK_BACKSPACE:
                 if (dialog->edit[0] != '\0') {
@@ -166,12 +133,16 @@ void    handleKeyUp(const SDL_Event *event) {
     }
 
     if (inMainMenu() || isGamePaused()) {
+        const t_player      *player;
+        player = getPlayer();
+
         short index = -1;
         switch (event->key.keysym.sym) {
             case SDLK_ESCAPE:
                 g_currentState = (g_currentState == GAME_MAINMENU_PLAY) ? GAME_MAINMENU : GAME_EXIT;
                 break;
             case SDLK_RETURN:
+
                 switch (g_currentState)
                 {
                     case GAME_MAINMENU_PLAY:
@@ -239,15 +210,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows--;
-                                if (g_lobby->rows < 1) {
-                                    g_lobby->rows = 1;
+                                g_lobby->rows -= 2;
+                                if (g_lobby->rows < 3) {
+                                    g_lobby->rows = 3;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns--;
-                                if (g_lobby->columns < 1) {
-                                    g_lobby->columns = 1;
+                                g_lobby->columns -= 2;
+                                if (g_lobby->columns < 3) {
+                                    g_lobby->columns = 3;
                                 }
                                 break;
                             case 2:
@@ -274,15 +245,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         switch (g_currentOption)
                         {
                             case 0:
-                                g_lobby->rows++;
-                                if (g_lobby->rows > 10) {
-                                    g_lobby->rows = 10;
+                                g_lobby->rows += 2;
+                                if (g_lobby->rows > 9) {
+                                    g_lobby->rows = 9;
                                 }
                                 break;
                             case 1:
-                                g_lobby->columns++;
-                                if (g_lobby->columns > 10) {
-                                    g_lobby->columns = 10;
+                                g_lobby->columns += 2;
+                                if (g_lobby->columns > 9) {
+                                    g_lobby->columns = 9;
                                 }
                                 break;
                             case 2:
@@ -353,6 +324,13 @@ void    handleKeyUp(const SDL_Event *event) {
                 if (g_currentState == GAME_MAINMENU_PLAY) {
                     selectMap(1);
                 }
+                break;
+            case SDLK_o:
+                playSound(bombExplosion);
+                break;
+            case SDLK_p:
+                playSound(hurt);
+
                 break;
             default:
                 break;

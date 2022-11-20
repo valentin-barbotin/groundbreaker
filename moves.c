@@ -3,6 +3,9 @@
 #include "moves.h"
 #include "player.h"
 #include "tchat.h"
+#include "inventory.h"
+#include "loop.h"
+#include "settings.h"
 
 #define DEBUG true
 
@@ -12,22 +15,33 @@ void    handleKeyDownPlay(const SDL_Event *event) {
     player = getPlayer();
 
      if (event->key.repeat == 0) {
-        switch (event->key.keysym.sym) {
-            case SDLK_UP:
+
+        switch (getActionFor(event->key.keysym.sym)) {
+            case ACTION_KEY_UP:
                 player->vy -= VELOCITY;
                 break;
-            case SDLK_DOWN:
+            case ACTION_KEY_DOWN:
                 player->vy += VELOCITY;
                 break;
-            case SDLK_LEFT:
+            case ACTION_KEY_LEFT:
                 player->vx -= VELOCITY;
                 break;
-            case SDLK_RIGHT:
+            case ACTION_KEY_RIGHT:
                 player->vx += VELOCITY;
                 break;
-            default:
-                break;
         }
+    }
+    
+    if (player->vx < -VELOCITY) {
+        player->vx = -VELOCITY;
+    } else if (player->vx > VELOCITY) {
+        player->vx = VELOCITY;
+    }
+
+    if (player->vy < -VELOCITY) {
+        player->vy = -VELOCITY;
+    } else if (player->vy > VELOCITY) {
+        player->vy = VELOCITY;
     }
 }
 void    handleKeyUpPlay(const SDL_Event *event) {
@@ -35,36 +49,62 @@ void    handleKeyUpPlay(const SDL_Event *event) {
 
     player = getPlayer();
 
-    puts("key up 2");
-
     if (!isGamePaused()) {
+        // disable keys if player is dead (spectator mode or waiting for respawn)
+        if (!player->health) return;
+
         printf("11 %d\n", (event->key.keysym.sym));
         if (event->key.repeat == 0) {
-            switch (event->key.keysym.sym) {
-                case SDLK_ESCAPE:
-                    puts("pause");
-                    pauseGame();
-                case SDLK_UP:
+
+            switch (getActionFor(event->key.keysym.sym))
+            {
+                case ACTION_KEY_USE_ITEM:
+                    useItem(player->inventory[player->selectedSlot]);
+                    break;
+                case ACTION_KEY_UP:
                     player->vy += VELOCITY;
                     break;
-                case SDLK_DOWN:
+                case ACTION_KEY_DOWN:
                     player->vy -= VELOCITY;
                     break;
-                case SDLK_LEFT:
+                case ACTION_KEY_LEFT:
                     player->vx += VELOCITY;
                     break;
-                case SDLK_RIGHT:
+                case ACTION_KEY_RIGHT:
                     player->vx -= VELOCITY;
                     break;
                 case SDLK_t:
                     askTchatMessage();
                     break;
+                case ACTION_KEY_ITEM_1:
+                    player->selectedSlot = 0;
+                    drawSelectedItem();
+                    break;
+                case ACTION_KEY_ITEM_2:
+                    player->selectedSlot = 1;
+                    drawSelectedItem();
+                    break;
+                case ACTION_KEY_ITEM_3:
+                    player->selectedSlot = 2;
+                    drawSelectedItem();
+                    break;
+                case ACTION_KEY_ITEM_4:
+                    player->selectedSlot = 3;
+                    drawSelectedItem();
+                    break;
+                case ACTION_KEY_ITEM_5:
+                    player->selectedSlot = 4;
+                    drawSelectedItem();
+                    break;
                 default:
                     break;
             }
+
+            if (event->key.keysym.sym == SDLK_ESCAPE) {
+                pauseGame();
+            }
         }
     } else {
-        printf("22 %d\n", (event->key.keysym.sym));
         if (event->key.repeat == 0) {
             switch (event->key.keysym.sym) {
                 case SDLK_ESCAPE:
@@ -84,7 +124,6 @@ void    handleKeyUpPlay(const SDL_Event *event) {
         doSendPos(player);
     }
 }
-
 
 void    checkBorders() {
     t_player    *player;

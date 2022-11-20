@@ -7,6 +7,8 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
+#include <pthread.h>
+
 #include "config.h"
 #include "cache.h"
 #include "utils.h"
@@ -19,13 +21,37 @@
 #include "game.h"
 #include "moves.h"
 #include "dialog.h"
+#include "effects.h"
+
+#include "discord.h"
 
 #define FPS_MAX 60
 #define TICKS_PER_FRAME 1000 / FPS_MAX
 extern t_gameConfig    *gameConfig;
 extern void    assignMenuParents();
+extern t_player         *g_bots[MAX_BOTS];
+extern short            g_nbBots;
+extern t_discord_app    *g_app_discord;
+extern Mix_Music        *music;
 
 #define DEBUG true
+
+SDL_Color colorWhite = {255, 255, 255, 255};
+SDL_Color colorBlack = {0, 0, 0, 255};
+SDL_Color colorRed = {255, 0, 0, 255};
+SDL_Color colorGreen = {0, 255, 0, 255};
+SDL_Color colorBlue = {0, 0, 255, 255};
+SDL_Color colorYellow = {255, 255, 0, 255};
+SDL_Color colorCyan = {0, 255, 255, 255};
+SDL_Color colorMagenta = {255, 0, 255, 255};
+SDL_Color colorOrange = {255, 165, 0, 255};
+SDL_Color colorPurple = {128, 0, 128, 255};
+SDL_Color colorBrown = {165, 42, 42, 255};
+SDL_Color colorGray = {128, 128, 128, 255};
+SDL_Color colorLightGray = {128, 128, 128, 128};
+SDL_Color colorDarkGray = {169, 169, 169, 255};
+SDL_Color colorPink = {255, 192, 203, 255};
+SDL_Color colorTransparent = {0, 0, 0, 0};
 
 SDL_Window*     g_window = NULL;
 SDL_Renderer*   g_renderer = NULL;
@@ -37,8 +63,8 @@ int             g_currentState;
  * @return {void}
 */
 void setupSDL() {
-    if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO )) {
-        #ifdef DEBUG
+    if (0 != SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER )) {
+        #if DEBUG
 		    fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         #endif
         exit(EXIT_FAILURE);
@@ -47,7 +73,7 @@ void setupSDL() {
     // init sdl2_ttf
     if (TTF_Init() == -1)
 	{
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "TTF_Init: %s", TTF_GetError());
         #endif
 		exit(EXIT_FAILURE);
@@ -75,6 +101,9 @@ int main(int argc, char **argv)
 
     // init SDL
     setupSDL();
+
+    loadSounds();
+
     windowWidth = config.video.width;
     windowHeight = config.video.height;
 
@@ -94,8 +123,6 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-
-
     // window limits, i3
     SDL_Rect windowLimits = {0, 0, windowWidth, windowHeight};
 
@@ -103,10 +130,11 @@ int main(int argc, char **argv)
 
     SDL_RaiseWindow(g_window);
 
-    SDL_Color windowLimitsColor = { 255, 255, 0, 255 };
-    SDL_Color blackColor = { 0, 0, 0, 255 };
 
     g_currentState = GAME_MAINMENU;
+
+    pthread_t       th;
+    pthread_create(&th, NULL, &setupDiscord, "");
 
     int running = 1;
     SDL_Event event;
@@ -153,22 +181,47 @@ int main(int argc, char **argv)
         }
         SDL_RenderClear(g_renderer);
 
-       
-        pickColor(&blackColor);
+        pickColor(&colorBlack);
 
         if (inMainMenu()) {
+
+            if (!Mix_PlayingMusic() && !Mix_PlayMusic(music, -1)) {
+                fprintf(stderr, "Mix_PlayMusic: %s", Mix_GetError());
+            }
+            
             // No need to render at 1000 fps
             setupMenu();
             SDL_Delay(30);
         } else if (inGame())
         {
+            if (Mix_PlayingMusic()) {
+                Mix_HaltMusic();
+            }
+
             drawMap();
+            drawEffects();
 
             if (isGamePaused()) {
                 setupMenu();
                 SDL_Delay(30);
+
             } else {
-                movePlayer();
+                // move bots
+                for (size_t i = 0; i < g_nbBots; i++)
+                {
+                    if (g_nbBots && g_bots[i]->health) {
+                        movePlayer(g_bots[i]);
+                        // bots try to place bombs
+                        //TODO: difficulty
+                        int r = rand() % 10000;
+                        // printf("r = %d\n", r);
+                        if (g_nbBots && !g_bots[i]->bombPlaced && (r < 20)) { // 0.02% chance
+                            placeBomb(g_bots[i]->xCell, g_bots[i]->yCell, g_bots[i]);
+                        }
+                    }
+                }
+
+                movePlayer(getPlayer());
             }
         }
 
@@ -176,9 +229,9 @@ int main(int argc, char **argv)
             displayEditBox();
         }
 
-        pickColor(&windowLimitsColor);
+        pickColor(&colorRed);
         SDL_RenderDrawRect(g_renderer, &windowLimits);
-        pickColor(&blackColor);
+        pickColor(&colorBlack);
 
         SDL_RenderPresent(g_renderer);
 

@@ -4,6 +4,7 @@
  #include <SDL.h>
  
  #include "game.h"
+ #include "colors.h"
 
  extern t_gameConfig    *gameConfig;
 

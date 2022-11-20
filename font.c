@@ -20,7 +20,7 @@ void    loadFont(const char* fontPath, const int size) {
     }
     g_font = TTF_OpenFont(fontPath, size);
     if (g_font == NULL) {
-        fprintf(stderr, "Error TTF_OpenFont : %s", TTF_GetError());
+        fprintf(stderr, "Error TTF_OpenFont : %s\n", TTF_GetError());
         return;
     }
 }
@@ -85,7 +85,7 @@ void            drawText(const SDL_Color *color, const unsigned int x, const uns
     tex = getTextureFromString(text, color, max2 ? &max2 : NULL);
     op = SDL_QueryTexture(tex, NULL, NULL, &textWidth, &textHeight);
     if (op != 0) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Erreur SDL_QueryTexture : %s\n", SDL_GetError());
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);
@@ -99,7 +99,7 @@ void            drawText(const SDL_Color *color, const unsigned int x, const uns
 
     op = SDL_RenderCopy(g_renderer, tex, NULL, &target);
     if (op < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             fprintf(stderr, "Erreur SDL_RenderCopy : %s\n", SDL_GetError());
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", SDL_GetError(), g_window);

@@ -18,11 +18,12 @@
 #include "player.h"
 #include "game.h"
 #include "tchat.h"
+#include "effects.h"
 
-#define DEBUG true
+#define DEBUG false
 
-pthread_t           g_clientThread = NULL;
-pthread_t           g_clientThreadUDP = NULL;
+pthread_t           g_clientThread = 0;
+pthread_t           g_clientThreadUDP = 0;
 int                 g_serverSocket = 0;
 int                 g_serverSocketUDP = 0;
 struct sockaddr_in  *g_serverAddrUDP = NULL;
@@ -30,17 +31,17 @@ struct sockaddr_in  *g_serverAddrUDP = NULL;
 
 t_serverConfig g_serverConfig;
 
-void    broadcastMsg(const char *msg) {
+void    broadcastMsg(const char *msg, int except) {
     char    buffer[1024];
 
-    sprintf(buffer, "BROADCAST:%s", msg);
+    sprintf(buffer, "BROADCAST:%d %s", except, msg);
     sendMsg(buffer, g_serverSocket);
 }
 
-void    broadcastMsgUDP(const char *msg) {
+void    broadcastMsgUDP(const char *msg, short except) {
     char    buffer[1024];
 
-    sprintf(buffer, "BROADCAST:%s", msg);
+    sprintf(buffer, "BROADCAST:%d %s", except, msg);
     sendMsgUDP(buffer, g_serverSocketUDP, g_serverAddrUDP);
 }
 
@@ -52,16 +53,14 @@ void    broadcastMsgUDP(const char *msg) {
  * @param server 
  * @param sockaddr 
  */
-void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in  *sockaddr) {
+void    handleMessageClient(const char  *buffer, int server, const struct sockaddr_in  *sockaddr) {
     char        *pos;
     char        type[128];
     char        *content;
-    t_message   action;
-    t_game      *game;
 
     pos = strchr(buffer, ':');
     if (pos == NULL) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid message (: client)");
             exit(1);
         #endif
@@ -73,9 +72,17 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
     strcpy(type, buffer);
 
     content = pos;
-    #ifdef DEBUG
+    #if DEBUG
         printf("type: %s, msg: [%s]\n", type, content);
     #endif
+
+    handleMessageClient2(type, content);
+}
+
+void    handleMessageClient2(char *type, char *content) {
+    t_player    *player;
+    t_game      *game;
+    t_message   action;
 
     if (stringIsEqual(type, "JOIN")) {
         action = JOIN;
@@ -93,26 +100,64 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
         action = PLAYERDAT;
     } else if (stringIsEqual(type, "TCHAT")) {
         action = TCHAT;
+    } else if (stringIsEqual(type, "CELL")) {
+        action = CELL;
+    } else if (stringIsEqual(type, "EFFECT")) {
+        action = EFFECT;
+    } else if (stringIsEqual(type, "DAMAGE")) {
+        action = DAMAGE;
+    } else if (stringIsEqual(type, "RESPAWN")) {
+        action = RESPAWN;
+    } else if (stringIsEqual(type, "LIFE")) {
+        action = LIFE;
+    } else if (stringIsEqual(type, "END")) {
+        action = END;
     } else {
-        #ifdef DEBUG
+        #if DEBUG
             puts("Invalid message type");
         #endif
     }
 
-    t_player    *player;
     game = getGame();
     switch (action)
     {
+        case END:
+            receiveEndGame(content);
+            break;
+        case CELL:
+            cellUpdate(content);
+            break;
+        case LIFE:
+            receiveLife(content);
+            break;
+        case EFFECT:
+            receiveEffect(content);
+            break;
         case MOVE:
             receiveMove(content);
             break;
+        case RESPAWN: {
+            short       id;
+            int         xCell;
+            int         yCell;
+
+            sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
+            player = game->players[id];
+
+            player->health = 100;    
+        }
+            break;
+        case DAMAGE: {
+            receiveDamage(content);
+        }
+            break;
         case START: {
             //launch game
-            unsigned short h;
-            unsigned short w;
-            unsigned short players;
-            t_map          *map;
-            char           *ptr;
+            unsigned short  h;
+            unsigned short  w;
+            unsigned short  players;
+            t_map           *map;
+            const char      *ptr;
             sscanf(content, "%hu %hu %hu $", &h, &w, &players);
             printf("h: %hu, w: %hu, nb: %hu\n", h, w, players);
 
@@ -123,28 +168,35 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
 
             ptr = strchr(content, '$');
             if (ptr == NULL) {
-                #ifdef DEBUG
+                #if DEBUG
                     puts("Invalid message ($ client)");
                     exit(1);
                 #endif
-                return;
             }
             ptr++;
+            if (game->map != NULL) {
+                map_destroy(game->map);
+            }
 
             map = map_create(w, h);
             // note: players
 
             for (int i = 0; i < h; i++) {
-                strncat(map->map[i], ptr + w * i, w);
+                strncpy(map->map[i], ptr + w * i, w);
             }
 
             game->map = map;
             // amount of players
             game->map->players = players; //TODO
 
-            game->nbPlayers = 0;
+            game->nbPlayers = players;
 
-            printf("(init) spawned player at %d, %d\n", game->players[g_playersMultiIndex]->xCell, game->players[g_playersMultiIndex]->yCell);
+            for (size_t i = 0; i < players; i++)
+            {
+                player = game->players[i];
+                printf("(init) spawned player %s at %d, %d\n", player->name, player->xCell, player->yCell);
+                spawnPlayer(player->xCell, player->yCell, player);
+            }
             
             g_currentState = GAME_PLAY_PLAYING;
         }
@@ -179,6 +231,7 @@ void    handleMessageClient(char  *buffer, int server, const struct sockaddr_in 
             player->xCell = xCell;
             player->yCell = yCell;
             player->direction = DIR_IDLE;
+            player->id = n;
 
             printf("player[%hu] %s at %d, %d\n", n, player->name, player->xCell, player->yCell);
 
@@ -201,7 +254,7 @@ void    askUsernameCallback() {
     //TODO: check if host is valid
 
     if (strlen(getEditBox()->edit) == 0) {
-        #ifdef DEBUG
+        #if DEBUG
             puts("No username entered");
         #endif
         return;
@@ -262,8 +315,8 @@ void    askServerPortCallback() {
 
 void    joinServer() {
     bool    valid = false;
-    if (g_clientThread != NULL) {
-        #ifdef DEBUG
+    if (g_clientThread != 0) {
+        #if DEBUG
             puts("Client already running");
         #endif
         return;
@@ -272,7 +325,7 @@ void    joinServer() {
     valid = checkUsername();
     if (!valid) return;
 
-    createEditBox("", 20, (SDL_Color) {0, 255, 0, 255}, (SDL_Color) {255, 255, 255, 255});
+    createEditBox("", 20, colorGreen, colorWhite);
     SDL_StartTextInput();
     askServerHost();
 }
@@ -285,10 +338,11 @@ void    joinServer() {
 void    *connectToServer(void *arg) {
     struct sockaddr_in  cl;
     char                buffer[1024];
-    char                *ptr = NULL;
+    const char          *ptr;
     size_t              total;
     size_t              len;
 
+    ptr = NULL;
     // thread does not need to be joined
     pthread_detach(pthread_self());
 
@@ -304,23 +358,23 @@ void    *connectToServer(void *arg) {
 
     int res = connect(g_serverSocket, (struct sockaddr *)&cl, sizeof(cl));
     if (res < 0) {
-        #ifdef DEBUG
+        #if DEBUG
             perror("Error connecting to server");
             fprintf(stderr, "Error connecting to server: %s", strerror(res));
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
-        g_clientThread = NULL;
+        g_clientThread = 0;
         return NULL;
     }
 
     puts("Connected to server");
 
-    sprintf(buffer, "JOIN:%s%c", g_username, '\0');
+    sprintf(buffer, "JOIN:%s", g_username);
     sendMsg(buffer, g_serverSocket);
     do
     {
         // receive message from client, wait if no message
-        #ifdef DEBUG
+        #if DEBUG
             puts("Waiting for message from server");
         #endif
 
@@ -338,11 +392,13 @@ void    *connectToServer(void *arg) {
         {
             ptr = buffer + len;
             len += (strlen(ptr) + 1);
+            // printf("ptr: char:%d %s\n", *ptr, ptr);
+            // printf("len: %lu, total: %lu\n", len, total);
 
             handleMessageClient(ptr, g_serverSocket, NULL);
 
         } while (len != total);
-        
+        // printf("len == total, %lu  %lu\n", len, total);
 
         memset(buffer, 0, 1024);
     } while (true);
@@ -374,20 +430,9 @@ void    *connectToServerUDP(void *arg) {
 
     g_serverAddrUDP = &cl;
 
-    // int res = connect(g_serverSocketUDP, (struct sockaddr *)&cl, sizeof(cl));
-    // if (res < 0) {
-    //     #ifdef DEBUG
-    //         perror("(UDP) Error connecting to server");
-    //         fprintf(stderr, "(UDP) Error connecting to server: %s", strerror(res));
-    //     #endif
-    //     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "Can't connect to server", g_window);
-    //     g_clientThreadUDP = NULL;
-    //     return NULL;
-    // }
-
     puts("(UDP) Connected to server");
 
-    sprintf(buffer, "MYNAME:%s%c", g_username, '\0');
+    sprintf(buffer, "MYNAME:%s", g_username);
     sendMsgUDP(buffer, g_serverSocketUDP, &cl);
     memset(buffer, 0, 1024);
 
@@ -396,7 +441,7 @@ void    *connectToServerUDP(void *arg) {
         struct sockaddr_in  sockaddr;
 
         // receive message from client, wait if no message
-        #ifdef DEBUG
+        #if DEBUG
             puts("Waiting for message from server");
         #endif
 
@@ -423,4 +468,21 @@ void    *connectToServerUDP(void *arg) {
 
         memset(buffer, 0, 1024);
     } while (true);
+}
+
+
+void    updateCell(unsigned short xCell, unsigned short yCell, t_type type) {
+    if (!inMultiplayer()) return;
+    char    buffer[1024];
+
+    sprintf(buffer, "CELL:%hu %hu %u", xCell, yCell, type);
+    sendToAll(buffer, getPlayer()->id); //TODO: check except
+}
+
+void    sendEffect(const t_effect *effect) {
+    if (!inMultiplayer()) return;
+    char    buffer[1024];
+    
+    sprintf(buffer, "EFFECT:%d %d %d", effect->xCell, effect->yCell, effect->type);
+    sendToAll(buffer, getPlayer()->id);
 }

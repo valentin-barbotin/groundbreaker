@@ -4,6 +4,7 @@
  #include <SDL.h>
  #include <SDL_ttf.h>
 
+ #include "colors.h"
  #include "lobby.h"
 
  extern SDL_Window*     g_window;
