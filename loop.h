@@ -39,10 +39,6 @@
      ACTION_KEY_ITEM_3,
      ACTION_KEY_ITEM_4,
      ACTION_KEY_ITEM_5,
-     ACTION_KEY_ITEM_6,
-     ACTION_KEY_ITEM_7,
-     ACTION_KEY_ITEM_8,
-     ACTION_KEY_ITEM_9,
  }                  t_command;
 
 

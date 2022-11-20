@@ -42,25 +42,14 @@ void    exitGame() {
     g_currentState = GAME_EXIT;
 }
 
-
-t_menu menuCommands3 = {
-    "Commands 3",
-    {"Item 8", "Item 9", "Back"},
-    {&editItem8, &editItem9, &exitMenu},
-    NULL,
-    {NULL, NULL, NULL},
-    0,
-    3
-};
-
 t_menu menuCommands2 = {
     "Commands 2",
-    {"Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Next", "Back"},
-    {&editItem2, &editItem3, &editItem4, &editItem5, &editItem6, &editItem7, NULL, &exitMenu},
+    {"Item 2", "Item 3", "Item 4", "Item 5", "Back"},
+    {&editItem2, &editItem3, &editItem4, &editItem5, &exitMenu},
     NULL,
-    {NULL, NULL, NULL, NULL, NULL, NULL, &menuCommands3, NULL},
+    {NULL, NULL, NULL, NULL, NULL},
     0,
-    8
+    5
 };
 
 t_menu menuCommands1 = {
@@ -377,7 +366,7 @@ void    exitMenu() {
 void    assignMenuParents() {
     menuVideo.parent = &menuSettings;
     menuAudio.parent = &menuSettings;
-    menuCommands3.parent = &menuCommands2;
+    // menuCommands3.parent = &menuCommands2;
     menuCommands2.parent = &menuCommands1;
     menuCommands1.parent = &menuSettings;
 

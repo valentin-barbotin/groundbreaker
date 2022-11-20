@@ -26,10 +26,6 @@
      SETTING_CONTROLS_ITEM_3,
      SETTING_CONTROLS_ITEM_4,
      SETTING_CONTROLS_ITEM_5,
-     SETTING_CONTROLS_ITEM_6,
-     SETTING_CONTROLS_ITEM_7,
-     SETTING_CONTROLS_ITEM_8,
-     SETTING_CONTROLS_ITEM_9,
  }               t_settings;
 
  typedef enum    e_keys
@@ -44,10 +40,6 @@
         KEY_ITEM_3,
         KEY_ITEM_4,
         KEY_ITEM_5,
-        KEY_ITEM_6,
-        KEY_ITEM_7,
-        KEY_ITEM_8,
-        KEY_ITEM_9,
  }               t_keys;
  
  t_command    getActionFor(SDL_KeyCode key);

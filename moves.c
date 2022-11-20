@@ -92,22 +92,6 @@ void    handleKeyUpPlay(const SDL_Event *event) {
                     player->selectedSlot = 4;
                     drawSelectedItem();
                     break;
-                case ACTION_KEY_ITEM_6:
-                    player->selectedSlot = 5;
-                    drawSelectedItem();
-                    break;
-                case ACTION_KEY_ITEM_7:
-                    player->selectedSlot = 6;
-                    drawSelectedItem();
-                    break;
-                case ACTION_KEY_ITEM_8:
-                    player->selectedSlot = 7;
-                    drawSelectedItem();
-                    break;
-                case ACTION_KEY_ITEM_9:
-                    player->selectedSlot = 8;
-                    drawSelectedItem();
-                    break;
                 default:
                     break;
             }
