@@ -175,6 +175,7 @@ void    movePlayer(t_player *player) {
     const t_map     *map;
     bool            stopped;
     char            currentCell;
+    char            nextCell;
 
     game = getGame();
     map = game->map;
@@ -230,7 +231,8 @@ void    movePlayer(t_player *player) {
 
     //if the player is moving out of the map then we move him at the other side if possible
     if (player->x >= (gameConfig->video.width - PLAYER_WIDTH/2)) {
-        if(GETCELL(0, player->yCell) == EMPTY) {
+        nextCell = GETCELL(0, player->yCell);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->x = 0;
         }
@@ -238,14 +240,16 @@ void    movePlayer(t_player *player) {
         // if the player is on the left side of the map and he is moving left then we move him to the right side of the map
 
         // check if the player can be placed on the next cell
-        if (GETCELL(game->map->width-1, player->yCell) == EMPTY) {
+        nextCell = GETCELL(game->map->width-1, player->yCell);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->x = gameConfig->video.width - PLAYER_WIDTH/2;
         }
     }
 
     if (player->y >= (gameConfig->video.height - PLAYER_HEIGHT/2)) {
-        if (GETCELL(player->xCell, 0) == EMPTY) {
+        nextCell = GETCELL(player->xCell, 0);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->y = 0;
         }
@@ -253,7 +257,8 @@ void    movePlayer(t_player *player) {
         // if the player is on the top side of the map and he is moving up then we move him to the bottom side of the map
 
         // check if the player can be placed on the next cell
-        if (GETCELL(player->xCell, game->map->height-1) == EMPTY) {
+        nextCell = GETCELL(player->xCell, game->map->height-1);
+        if (canMoveOnNextCell(nextCell)) {
             // move the player to the other side
             player->y = gameConfig->video.height - PLAYER_HEIGHT/2;
         }

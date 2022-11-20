@@ -532,3 +532,29 @@ void    spawnRandomItem(int xCell, int yCell) {
         updateCell(xCell, yCell, EMPTY);
     }
 }
+
+
+bool    canMoveOnNextCell(char cell) {
+    switch (cell)
+    {
+        case ITEM_BOMB:
+        case ITEM_BOMB_UP:
+        case ITEM_BOMB_DOWN:
+        case ITEM_YELLOW_FLAME:
+        case ITEM_BLUE_FLAME:
+        case ITEM_RED_FLAME:
+        case ITEM_PASS_THROUGH_BOMB:
+        case ITEM_BOMB_KICK:
+        case ITEM_INVINCIBILITY:
+        case ITEM_HEART:
+        case ITEM_LIFE:
+        case EMPTY:
+        case GRAVEL:
+            return true;
+            break;
+        
+        default:
+            return false;
+            break;
+    }
+}
