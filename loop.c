@@ -283,13 +283,13 @@ void    handleKeyUp(const SDL_Event *event) {
                         g_currentOption = index;
                         break;
                     
-                    default:
+                    case GAME_MAINMENU:
                         index = (g_currentMenu->selectedButton - 1);
                         if (index < 0) {
                             index = g_currentMenu->nbButtons - 1;
                         }
                         g_currentMenu->selectedButton = index;
-                        printf("UP: %d\n", g_currentMenu->selectedButton);
+                    default:
                         break;
                 }
 
@@ -304,14 +304,15 @@ void    handleKeyUp(const SDL_Event *event) {
                         }
                         g_currentOption = index;
                         break;
-                    
-                    default:
+                    case GAME_MAINMENU:
                         index = (g_currentMenu->selectedButton + 1);
                         if (index > g_currentMenu->nbButtons - 1) {
                             index = 0;
                         }
                         g_currentMenu->selectedButton = index;
-                        printf("DOWN: %d\n", g_currentMenu->selectedButton);
+                        break;
+                    
+                    default:
                         break;
                 }
                 break;
