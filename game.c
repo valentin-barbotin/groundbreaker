@@ -790,6 +790,7 @@ void    receiveDamage(const char *content) {
     player->vx = 0;
     player->vy = 0;
 
+    playSound(hurt);
     puts("You died");
 
     if (--player->lives == 0) {
