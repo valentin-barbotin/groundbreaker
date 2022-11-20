@@ -16,6 +16,7 @@
     QUIT,
     PLAYERDAT,
     MYNAME,
+    TCHAT,
     CELL,
     EFFECT,
     DAMAGE,

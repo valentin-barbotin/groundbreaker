@@ -39,7 +39,7 @@ if (WIN32)
     find_package(SDL2-mixer REQUIRED)
 endif(WIN32)
 
-add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c player.c sound.c inventory.c settings.c items.c ia.c discord.c effects.c sound.c)
+add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c player.c sound.c inventory.c settings.c items.c ia.c discord.c effects.c sound.c tchat.c)
 
 add_library(DISCORD SHARED IMPORTED)
 if (UNIX)
@@ -60,9 +60,7 @@ if (UNIX OR APPLE)
 endif(UNIX OR APPLE)
 
 if (WIN32)
-target_link_libraries(groundbreaker DISCORD SDL2::SDL2 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_SOUND_LIBRARIES} ${SDL2_MIXER_LIBRARIES})
-
-# target_link_libraries(groundbreaker DISCORD SDL2::SDL2 SDL2::SDL2main SDL2::SDL2_image SDL2::SDL2_ttf SDL2::SDL2_gfx ${SDL2_SOUND_LIBRARIES} SDL2::mixer)
+    target_link_libraries(groundbreaker DISCORD SDL2::SDL2 ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES} ${SDL2_SOUND_LIBRARIES} ${SDL2_MIXER_LIBRARIES})
 endif(WIN32)
 
 

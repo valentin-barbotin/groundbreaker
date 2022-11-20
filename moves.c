@@ -2,6 +2,7 @@
 #include "game.h"
 #include "moves.h"
 #include "player.h"
+#include "tchat.h"
 #include "inventory.h"
 #include "loop.h"
 #include "settings.h"
@@ -71,6 +72,9 @@ void    handleKeyUpPlay(const SDL_Event *event) {
                     break;
                 case ACTION_KEY_RIGHT:
                     player->vx -= VELOCITY;
+                    break;
+                case SDLK_t:
+                    askTchatMessage();
                     break;
                 case ACTION_KEY_ITEM_1:
                     player->selectedSlot = 0;
