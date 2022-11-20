@@ -35,6 +35,13 @@ void        findAvailableEffect(t_effect **effect) {
     }
 }
 
+//TODO: fix this
+void        clearEffects() {
+    for (int i = 0; i < MAX_EFFECTS; i++) {
+        if (g_effects[i]) g_effects[i]->active = false;
+    }
+}
+
 t_effect    *addEffect(int xCell, int yCell, t_effects type) {
     unsigned int      cellSizeX;
     unsigned int      cellSizeY;

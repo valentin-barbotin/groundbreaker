@@ -53,5 +53,6 @@
  void    kickBomb();
  bool    searchPlayerToExplode(int xCell, int yCell);
  void    placeBomb(int xCell, int yCell, t_player *player);
+ void    resetBots();
 
 #endif

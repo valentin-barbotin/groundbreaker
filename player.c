@@ -35,7 +35,6 @@ t_player        *initPlayer() {
         exit(1);
     }
     *player->name = '\0';
-    player->score = 0;
     player->x = 0;
     player->y = 0;
     player->vx = 0;
@@ -214,4 +213,21 @@ bool        searchPlacedBomb(t_player *player, int xCell, int yCell) {
     }
 
     return false;
+}
+
+void        resetPlayer(t_player *player) {
+    player->x = 0;
+    player->y = 0;
+    player->vx = 0;
+    player->vy = 0;
+    player->xCell = 0;
+    player->yCell = 0;
+    player->health = 100;
+    player->scope = 2;
+    player->selectedSlot = 0;
+    player->maxBombs = 2;
+    player->lives = 2;
+    player->walkChannel = -1;
+    player->wallChannel = -1;
+    player->bombPlaced = false;
 }

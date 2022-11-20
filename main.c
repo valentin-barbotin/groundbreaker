@@ -209,13 +209,13 @@ int main(int argc, char **argv)
                 // move bots
                 for (size_t i = 0; i < g_nbBots; i++)
                 {
-                    if (g_bots[i]->health) {
+                    if (g_nbBots && g_bots[i]->health) {
                         movePlayer(g_bots[i]);
                         // bots try to place bombs
                         //TODO: difficulty
                         int r = rand() % 10000;
                         // printf("r = %d\n", r);
-                        if (!g_bots[i]->bombPlaced && (r < 20)) { // 0.02% chance
+                        if (g_nbBots && !g_bots[i]->bombPlaced && (r < 20)) { // 0.02% chance
                             placeBomb(g_bots[i]->xCell, g_bots[i]->yCell, g_bots[i]);
                         }
                     }

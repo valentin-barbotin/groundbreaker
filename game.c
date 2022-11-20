@@ -48,6 +48,8 @@ void    killBots(int xCell, int yCell) {
 
         // puts the player back in the lobby
         g_currentState = GAME_MAINMENU_PLAY;
+        resetBots();
+        clearEffects();
     }
 }
 
@@ -687,6 +689,17 @@ void    launchGame() {
     t_map             *tmp[10] = {0};
 
     game = getGame();
+    index = -1;
+
+    for (size_t i = 0; i < g_nbMap; i++)
+    {
+        if (game->maps[i].selected) {
+            if (index == -1) index = 0; //used to check if we have at least one map selected
+            tmp[index++] = &game->maps[i];
+        }
+    }
+
+    getMaps(tmp);
 
     if (g_serverRunning && (game->nbPlayers < g_lobby->players)) {
         #if DEBUG
@@ -696,14 +709,6 @@ void    launchGame() {
         return;
     }
 
-    index = -1;
-    for (size_t i = 0; i < g_nbMap; i++)
-    {
-        if (game->maps[i].selected) {
-            if (index == -1) index = 0; //used to check if we have at least one map selected
-            tmp[index++] = &game->maps[i];
-        }
-    }
     if (index == -1) {
         printf("No map selected\n");
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lobby", "You must select a map", g_window);
@@ -713,6 +718,8 @@ void    launchGame() {
     index = rand() % index; //pick a random map between the selected ones
     printf("index = %d\n", index);
     game->map = tmp[index];
+
+    resetPlayer(getPlayer());
 
     injectItems(game->map);
 
@@ -807,6 +814,8 @@ void    receiveDamage(const char *content) {
         if (!inMultiplayer()) {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", "You lost", g_window);
             g_currentState = GAME_MAINMENU_PLAY;
+            resetBots();
+            clearEffects();
         }
         return;
         //TODO: handle endgame in solo
@@ -881,6 +890,7 @@ void    receiveEndGame(const char* content) {
 
     // the winner can still move until he click on the button
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game finished", buff, g_window);
+    clearEffects();
 
     if (g_serverRunning) {
         // reset the game
@@ -1005,4 +1015,32 @@ void    placeBomb(int xCell, int yCell, t_player *player) {
     bomb2->pos.y = yCell;
     // printf("Placed bomb at %d %d, detonation in %lu ms\n", xCell, yCell, g_items[ITEM_BOMB].duration);
     SDL_AddTimer(g_items[ITEM_BOMB].duration, bombTimer, bomb2);
+}
+
+
+void    resetBots() {
+    for (size_t i = 0; i < g_nbBots; i++)
+    {
+        for (size_t j = 0; j < MAX_BOMBS; j++)
+        {
+            // if (g_bots[i]->bombs[j] != NULL) {
+            //     free(g_bots[i]->bombs[j]);
+            // }
+            // g_bots[i]->bombs[j] = NULL;
+        }
+
+        if (g_bots[i]->walkChannel != -1) {
+            Mix_HaltChannel(g_bots[i]->walkChannel);
+            g_bots[i]->walkChannel = -1;
+        }
+
+        if (g_bots[i]->wallChannel != -1) {
+            Mix_HaltChannel(g_bots[i]->wallChannel);
+            g_bots[i]->wallChannel = -1;
+        }
+        free(g_bots[i]);
+        g_bots[i] = NULL;
+    }
+
+    g_nbBots = 0;
 }

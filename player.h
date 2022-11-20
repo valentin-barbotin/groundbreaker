@@ -39,7 +39,6 @@
      int             xCell;
      int             yCell;
      int             health;
-     int             score;
      t_direction     direction;
      int             scope;
      bool            godMode;
@@ -74,5 +73,6 @@
  void            storePlacedBomb(t_player *player, int xCell, int yCell);
  t_player        *findBombOwner(int xCell, int yCell);
  bool            searchPlacedBomb(t_player *player, int xCell, int yCell);
+ void            resetPlayer(t_player *player);
 
 #endif
