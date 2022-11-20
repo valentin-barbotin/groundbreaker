@@ -54,6 +54,12 @@ bool     initAudio(t_sound *sound) {
     return true;
 }
 
+/**
+ * @brief Play a sound once and return the channel on which it is played
+ * @param chunk
+ * @param loops
+ * @return  the channel on which the sound is played
+ */
 static int playSoundWrapper(Mix_Chunk *chunk, int loops) {
     int     channel;
 
@@ -71,11 +77,20 @@ static int playSoundWrapper(Mix_Chunk *chunk, int loops) {
     return channel;
 }
 
-
+/**
+ * @brief Play a sound
+ * @param sound
+ * @return  the channel on which the sound is played
+ */
 int     playSound(t_sound *sound) {
     return playSoundWrapper(sound->chunk, 0);
 }
 
+/**
+ * @brief Play a sound in loop
+ * @param sound
+ * @return  the channel on which the sound is played
+ */
 int     playSoundLoop(t_sound *sound) {
     return playSoundWrapper(sound->chunk, -1);
 }
@@ -123,6 +138,10 @@ bool    setSoundVolume(Mix_Chunk *chunk, int volume) {
     return Mix_VolumeChunk(chunk, volume) != -1;
 }
 
+/**
+ * @brief Load all the sounds
+ * @param
+ */
 void    loadSounds() {
 
     walk->file =            SOUND_WALK;
@@ -156,6 +175,10 @@ void    loadSounds() {
     Mix_ChannelFinished(channelFinishedCallback);
 }
 
+/**
+ * @brief Callback function called when a channel finished playing
+ * @param int channel
+ */
 void    channelFinishedCallback(int channel) {
     t_player    *player;
 
