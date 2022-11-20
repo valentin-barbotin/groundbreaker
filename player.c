@@ -10,7 +10,10 @@
 char                g_username[256] = {0};
 short               g_playersMultiIndex = 0;
 
-
+/**
+ * @brief       Get the username of the player
+ * @return {char*}
+ */
 char            *getUsername() {
     const t_game      *game;
 
@@ -23,6 +26,10 @@ char            *getUsername() {
     }
 }
 
+/**
+ * @brief       Init the player
+ * @return {t_player*}
+ */
 t_player        *initPlayer() {
     t_player    *player;
 
@@ -66,6 +73,10 @@ t_player        *initPlayer() {
     return player;
 }
 
+/**
+ * @brief       Get the players
+ * @return  {t_player*}
+ */
 t_player        *getPlayer() {
     const t_game      *game;
 
@@ -79,6 +90,11 @@ t_player        *getPlayer() {
     }
 }
 
+/**
+ * @brief       Get direction from player
+ * @param {t_player*} player
+ * @return {t_direction}
+ */
 t_direction     getDirection(const t_player *player) {
     if (player->vx == 0 && player->vy == 0) {
         return DIR_IDLE;
@@ -102,14 +118,26 @@ t_direction     getDirection(const t_player *player) {
     return DIR_IDLE;
 }
 
+/**
+ * @brief       Verify if playe is in multiplayer
+ * @return {bool}
+ */
 bool    inMultiplayer() {
     return (g_clientThread || g_serverRunning);
 }
 
+/**
+ * @brief       Verify if player is moving
+ * @return {bool}
+ */
 bool    isMoving(const t_player *player) {
     return (player->vx != 0 || player->vy != 0);
 }
 
+/**
+ * @brief       Send position
+ * @return {void}
+ */
 void    sendPos() {
     const t_player    *player;
 
