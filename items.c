@@ -4,13 +4,14 @@
 
 #define DEBUG true
 
+// Declare all items
 t_item g_items[NB_ITEMS] = {
         {ITEM_BOMB, 0, 0, false, ITEM_BOMB_NB, 4000, false, TEX_BOMB},
         {ITEM_BOMB_UP, 0, 0, false, 0, 0, false, TEX_BOMB_UP},
         {ITEM_BOMB_DOWN, 0, 0, false, 0, 0, false, TEX_BOMB_DOWN},
         {ITEM_YELLOW_FLAME, 0, 0, false, 0, 0, false, TEX_YELLOW_FLAME},
         {ITEM_BLUE_FLAME, 0, 0, false, 0, 0, false, TEX_BLUE_FLAME},
-        {ITEM_RED_FLAME, 0, 0, false, 0, 0, false, TEX_RED_FLAME},
+        {ITEM_RED_FLAME, 0, 0, true, 0, 0, false, TEX_RED_FLAME},
         {ITEM_PASS_THROUGH_BOMB, 0, 0, false, 0, 0, false, TEX_PASS_THROUGH},
         {ITEM_BOMB_KICK, 0, 0, false, 0, 0, false, TEX_BOMB_KICK},
         {ITEM_INVINCIBILITY, 0, 0, false, 0, 10000, false, TEX_INVINCIBILITY},
@@ -18,6 +19,11 @@ t_item g_items[NB_ITEMS] = {
         {ITEM_LIFE, 0, 0, false, 0, 0, false, TEX_LIFE}
 };
 
+/**
+ * @brief      Use a item on the player
+ * @param {t_item *} item
+ * @return   {void}
+ */
 void   useItem(t_item *item) {
     t_player        *player;
     SDL_TimerID     timer_bomb_id;
@@ -27,8 +33,6 @@ void   useItem(t_item *item) {
     if (!hasItemInInventory(player, item)) return;
     if (item->isActive) return;
 
-    //TODO: remove
-    item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB]->quantity++ : player->inventory[item->type]->quantity--;
     switch (item->type) {
         case ITEM_BOMB: {
             placeBomb(player->xCell, player->yCell, player);
@@ -63,16 +67,9 @@ void   useItem(t_item *item) {
             break;
         case ITEM_INVINCIBILITY:
             player->godMode = true;
-            // TODO : START A TIMER OF 10 SECONDS
             timer_bomb_id = SDL_AddTimer(item[ITEM_INVINCIBILITY].duration, invincibilityTimer, NULL);
-            // t_timer *timerInvincibility = malloc(sizeof(t_timer));
-            // timer->startTicks = SDL_GetTicks();
-            // timer->duration = 10000;
-            // timer->isPaused = false;
-            // startTimer(timerInvincibility);
             break;
         case ITEM_HEART:
-            // TODO: on le met en godMode jusqu'à ce qu'il subisse une explosion après il est plus en false
             player->canSurviveExplosion = true;
             break;
         case ITEM_LIFE:
@@ -83,6 +80,12 @@ void   useItem(t_item *item) {
     }
 }
 
+/**
+ * @brief      Timer for the bomb item
+ * @param {Uint32} interval
+ * @param {t_bomb *} param
+ * @return   {Uint32}
+ */
 Uint32 bombTimer(Uint32 interval, t_bomb *param) {
     t_player    *player = ((t_player *) param->owner);
 
@@ -99,6 +102,12 @@ Uint32 bombTimer(Uint32 interval, t_bomb *param) {
     return 0;
 }
 
+/**
+ * @brief      Timer for the invincibility item
+ * @param {Uint32} interval
+ * @param {t_bomb *} param
+ * @return   {Uint32}
+ */
 Uint32 invincibilityTimer(Uint32 interval, void *param) {
     t_player *player;
     player = getPlayer();

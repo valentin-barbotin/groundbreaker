@@ -7,6 +7,13 @@
 
 #define DEBUG true
 
+/**
+ * @brief Draw the inventory item
+ * @param {SDL_RECT} *rect
+ * @param {int} separator
+ * @param {int} item
+ * @return void
+ */
 void    drawInventoryItem(SDL_Rect *rect, int separator, int item) {
     const t_player      *player;
     SDL_Rect            rectItem;
@@ -36,6 +43,10 @@ void    drawInventoryItem(SDL_Rect *rect, int separator, int item) {
     drawTexture(player->inventory[item]->tex, &rectItem, &rectDest);
 }
 
+/**
+ * @brief Draw the inventory
+ * @return void
+ */
 void drawInventory() {
     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
@@ -61,6 +72,10 @@ void drawInventory() {
     loadFont(FONT_PATH, 20);
 }
 
+/**
+ * @brief Draw the selected item
+ * @return void
+ */
 void drawSelectedItem() {
     SDL_Color           colorYellow = {255, 255, 0, 255};
     SDL_Color           colorBlack = {0, 0, 0, 255};
