@@ -8,6 +8,8 @@
 #include "config.h"
 #include "bomb.h"
 
+#define ITEM_BOMB_NB 2
+
 typedef enum e_item_type {
     ITEM_BOMB,
     ITEM_BOMB_UP,

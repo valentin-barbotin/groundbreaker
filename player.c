@@ -51,6 +51,9 @@ t_player        *initPlayer() {
     player->walkChannel = -1;
     player->wallChannel = -1;
     player->bombPlaced = false;
+    player->passThroughBomb = false;
+    player->bombKick = false;
+    player->godMode = false;
 
     // used to store bombs placed by us
     for (size_t i = 0; i < MAX_BOMBS; i++)
@@ -230,4 +233,10 @@ void        resetPlayer(t_player *player) {
     player->walkChannel = -1;
     player->wallChannel = -1;
     player->bombPlaced = false;
+
+    player->passThroughBomb = false;
+    player->bombKick = false;
+    player->godMode = false;
+
+    player->inventory[ITEM_BOMB] = ITEM_BOMB_NB;
 }
