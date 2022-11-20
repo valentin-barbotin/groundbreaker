@@ -621,8 +621,6 @@ void    handleMouseButtonUpPlaying(const SDL_Event *event) {
 void    handleDamage(t_player *player) {
     char    buffer[256];
     if (player->lives && !player->godMode && !player->canSurviveExplosion) {
-        player->health = 0;
-        player->lives--;
         //TODO: spawn tombstone and send it to all
 
         if (inMultiplayer()) {
@@ -871,11 +869,13 @@ void    receiveDamage(const char *content) {
     player = getPlayer();
 
     sscanf(content, "%hd %d %d", &id, &xCell, &yCell);
-    if (id != player->id) return;
+    if (inMultiplayer() && id != player->id) return;
 
     player->health = 0;
     player->vx = 0;
     player->vy = 0;
+
+    puts("You died");
 
     if (--player->lives == 0) {
         // check if everyone is dead
