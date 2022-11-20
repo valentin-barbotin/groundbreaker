@@ -45,6 +45,7 @@
  }               t_keys;
  
  t_command    getActionFor(SDL_KeyCode key);
+ bool         isKeyAvailable(char key);
  void         editFullscreen();
  void         editWidth();
  void         editHeight();
