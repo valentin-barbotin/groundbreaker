@@ -21,7 +21,6 @@
  bool    stopSound(t_sound *sound);
  bool    pauseSound(t_sound *sound);
  bool    setSoundVolume(t_sound *sound, int volume);
- bool    isSoundPlaying(t_sound *sound);
  bool    isChannelAvailable(int channel);
  int     getAvailableChannel();
  void    freeSound(t_sound *sound);

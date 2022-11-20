@@ -95,7 +95,6 @@ bool    stopSound(t_sound *sound) {
  */
 bool    pauseSound(t_sound *sound) {
     if (!initAudio(sound)) return false;
-    if (!isSoundPlaying(sound)) return false;
 
     switch (Mix_Paused(getAvailableChannel())) {
         case 0:
@@ -140,7 +139,7 @@ bool    setSoundVolume(t_sound *sound, int volume) {
  * @return  true if available, false if not
  */
 bool    isChannelAvailable(int channel) {
-    return (!Mix_Playing(channel);
+    return (!Mix_Playing(channel));
 }
 
 /**
