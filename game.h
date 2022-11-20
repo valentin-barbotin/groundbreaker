@@ -35,6 +35,7 @@
  void    resumeGame();
  void    pauseGame();
  void    game_quit();
+ void    launchGame();
  t_game  *getGame();
  void    movePlayer(t_player *player);
  void    posToGrid(t_player *player);

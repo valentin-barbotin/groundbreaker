@@ -17,6 +17,7 @@
 #include "dialog.h"
 #include "player.h"
 #include "game.h"
+#include "tchat.h"
 #include "effects.h"
 
 #define DEBUG false
@@ -97,6 +98,8 @@ void    handleMessageClient2(char *type, char *content) {
         action = QUIT;
     } else if (stringIsEqual(type, "PLAYERDAT")) {
         action = PLAYERDAT;
+    } else if (stringIsEqual(type, "TCHAT")) {
+        action = TCHAT;
     } else if (stringIsEqual(type, "CELL")) {
         action = CELL;
     } else if (stringIsEqual(type, "EFFECT")) {
@@ -236,7 +239,12 @@ void    handleMessageClient2(char *type, char *content) {
             printf("PLAYER name: %s\n", player->name);
         }
             break;
-        
+
+        case TCHAT: {
+            // we update the tchat to display the message for all players
+            updateTchatMessages(content);
+        }
+            break;
         default:
             break;
     }

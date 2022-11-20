@@ -10,6 +10,7 @@
 #include "player.h"
 #include "inventory.h"
 #include "font.h"
+#include "tchat.h"
 #include "client.h"
 
 #define DEBUG true
@@ -341,6 +342,7 @@ void    drawMap() {
             rectdest.y = i * cellSizeY;
             rectdest.w = cellSizeX;
             rectdest.h = cellSizeY;
+
             drawTexture(tex, &rect, &rectdest);
 
             tex = NULL;
@@ -419,6 +421,11 @@ void    drawMap() {
                 drawTexture(tex, &rect, &rectdest);
             }
         }
+    }
+
+    if (inMultiplayer()) {
+        drawTchat();
+        drawTchatMessages();
     }
 
     drawInventory();
