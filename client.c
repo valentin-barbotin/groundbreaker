@@ -233,7 +233,9 @@ void    handleMessageClient2(char *type, char *content) {
                 strcpy(game->players[n]->name, g_username);
             }
 
-            game->nbPlayers++;
+            if (player->id != n) {
+                game->nbPlayers++;
+            }
 
             strcpy(player->name, name);
             player->xCell = xCell;
