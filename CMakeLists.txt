@@ -43,7 +43,7 @@ endif(WIN32)
 # set(IMPORTED_IMPLIB "${DISCORD_LIB}/discord_game_sdk.dll.lib")
 # set(IMPORTED_LOCATION "${DISCORD_LIB}/discord_game_sdk.dll")
 
-add_executable(groundbreaker main.c config.c cache.c utils.c font.c timer.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c player.c sound.c inventory.c settings.c items.c ia.c discord.c effects.c sound.c tchat.c)
+add_executable(groundbreaker main.c config.c cache.c utils.c font.c map.c display.c menu.c loop.c lobby.c game.c moves.c client.c server.c dialog.c player.c sound.c inventory.c settings.c items.c ia.c discord.c effects.c sound.c tchat.c)
 
 add_library(DISCORD SHARED IMPORTED)
 if (UNIX)
