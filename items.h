@@ -36,12 +36,6 @@ typedef struct s_item {
     char            *tex;
 }              t_item;
 
-t_item  *getItem(t_item_type type);
-void    drawItem(t_item *item);
-void    updateItem(t_item *item);
-void    destroyItem(t_item *item);
-void    activateItem(t_item *item);
-void    deactivateItem(t_item *item);
 void    useItem(t_item *item);
 Uint32  bombTimer(Uint32 interval, t_bomb *param);
 Uint32  invincibilityTimer(Uint32 interval, void *param);

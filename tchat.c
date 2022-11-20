@@ -13,7 +13,6 @@
 char   **g_messages = NULL;
 size_t  g_messages_nb = 0;
 
-// TODO : player in green and other in white
 /**
  * Draw the tchat
  * @return {void}

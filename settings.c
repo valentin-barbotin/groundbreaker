@@ -26,6 +26,22 @@ t_command    getActionFor(SDL_KeyCode key) {
     return ACTION_OTHER;
 }
 
+bool    isKeyAvailable(char key) {
+    if (gameConfig->commands.up == key) return false;
+    if (gameConfig->commands.down == key) return false;
+    if (gameConfig->commands.left == key) return false;
+    if (gameConfig->commands.right == key) return false;
+    if (gameConfig->commands.tchat == key) return false;
+    if (gameConfig->commands.use_item == key) return false;
+    if (gameConfig->commands.item_1 == key) return false;
+    if (gameConfig->commands.item_2 == key) return false;
+    if (gameConfig->commands.item_3 == key) return false;
+    if (gameConfig->commands.item_4 == key) return false;
+    if (gameConfig->commands.item_5 == key) return false;
+
+    return true;
+}
+
 void    editSettingCallback() {
     const t_dialog  *dialog;
     const char      *value;
@@ -40,6 +56,14 @@ void    editSettingCallback() {
             fprintf(stderr, "Error: empty value");
         #endif
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Empty value", g_window);
+        return;
+    }
+
+    if (!isKeyAvailable(*value)) {
+        #if DEBUG
+            fprintf(stderr, "Error: key already used");
+        #endif
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Key already used", g_window);
         return;
     }
 

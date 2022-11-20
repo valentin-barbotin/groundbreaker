@@ -14,7 +14,6 @@
 #include "utils.h"
 #include "font.h"
 #include "display.h"
-#include "timer.h"
 #include "menu.h"
 #include "loop.h"
 #include "map.h"

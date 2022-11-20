@@ -23,7 +23,7 @@ Mix_Music   *music;
 
 /**
  * @brief Initialize the audio system
- * @param sound
+ * @param {t_sound *} the sound to initialize
  * @return  true on success, false on failure
  */
 bool     initAudio(t_sound *sound) {
@@ -54,6 +54,12 @@ bool     initAudio(t_sound *sound) {
     return true;
 }
 
+/**
+ * @brief Play a sound on a channel
+ * @param {Mix_Chunk *} chunk
+ * @param {int} loops
+ * @return {int} (the channel on which the sound is played)
+ */
 static int playSoundWrapper(Mix_Chunk *chunk, int loops) {
     int     channel;
 
@@ -66,18 +72,28 @@ static int playSoundWrapper(Mix_Chunk *chunk, int loops) {
     return channel;
 }
 
+/**
+ * @brief Play a sound
+ * @param {t_sound *} sound
+ * @return  {int} playSoundWrapper return channel
+ */
 
 int     playSound(t_sound *sound) {
     return playSoundWrapper(sound->chunk, 0);
 }
 
+/**
+ * @brief Play a sound in loop
+ * @param {t_sound *} sound
+ * @return  the channel on which the sound is played
+ */
 int     playSoundLoop(t_sound *sound) {
     return playSoundWrapper(sound->chunk, -1);
 }
 
 /**
  * @brief Stop the sound
- * @param sound
+ * @param {t_sound *} sound
  * @return  true on success or false on error
  */
 bool    stopSound(t_sound *sound) {
@@ -90,7 +106,7 @@ bool    stopSound(t_sound *sound) {
 
 /**
  * @brief Pause the sound
- * @param sound
+ * @param {t_sound *} sound
  * @return  true on success or false on error
  */
 bool    pauseSound(t_sound *sound) {
@@ -113,8 +129,8 @@ bool    pauseSound(t_sound *sound) {
 
 /**
  * @brief Set the sound volume
- * @param sound
- * @param volume
+ * @param {t_sound} sound
+ * @param {int} volume
  * @return  true on success or false on error
  */
 bool    setSoundVolume(t_sound *sound, int volume) {
@@ -135,7 +151,7 @@ bool    setSoundVolume(t_sound *sound, int volume) {
 
 /**
 * @brief Check if the channel is available
- * @param channel
+ * @param {channel}
  * @return  true if available, false if not
  */
 bool    isChannelAvailable(int channel) {
@@ -153,9 +169,11 @@ int     getAvailableChannel() {
     return -1;
 }
 
-
+/**
+ * @brief Load all the sounds
+ * @return  {void}
+ */
 void    loadSounds() {
-
     walk->file =            SOUND_WALK;
     wall->file =            SOUND_WALL;
     unbreakableWall->file = SOUND_UNBREAKABLE_WALL;
@@ -186,6 +204,11 @@ void    loadSounds() {
     Mix_ChannelFinished(channelFinishedCallback);
 }
 
+/**
+ * @brief Callback function called when a channel is finished
+ * @param {int} channel
+ * @return  {void}
+ */
 void    channelFinishedCallback(int channel) {
     t_player    *player;
 
