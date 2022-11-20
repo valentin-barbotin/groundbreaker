@@ -4,7 +4,7 @@
  #define SIZE_DATA 256
  #define FONT_PATH "./DejaVuSansMono.ttf"
  #define MAX_BOTS 32
- #define BOT_SPEED 3
+ #define BOT_SPEED 2
 
  #include <stdio.h>
  #include <stdbool.h>
