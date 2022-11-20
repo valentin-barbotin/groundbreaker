@@ -51,6 +51,11 @@ bool     initAudio(t_sound *sound) {
         exit(1);
     }
 
+    if(!setSoundVolume(gameConfig->audio.sound_volume)) {
+        SDL_Log("Mix_VolumeChunk: %s\n", Mix_GetError());
+        exit(1);
+    }
+
     return true;
 }
 
@@ -81,8 +86,7 @@ int     playSoundLoop(t_sound *sound) {
  * @return  true on success or false on error
  */
 bool    stopSound(t_sound *sound) {
-    if (!initAudio(sound)) return false;
-    Mix_HaltChannel(getAvailableChannel());
+    Mix_HaltChannel(-1);
     Mix_FreeChunk(sound->chunk);
     //Mix_CloseAudio();
     return true;
@@ -94,9 +98,7 @@ bool    stopSound(t_sound *sound) {
  * @return  true on success or false on error
  */
 bool    pauseSound(t_sound *sound) {
-    if (!initAudio(sound)) return false;
-
-    switch (Mix_Paused(getAvailableChannel())) {
+    switch (Mix_Paused(-1)) {
         case 0:
             Mix_Pause(-1);
             return true;
@@ -117,42 +119,9 @@ bool    pauseSound(t_sound *sound) {
  * @param volume
  * @return  true on success or false on error
  */
-bool    setSoundVolume(t_sound *sound, int volume) {
-    if (!initAudio(sound)) return false;
-    if (Mix_Playing(getAvailableChannel()) == 0) return false;
-
-
-    if (Mix_Volume(getAvailableChannel(), volume) == -1) {
-        SDL_Log("Failed to set volume: %s", Mix_GetError());
-        return false;
-    }
-
-    Mix_Volume(getAvailableChannel(), volume);
-    Mix_VolumeChunk(sound->chunk, volume);
-    return true;
+bool    setSoundVolume(int volume) {
+    return Mix_Volume(-1, volume) != -1;
 }
-
-
-/**
-* @brief Check if the channel is available
- * @param channel
- * @return  true if available, false if not
- */
-bool    isChannelAvailable(int channel) {
-    return (!Mix_Playing(channel));
-}
-
-/**
- * @brief Get the first available channel
- * @return  the channel number
- */
-int     getAvailableChannel() {
-    for (int i = 0; i < NB_CHANNELS; i++) {
-        if (isChannelAvailable(i)) return i;
-    }
-    return -1;
-}
-
 
 void    loadSounds() {
 
@@ -178,6 +147,7 @@ void    loadSounds() {
     initAudio(hurt);
 
     music = Mix_LoadMUS(SOUND_MUSIC_MAIN);
+
     if (!music) {
         fprintf(stderr, "Couldn't load %s: %s\n", SOUND_MUSIC_MAIN, SDL_GetError());
         exit(1);

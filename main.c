@@ -184,6 +184,7 @@ int main(int argc, char **argv)
         pickColor(&colorBlack);
 
         if (inMainMenu()) {
+            Mix_VolumeMusic(config.audio.music_volume);
 
             if (!Mix_PlayingMusic() && !Mix_PlayMusic(music, -1)) {
                 fprintf(stderr, "Mix_PlayMusic: %s", Mix_GetError());
