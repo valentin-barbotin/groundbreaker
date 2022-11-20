@@ -1,7 +1,22 @@
 #ifndef CLIENT_H
  #define CLIENT_H
 
+ #ifdef _WIN32
+ #ifndef WIN32_LEAN_AND_MEAN
+  #define WIN32_LEAN_AND_MEAN
+ #endif
+
+ #include <windows.h>
+ #include <WinSock2.h>
+ #include <ws2tcpip.h>
+ #elif __unix__
+ #include <unistd.h>
+ #include <sys/socket.h>
  #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <pthread.h>
+ #include <netinet/tcp.h>
+ #endif
 
  #include "game.h"
  #include "player.h"

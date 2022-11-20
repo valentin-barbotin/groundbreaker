@@ -2,13 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <pthread.h>
-#include <netinet/tcp.h>
 
 #include "client.h"
 #include "server.h"
@@ -22,8 +16,13 @@
 
 #define DEBUG true
 
+#ifdef _WIN32
+HANDLE              g_clientThread = 0;
+HANDLE              g_clientThreadUDP = 0;
+#elif __unix__
 pthread_t           g_clientThread = 0;
 pthread_t           g_clientThreadUDP = 0;
+#endif
 int                 g_serverSocket = 0;
 int                 g_serverSocketUDP = 0;
 struct sockaddr_in  *g_serverAddrUDP = NULL;
@@ -321,8 +320,13 @@ void    askServerPortCallback() {
 
     destroyEditBox();
 
+    #ifdef _WIN32
+    g_clientThread = CreateThread(NULL, 0, connectToServer, NULL, 0, NULL);
+    g_clientThreadUDP = CreateThread(NULL, 0, connectToServerUDP, NULL, 0, NULL);
+    #elif __unix__
     pthread_create(&g_clientThread, NULL, &connectToServer, "client");
     pthread_create(&g_clientThreadUDP, NULL, &connectToServerUDP, "client");
+    #endif
 
     //Put client in the lobby
     g_currentState = GAME_MAINMENU_PLAY;
