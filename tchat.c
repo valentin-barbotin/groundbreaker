@@ -67,7 +67,7 @@ void    askTchatMessageCallback(const char *msg) {
 void    putMessageInTchat(t_player *player, const char *msg) {
     if(!inMultiplayer()) { exit (0); }
     char    *buffer;
-    buffer = malloc(sizeof(char) * (strlen(msg) + 1 + strlen(player->name) + 1));
+    buffer = malloc(sizeof(char) * (256 + strlen(msg) + strlen(player->name)));
     if(buffer == NULL) {
         #ifdef DEBUG
             fprintf(stderr, "Error allocating memory for buffer");
@@ -129,11 +129,11 @@ void    drawTchatMessages() {
         if(textHeight < 15) {
             rect.y = textHeight;
         }else if(textHeight > 15 && textHeight < 20) {
-            rect.y += 25;
-        }else if(textHeight > 20 && textHeight < 30) {
             rect.y += 35;
+        }else if(textHeight > 20 && textHeight < 30) {
+            rect.y += 45;
         }else {
-            rect.y += (gameConfig->video.height * 0.03) + 15;
+            rect.y += (gameConfig->video.height * 0.03) + 25;
         }
         SDL_DestroyTexture(tex);
 
