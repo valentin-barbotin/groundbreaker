@@ -103,15 +103,6 @@ void    setPath() {
     //item->file = changemeItemPath;
 }
 
-void    setChannel() {
-    walk->channel            = 1;
-    wall->channel            = 2;
-    unbreakableWall->channel = 3;
-    bombExplosion->channel            = 4;
-    hurt->channel            = 5;
-    //item->file = changemeItemPath;
-}
-
 t_game* getGame() {
     static t_game*  game;
 
@@ -135,7 +126,6 @@ t_game* getGame() {
         hurt = malloc(sizeof(t_sound));
         //item = malloc(sizeof(t_sound));
         setPath();
-        setChannel();
         ///////////
 
         //TMP max players

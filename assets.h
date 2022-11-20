@@ -30,6 +30,6 @@
  #define SOUND_WALK                  "./assets/sound/walk.wav"
  #define SOUND_WALL                  "./assets/sound/wall.wav"
  #define SOUND_EXPLODE_BOMB          "./assets/sound/explode_bomb.wav"
- #define SOUND_HURT                 "./assets/sound/classic_heart.wav"
+ #define SOUND_HURT                 "./assets/sound/classic_hurt.wav"
 
 #endif

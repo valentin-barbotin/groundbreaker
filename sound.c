@@ -23,8 +23,8 @@ bool     initAudio(t_sound *sound) {
         exit(1);
     }
 
-    Mix_AllocateChannels(32);
-    Mix_Volume(sound->channel, MIX_MAX_VOLUME/2);
+    Mix_AllocateChannels(NB_CHANNELS);
+    Mix_Volume(-1, MIX_MAX_VOLUME/2);
     sound->chunk = Mix_LoadWAV(sound->file);
     Mix_VolumeChunk(sound->chunk, MIX_MAX_VOLUME/2);
 
@@ -45,11 +45,11 @@ bool    playSound(t_sound *sound) {
     if (!initAudio(sound)) return false;
     if (isSoundPlaying(sound)) return false;
     if (pauseSound(sound)) {
-        Mix_Resume(sound->channel);
+        Mix_Resume(-1);
         return true;
     }
 
-    return Mix_PlayChannel(sound->channel, sound->chunk, 0);
+    return Mix_PlayChannel(-1, sound->chunk, 0) != -1;
 }
 
 /**
@@ -60,17 +60,17 @@ bool    playSound(t_sound *sound) {
 bool    playSoundLoop(t_sound *sound) {
     if (!initAudio(sound)) return false;
     if (isSoundPlaying(sound)) return false;
+
     if (pauseSound(sound)) {
-        Mix_Resume(sound->channel);
+        Mix_Resume(-1);
         return true;
     }
 
-    Mix_PlayChannel(sound->channel, sound->chunk, -1);
+    Mix_PlayChannel(-1, sound->chunk, -1);
     if (!isSoundPlaying(sound)) {
         SDL_Log("Failed to play music: %s", Mix_GetError());
         exit(1);
     }
-
     return true;
 }
 
@@ -81,7 +81,7 @@ bool    playSoundLoop(t_sound *sound) {
  */
 bool    stopSound(t_sound *sound) {
     if (!initAudio(sound)) return false;
-    Mix_HaltChannel(sound->channel);
+    Mix_HaltChannel(getAvailableChannel());
     Mix_FreeChunk(sound->chunk);
     //Mix_CloseAudio();
     return true;
@@ -96,12 +96,12 @@ bool    pauseSound(t_sound *sound) {
     if (!initAudio(sound)) return false;
     if (!isSoundPlaying(sound)) return false;
 
-    switch (Mix_Paused(sound->channel)) {
+    switch (Mix_Paused(getAvailableChannel())) {
         case 0:
-            Mix_Pause(sound->channel);
+            Mix_Pause(-1);
             return true;
         case 1:
-            Mix_Resume(sound->channel);
+            Mix_Resume(-1);
             break;
         default:
             SDL_Log("Music is not playing");
@@ -119,15 +119,15 @@ bool    pauseSound(t_sound *sound) {
  */
 bool    setSoundVolume(t_sound *sound, int volume) {
     if (!initAudio(sound)) return false;
-    if (Mix_Playing(sound->channel) == 0) return false;
+    if (Mix_Playing(getAvailableChannel()) == 0) return false;
 
 
-    if (Mix_Volume(sound->channel, volume) == -1) {
+    if (Mix_Volume(getAvailableChannel(), volume) == -1) {
         SDL_Log("Failed to set volume: %s", Mix_GetError());
         return false;
     }
 
-    Mix_Volume(sound->channel, volume);
+    Mix_Volume(getAvailableChannel(), volume);
     Mix_VolumeChunk(sound->chunk, volume);
     return true;
 }
@@ -135,5 +135,33 @@ bool    setSoundVolume(t_sound *sound, int volume) {
 
 bool    isSoundPlaying(t_sound *sound) {
     if (!initAudio(sound)) return false;
-    return (Mix_Playing(sound->channel) == 0) ? false : true;
+    return (Mix_Playing(-1) == 0) ? false : true;
 }
+
+/**
+* @brief Check if the channel is available
+ * @param channel
+ * @return  true if available, false if not
+ */
+bool    isChannelAvailable(int channel) {
+    return (Mix_Playing(channel) == 0) ? true : false;
+}
+
+/**
+ * @brief Get the first available channel
+ * @return  the channel number
+ */
+int     getAvailableChannel() {
+    for (int i = 0; i < NB_CHANNELS; i++) {
+        if (isChannelAvailable(i)) return i;
+    }
+    return -1;
+}
+
+void    freeSound(t_sound *sound) {
+    Mix_FreeChunk(sound->chunk);
+
+    sound->chunk = NULL;
+    Mix_CloseAudio();
+}
+

@@ -21,6 +21,7 @@ extern int              g_currentState;
 extern int              g_serverSocket;
 
 t_sound                *main_music = NULL;
+t_sound                *hurt = NULL;
 
 /**
  * @brief Check if we are in the main menu or a sub menu
@@ -31,6 +32,14 @@ bool    inMainMenu() {
     if((g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END)) {
         if (Mix_PlayingMusic() == 0) {
             main_music = malloc(sizeof(t_sound));
+            hurt = malloc(sizeof(t_sound));
+            if (hurt == NULL) {
+                #if DEBUG
+                    fprintf(stderr, "Error allocating memory for sound");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Error while creating sound", g_window);
+                exit(1);
+            }
 
             if(main_music == NULL) {
                 #if DEBUG
@@ -40,7 +49,8 @@ bool    inMainMenu() {
                 exit(1);
             }
             main_music->file = SOUND_MUSIC_MAIN;
-            main_music->channel = 0;
+            hurt->file = SOUND_HURT;
+            initAudio(hurt);
             initAudio(main_music);
             if (main_music->chunk == NULL) {
                 #if DEBUG
@@ -61,6 +71,7 @@ bool    inMainMenu() {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Can't stop music", g_window);
             exit(1);
         }
+        Mix_FadeOutChannel(-1, 500);
     }
     return (g_currentState >= GAME_MAINMENU && g_currentState < GAME_MAINMENU_END);
 }
@@ -359,6 +370,8 @@ void    handleKeyUp(const SDL_Event *event) {
                 if (g_currentState == GAME_MAINMENU_PLAY) {
                     selectMap(1);
                 }
+                playSoundLoop(hurt);
+
                 break;
             default:
                 break;
