@@ -504,8 +504,10 @@ void    drawPlayer(const t_player *player) {
     }
 
     // draw player name
-    if (player->lives) {
-        sprintf(buffer, "%s%s lives: %hu", player->name, player->health ? "" : "(dead)", player->lives);
+    if (player->lives && !player->isBot) {
+        sprintf(buffer, "%s%s lives: %hu", player->name, player->health ? "" : " (dead)", player->lives);
+    } else if (player->lives && player->isBot) {
+        strcpy(buffer, "Bot");
     } else {
         sprintf(buffer, "%s (dead)", player->name);
     }

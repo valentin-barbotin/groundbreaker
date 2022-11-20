@@ -4,6 +4,7 @@
  #include <stdbool.h>
 
  #include "map.h"
+ #include "bomb.h"
  #include "player.h"
  #include "assets.h"
  #include "menu.h"
@@ -38,9 +39,9 @@
  void    movePlayer(t_player *player);
  void    posToGrid(t_player *player);
  void    posToGridN(int x, int y, int *xCell, int *yCell);
- void    searchDirectionMap(int xCellBase, int yCellBase, t_direction directionMap, int scope);
+ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction directionMap, int scope, t_player *owner);
  void    handleDamage(t_player *player);
- void    explodeBomb(int xCell, int yCell);
+ void    explodeBomb(int xCell, int yCell, t_player *owner);
  void    handleMouseButtonUpPlaying(const SDL_Event *event);
  void    launchGame();
  void    putPlayerInFreeCell(t_player *player);
@@ -48,6 +49,9 @@
  void    receiveDamage(const char *content);
  void    receiveLife(const char *content);
  bool    checkIfEveryoneIsDead();
- bool    receiveEndGame(const char* content);
+ void    receiveEndGame(const char* content);
+ void    kickBomb();
+ bool    searchPlayerToExplode(int xCell, int yCell);
+ void    placeBomb(int xCell, int yCell, t_player *player);
 
 #endif

@@ -11,9 +11,10 @@
  extern t_gameConfig    *gameConfig;
  extern short           g_playersMultiIndex;
 
- void    broadcastMsg(const char *msg);
- void    broadcastMsgUDP(const char *msg);
+ void    broadcastMsg(const char *msg, int except);
+ void    broadcastMsgUDP(const char *msg, short except);
  void    handleMessageClient(const char  *buffer, int client, const struct sockaddr_in  *sockaddr);
+ void    handleMessageClient2(char *type, char *content);
  void    askUsernameCallback();
  void    askServerHost();
  void    askServerHostCallback();

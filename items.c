@@ -5,7 +5,7 @@
 #define DEBUG true
 
 t_item g_items[NB_ITEMS] = {
-        {ITEM_BOMB, 0, 0, false, 4, 2000, false, TEX_BOMB},
+        {ITEM_BOMB, 0, 0, false, 10, 4000, false, TEX_BOMB},
         {ITEM_BOMB_UP, 0, 0, false, 0, 0, false, TEX_BOMB_UP},
         {ITEM_BOMB_DOWN, 0, 0, false, 0, 0, false, TEX_BOMB_DOWN},
         {ITEM_YELLOW_FLAME, 0, 0, false, 0, 0, false, TEX_YELLOW_FLAME},
@@ -27,35 +27,12 @@ void   useItem(t_item *item) {
     if (!hasItemInInventory(player, item)) return;
     if (item->isActive) return;
 
+    //TODO: remove
     item->type == ITEM_BOMB_UP ? player->inventory[ITEM_BOMB]->quantity++ : player->inventory[item->type]->quantity--;
     switch (item->type) {
         case ITEM_BOMB: {
-            // TODO : START A TIMER OF 10 SECONDS
-            // SDL TIMER
-            SDL_Point   *pos = malloc(sizeof(SDL_Point));
-            if (!pos) {
-                #if DEBUG
-                    fprintf(stderr, "Malloc error in useItem()");
-                #endif
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", "Memory error", g_window);
-                exit(1);
-            };
+            placeBomb(player->xCell, player->yCell, player);
 
-            pos->x = player->xCell;
-            pos->y = player->yCell;
-            
-            printf("POS TIMER x:%d y:%d\n", pos->x, pos->y);
-            
-            //place the bomb
-            timer_bomb_id = SDL_AddTimer(item[ITEM_BOMB].duration, bombTimer, pos);
-
-            t_map *map = getGame()->map;
-
-            GETCELL(player->xCell, player->yCell) = BOMB;
-            updateCell(player->xCell, player->yCell, BOMB);
-
-            player->lastBombX = player->xCell;
-            player->lastBombY = player->yCell;
             break;
         }
         case ITEM_BOMB_UP:
@@ -106,14 +83,17 @@ void   useItem(t_item *item) {
     }
 }
 
-Uint32 bombTimer(Uint32 interval, SDL_Point *param) {
-    printf("BOMB TIMER x:%d y:%d\n", param->x, param->y);
+Uint32 bombTimer(Uint32 interval, t_bomb *param) {
+    t_player    *player = ((t_player *) param->owner);
+
     t_map *map = getGame()->map;
 
     // if someone already triggered the bomb
-    if (GETCELL(param->x, param->y) == BOMB) {
-        explodeBomb(param->x, param->y);
-    };
+    if (GETCELL(param->pos.x, param->pos.y) == BOMB) {
+        explodeBomb(param->pos.x, param->pos.y, param->owner);
+    }
+
+    removePlacedBomb(player, param->pos.x, param->pos.y);
 
     free(param);
     return 0;
