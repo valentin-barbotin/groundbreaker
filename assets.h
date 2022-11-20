@@ -7,6 +7,7 @@
  #define TEX_WALL                   "./assets/wall.png"
  #define TEX_DIRT                   "./assets/dirt.png"
  #define TEX_GRAVEL                 "./assets/gravel.png"
+ #define TEX_BOMB_BOUM              "./assets/bombe2.png"
 
  // Items
  #define TEX_BOMB                    "./assets/items/bomb.png"

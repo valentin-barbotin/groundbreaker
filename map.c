@@ -351,7 +351,7 @@ void    drawMap() {
                 case BOMB:
                     rect.w = 758; //TODO: dynamic
                     rect.h = 980;
-                    tex = TEX_BOMB;
+                    tex = TEX_BOMB_BOUM;
                     break;
                 
                 //items

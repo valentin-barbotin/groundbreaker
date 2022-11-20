@@ -148,8 +148,12 @@ SDL_Texture* textureFromFile(const char* src) {
     SDL_Texture* tex;
     tex = IMG_LoadTexture(g_renderer, src);
     if (tex == NULL) {
-        fprintf(stderr, "Erreur IMG_LoadTexture : %s\n", SDL_GetError());
-        return NULL;
+        char buff[256] = {0};
+
+        sprintf(buff, "Error loading texture %s", src);
+        fputs(buff, stderr);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game crashed", buff, g_window);
+        exit(1);
     }
 
     return addImageToCache(src, tex);
