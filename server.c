@@ -232,12 +232,24 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
         }
         case MYNAME:
             //TODO: check name
+
+            //check if the name is already taken
+            //TODO: prevent crash if the name is already taken
+            if (!isNameAvailable(content, 0)) {
+                sendMsg("NAME_TAKEN:0", client);
+                pthread_cancel(pthread_self());
+                return;
+            }
             addPeer(client, clientAddr, content, game->nbPlayers); // a client connect to the server in TCP and UDP in the same time, no guarantee that the client has the same id in both protocol.. 
             break;
         case JOIN:
-            //TODO: mutex ?
-            printf("JOIN: %s\n", content);
-            printf("game->nbPlayers: %d\n", game->nbPlayers);
+            //TODO: prevent crash if the name is already taken
+            if (!isNameAvailable(content, 1)) {
+                sendMsg("NAME_TAKEN:0", client);
+                pthread_cancel(pthread_self());
+                return;
+            }
+
             strcpy(game->players[game->nbPlayers]->name, content);
             // printf("2 - game->nbPlayers: %d\n", game->nbPlayers);
 

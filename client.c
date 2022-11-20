@@ -111,6 +111,8 @@ void    handleMessageClient2(char *type, char *content) {
         action = LIFE;
     } else if (stringIsEqual(type, "END")) {
         action = END;
+    } else if (stringIsEqual(type, "NAME_TAKEN")) {
+        action = NAME_TAKEN;
     } else {
         #if DEBUG
             puts("Invalid message type");
@@ -120,6 +122,13 @@ void    handleMessageClient2(char *type, char *content) {
     game = getGame();
     switch (action)
     {
+        case NAME_TAKEN:
+            #if DEBUG
+                fprintf(stderr, "The name is already taken");
+            #endif
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Can't connect", "The name is already used", g_window);
+            exit(0);
+            break;
         case END:
             receiveEndGame(content);
             break;

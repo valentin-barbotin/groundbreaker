@@ -235,7 +235,7 @@ size_t    receiveMsg(char *buffer, int socket) {
         if (nb == -1)
         {
             fprintf(stderr, "Error receiving message from server: %s\n", strerror(errno));
-            exit(1);
+            pthread_cancel(pthread_self());
         }
         // if 0, we have received the whole message
         // TODO: check
@@ -249,7 +249,7 @@ size_t    receiveMsg(char *buffer, int socket) {
                 printf("Socket %d shut down\n", socket);
             }
             
-            exit(1);
+            pthread_cancel(pthread_self());
         }
 
 
@@ -257,7 +257,7 @@ size_t    receiveMsg(char *buffer, int socket) {
             total += nb;
         } else {
             fprintf(stderr, "Error receiving message from server: %s\n", strerror(errno));
-            exit(1);
+            pthread_cancel(pthread_self());
         }
 
         // printf("debug: [nb: %lu]  [total: %lu]\n", nb, total);
@@ -439,5 +439,24 @@ bool    hostToAddr(const char *host, in_addr_t *in_addr) {
     }
 
     *in_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr.s_addr;
+    return true;
+}
+
+bool        isNameAvailable(const char *name, int mode) {
+    //host
+    if (stringIsEqual(getPlayer()->name, name)) return false;
+
+    if (mode) {
+        for (size_t i = 0; i < g_peersListNb; i++)
+        {
+            if (stringIsEqual(g_peersList[i]->name, name)) return false;
+        }
+    } else {
+        for (size_t i = 0; i < g_peersListUDPNb; i++)
+        {
+            if (stringIsEqual(g_peersListUDP[i]->name, name)) return false;
+        }
+    }
+
     return true;
 }

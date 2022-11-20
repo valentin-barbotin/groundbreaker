@@ -22,7 +22,8 @@
     DAMAGE,
     RESPAWN,
     LIFE,
-    END
+    END,
+    NAME_TAKEN,
  }             t_message;
 
  typedef struct     s_peer

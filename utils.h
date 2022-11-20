@@ -11,10 +11,16 @@
 
  #include "player.h"
  #include "colors.h"
+ #include "server.h"
 
  extern SDL_Window*         g_window;
  extern SDL_Renderer*       g_renderer;
  extern bool                g_serverRunningUDP;
+
+ extern t_peer          *g_peersList[4]; // 4 players max
+ extern int             g_peersListNb;
+ extern t_peer          *g_peersListUDP[4]; // 4 players max
+ extern int             g_peersListUDPNb;
 
  char                *randomString(unsigned short size);
  void                removeLineFeed(char* str);
@@ -32,5 +38,6 @@
  bool                checkUsername();
  void                receiveMove(const char *content);
  bool                hostToAddr(const char *host, in_addr_t *in_addr);
+ bool                isNameAvailable(const char *name, int mode);
 
 #endif /* !FOO_H */
