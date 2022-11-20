@@ -316,8 +316,10 @@ void    drawMap() {
         }
     }
 
-    drawTchat();
-    drawTchatMessages();
+    if(inMultiplayer()) {
+        drawTchat();
+        drawTchatMessages();
+    }
 
     for (size_t i = 0; i < game->nbPlayers; i++)
     {
