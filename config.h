@@ -52,6 +52,7 @@
  #define c_down 6385159517
  #define c_left 6385435568
  #define c_right 210726633827
+ #define c_tchat 210728790905
  #define c_use_item 7573023720639904
  #define c_item_1 6953639675812
  #define c_item_2 6953639675813
@@ -91,6 +92,7 @@
      char down;
      char left;
      char right;
+     char tchat;
      char use_item;
      char item_1;
      char item_2;

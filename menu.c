@@ -44,12 +44,12 @@ void    exitGame() {
 
 t_menu menuCommands2 = {
     "Commands 2",
-    {"Item 2", "Item 3", "Item 4", "Item 5", "Back"},
-    {&editItem2, &editItem3, &editItem4, &editItem5, &exitMenu},
+    {"Item 2", "Item 3", "Item 4", "Item 5", "Tchat", "Back"},
+    {&editItem2, &editItem3, &editItem4, &editItem5, &editTchat, &exitMenu},
     NULL,
-    {NULL, NULL, NULL, NULL, NULL},
+    {NULL, NULL, NULL, NULL, NULL, NULL},
     0,
-    5
+    6
 };
 
 t_menu menuCommands1 = {

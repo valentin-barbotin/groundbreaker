@@ -13,6 +13,7 @@
 #include "game.h"
 #include "player.h"
 #include "client.h"
+#include "tchat.h"
 
 #define DEBUG true
 
@@ -160,6 +161,8 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
         action = LIFE;
     } else if (stringIsEqual(type, "END")) {
         action = END;
+    } else if (stringIsEqual(type, "TCHAT")) {
+        action = TCHAT;
     } else {
         #if DEBUG
             printf("Invalid message type: [%s]\n", type);
@@ -170,6 +173,10 @@ void    handleMessageSrv2(char *type, char *content, int client, const struct so
     game = getGame();
     switch (action)
     {
+        case TCHAT: {
+            // we update the tchat to display the message for all players
+            updateTchatMessages(content);
+        }
         case END:
             receiveEndGame(content);
             break;

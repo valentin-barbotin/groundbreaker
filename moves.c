@@ -73,7 +73,7 @@ void    handleKeyUpPlay(const SDL_Event *event) {
                 case ACTION_KEY_RIGHT:
                     player->vx -= VELOCITY;
                     break;
-                case SDLK_t:
+                case ACTION_KEY_TCHAT:
                     askTchatMessage();
                     break;
                 case ACTION_KEY_ITEM_1:

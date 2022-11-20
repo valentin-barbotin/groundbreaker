@@ -15,6 +15,7 @@ t_command    getActionFor(SDL_KeyCode key) {
     if (gameConfig->commands.down == key) return ACTION_KEY_DOWN;
     if (gameConfig->commands.left == key) return ACTION_KEY_LEFT;
     if (gameConfig->commands.right == key) return ACTION_KEY_RIGHT;
+    if (gameConfig->commands.tchat == key) return ACTION_KEY_TCHAT;
     if (gameConfig->commands.use_item == key) return ACTION_KEY_USE_ITEM;
     if (gameConfig->commands.item_1 == key) return ACTION_KEY_ITEM_1;
     if (gameConfig->commands.item_2 == key) return ACTION_KEY_ITEM_2;
@@ -214,6 +215,18 @@ void    editSettingCallback() {
             sprintf(buffer, "%c", *value);
             saveSetting("right", buffer);
             break;
+        case SETTING_CONTROLS_TCHAT:
+            if (strlen(value) != 1) {
+                #if DEBUG
+                    fprintf(stderr, "Error: invalid value\n");
+                #endif
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "invalid value", g_window);
+                return;
+            }
+
+            sprintf(buffer, "%c", *value);
+            saveSetting("tchat", buffer);
+            break;
         case SETTING_CONTROLS_USE_ITEM:
             if (strlen(value) != 1) {
                 #if DEBUG
@@ -395,6 +408,16 @@ void    editRight() {
     memset(dialog->edit, 0, sizeof(dialog->edit));
     dialog->callback = editSettingCallback;
     dialog->arg = SETTING_CONTROLS_RIGHT;
+}
+
+void    editTchat() {
+    t_dialog  *dialog;
+
+    dialog = createEditBox("Enter tchat key:", 20, colorWhite, colorBlack);
+
+    memset(dialog->edit, 0, sizeof(dialog->edit));
+    dialog->callback = editSettingCallback;
+    dialog->arg = SETTING_CONTROLS_TCHAT;
 }
 
 void    editUseItem() {

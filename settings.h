@@ -20,6 +20,7 @@
      SETTING_CONTROLS_DOWN,
      SETTING_CONTROLS_LEFT,
      SETTING_CONTROLS_RIGHT,
+     SETTING_CONTROLS_TCHAT,
      SETTING_CONTROLS_USE_ITEM,
      SETTING_CONTROLS_ITEM_1,
      SETTING_CONTROLS_ITEM_2,
@@ -34,6 +35,7 @@
         KEY_DOWN,
         KEY_LEFT,
         KEY_RIGHT,
+        KEY_TCHAT,
         KEY_USE_ITEM,
         KEY_ITEM_1,
         KEY_ITEM_2,
@@ -56,6 +58,7 @@
  void         editDown();
  void         editLeft();
  void         editRight();
+ void         editTchat();
  void         editUseItem();
  void         editItem1();
  void         editItem2();
