@@ -665,8 +665,8 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
         if (!owner->isBot) {
             killBots(xCellBase, yCellBase);
         } else {
-            if (getPlayer()->xCell == xCellBase && getPlayer()->yCell == yCellBase) {
-                handleDamage(getPlayer());
+            if (player->health && player->xCell == xCellBase && player->yCell == yCellBase) {
+                handleDamage(player);
             }
         }
     } else {
@@ -713,8 +713,8 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
             if (!owner->isBot) {
                 killBots(cellX, cellY);
             } else {
-                if (getPlayer()->xCell == cellX && getPlayer()->yCell == cellY) {
-                    handleDamage(getPlayer());
+                if (player->health && player->xCell == cellX && player->yCell == cellY) {
+                    handleDamage(player);
                 }
             }
         }
