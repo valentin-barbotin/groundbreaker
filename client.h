@@ -18,6 +18,8 @@
  #include <netinet/tcp.h>
  #endif
 
+ #include <netdb.h>
+ 
  #include "game.h"
  #include "player.h"
  #include "colors.h"

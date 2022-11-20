@@ -421,3 +421,23 @@ void    receiveMove(const char *content) {
 
     // printf("Player %hu moved to %d %d\n", playerIndex, x, y);
 }
+
+bool    hostToAddr(const char *host, in_addr_t *in_addr) {
+    struct addrinfo hints;
+    struct addrinfo *res;
+
+    hints.ai_family = AF_INET;
+
+    memset(&hints, 0, sizeof hints);
+
+    int ret = getaddrinfo(host, NULL, &hints, &res);
+    if (ret != 0) {
+        #if DEBUG
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(ret));
+        #endif
+        return false;
+    }
+
+    *in_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr.s_addr;
+    return true;
+}

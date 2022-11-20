@@ -373,7 +373,18 @@ void    *connectToServer(void *arg) {
     puts("Connecting to server...");
     g_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     cl.sin_family = AF_INET;
-    cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
+
+    if (isdigit(*g_serverConfig.host)) {
+        cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
+    } else {
+        if (!hostToAddr(g_serverConfig.host, &cl.sin_addr.s_addr)) {
+            #if DEBUG
+                puts("Error converting host to address");
+            #endif
+            return NULL;
+        }
+    }
+
     cl.sin_port = htons((uint16_t) atoi(g_serverConfig.port));
 
     // setsockopt(g_serverSocket, IPPROTO_TCP, TCP_NODELAY, &(int){0}, sizeof(int));
@@ -447,7 +458,16 @@ void    *connectToServerUDP(void *arg) {
     puts("(UDP) Connecting to server...");
     g_serverSocketUDP = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     cl.sin_family = AF_INET;
-    cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
+    if (isdigit(*g_serverConfig.host)) {
+        cl.sin_addr.s_addr = inet_addr(g_serverConfig.host);
+    } else {
+        if (!hostToAddr(g_serverConfig.host, &cl.sin_addr.s_addr)) {
+            #if DEBUG
+                puts("Error converting host to address");
+            #endif
+            return NULL;
+        }
+    }
     cl.sin_port = htons(port);
 
     g_serverAddrUDP = &cl;
