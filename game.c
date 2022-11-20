@@ -624,9 +624,14 @@ void    searchDirectionMap(int xCellBase, int yCellBase, t_direction direction, 
         }
 
         //TODO: explosion over border
-        if (cellX < 0 || cellX >= map->width || cellY < 0 || cellY >= map->height) {
-            return;
-        }
+        if (cellX < 0) cellX = map->width - i;
+        if (cellX >= map->width) cellX = i;
+        if (cellY < 0) cellY = map->height - i - 1;
+        if (cellY >= map->height) cellY = i - 1;
+
+        printf("explosion sur cellule :\n cellX : %d\n cellY : %d\n", cellX, cellY);
+
+
 
         // no bots in multiplayer
         if (!inMultiplayer() && owner) {
