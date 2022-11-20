@@ -49,6 +49,8 @@ t_player        *initPlayer() {
     player->maxBombs = 2;
     player->lives = 2;
     player->id = -1;
+    player->walkChannel = -1;
+    player->wallChannel = -1;
     player->bombPlaced = false;
 
     // used to store bombs placed by us

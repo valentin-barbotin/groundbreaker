@@ -34,7 +34,6 @@
  bool    isGamePaused();
  void    resumeGame();
  void    pauseGame();
- void    setPath();
  void    game_quit();
  t_game  *getGame();
  void    movePlayer(t_player *player);

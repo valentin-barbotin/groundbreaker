@@ -9,6 +9,7 @@
  #include <stdbool.h>
 
  #include "menu.h"
+ #include "sound.h"
 
  extern SDL_Window     *g_window;
  extern SDL_Renderer   *g_renderer;
@@ -17,6 +18,13 @@
  extern short          g_currentOption;
  extern bool           g_serverRunning;
  extern bool           g_serverRunningUDP;
+
+ extern t_sound     *walk;
+ extern t_sound     *wall;
+ extern t_sound     *unbreakableWall;
+ extern t_sound     *bombExplosion;
+ extern t_sound     *item;
+ extern t_sound     *hurt;
 
 
  bool   inMainMenu();
